@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Naxshin — Print & Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<style>
+:root {
+  --sand: #C9A96E;
+  --sand-light: #E8D5B0;
+  --sand-pale: #FAF6EE;
+  --forest: #2D4A3E;
+  --forest-mid: #3D6052;
+  --rust: #8B2E0F;
+  --rust-mid: #B03A14;
+  --cream: #FEFCF8;
+  --charcoal: #1E1E1E;
+  --mid-gray: #6B6B6B;
+  --light-gray: #E8E8E8;
+  --white: #FFFFFF;
+  --radius: 12px;
+  --radius-sm: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.14);
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-kurdish: 'Noto Kufi Arabic', sans-serif;
+  --nav-h: 70px;
+}
+[dir="rtl"] { font-family: var(--font-kurdish); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); background: var(--cream); color: var(--charcoal); overflow-x: hidden; }
+body.modal-open { overflow: hidden; }
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--sand-pale); }
+::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 3px; }
+/* ─── TOAST ─── */
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+[dir="rtl"] #toast-container { right: auto; left: 24px; }
+.toast-msg { background: var(--charcoal); color: #fff; padding: 12px 20px; border-radius: var(--radius); font-size: .85rem; animation: slideUp .3s ease; max-width: 300px; border-left: 3px solid var(--sand); }
+.toast-msg.success { border-left-color: #4caf50; }
+.toast-msg.error { border-left-color: var(--rust); }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+/* ─── NAV ─── */
+#main-nav { height: var(--nav-h); background: var(--white); border-bottom: 1px solid var(--light-gray); position: sticky; top: 0; z-index: 100; display: flex; align-items: center; padding: 0 24px; gap: 16px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo { width: 42px; height: 42px; object-fit: contain; }
+.nav-brand-text { display: flex; flex-direction: column; line-height: 1; }
+.nav-brand-name { font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--charcoal); letter-spacing: 3px; }
+.nav-brand-sub { font-size: .6rem; color: var(--sand); letter-spacing: 2px; text-transform: uppercase; }
+.nav-links { display: flex; align-items: center; gap: 4px; margin: 0 auto; }
+.nav-link-btn { background: none; border: none; padding: 8px 14px; font-family: var(--font-body); font-size: .85rem; color: var(--mid-gray); cursor: pointer; border-radius: var(--radius-sm); transition: all .2s; font-weight: 500; }
+.nav-link-btn:hover, .nav-link-btn.active { color: var(--forest); background: var(--sand-pale); }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.nav-icon-btn { background: none; border: none; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--mid-gray); font-size: .95rem; transition: all .2s; position: relative; }
+.nav-icon-btn:hover { background: var(--sand-pale); color: var(--forest); }
+.cart-badge { position: absolute; top: 2px; right: 2px; background: var(--rust); color: #fff; font-size: .6rem; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.nav-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--sand); }
+.nav-avatar-placeholder { width: 34px; height: 34px; border-radius: 50%; background: var(--forest); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; cursor: pointer; border: 2px solid var(--sand); }
+.lang-toggle { background: var(--sand-pale); border: 1px solid var(--sand-light); color: var(--forest); font-size: .75rem; padding: 5px 10px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; transition: all .2s; }
+.lang-toggle:hover { background: var(--sand); color: #fff; }
+.btn-login { background: none; border: 1.5px solid var(--forest); color: var(--forest); padding: 7px 16px; border-radius: var(--radius-sm); font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+.btn-login:hover { background: var(--forest); color: #fff; }
+.btn-signup { background: var(--forest); color: #fff; border: none; padding: 7px 16px; border-radius: var(--radius-sm); font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+.btn-signup:hover { background: var(--forest-mid); }
+/* ─── MOBILE NAV ─── */
+.hamburger { display: none; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--charcoal); }
+.mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; background: var(--white); border-bottom: 1px solid var(--light-gray); padding: 16px; z-index: 99; flex-direction: column; gap: 8px; }
+.mobile-menu.open { display: flex; }
+/* ─── PAGES ─── */
+.page { display: none; min-height: calc(100vh - var(--nav-h)); }
+.page.active { display: block; }
+/* ─── HOME ─── */
+/* Hero */
+.hero { background: linear-gradient(135deg, var(--forest) 0%, var(--forest-mid) 50%, #1a3328 100%); color: #fff; padding: 80px 24px; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content:''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9A96E' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.hero-content { position: relative; max-width: 700px; margin: 0 auto; }
+.hero-badge { display: inline-block; background: rgba(201,169,110,.2); border: 1px solid rgba(201,169,110,.4); color: var(--sand-light); font-size: .72rem; padding: 5px 14px; border-radius: 20px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; font-weight: 600; }
+.hero h1 { font-family: var(--font-heading); font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 700; line-height: 1.1; margin-bottom: 16px; }
+.hero h1 span { color: var(--sand); }
+.hero p { font-size: 1rem; color: rgba(255,255,255,.75); margin-bottom: 32px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+.hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-primary { background: var(--sand); color: var(--charcoal); border: none; padding: 12px 28px; border-radius: var(--radius-sm); font-weight: 700; font-size: .9rem; cursor: pointer; transition: all .25s; letter-spacing: .5px; }
+.btn-primary:hover { background: var(--sand-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,169,110,.4); }
+.btn-outline-light { background: none; border: 1.5px solid rgba(255,255,255,.4); color: #fff; padding: 12px 28px; border-radius: var(--radius-sm); font-weight: 600; font-size: .9rem; cursor: pointer; transition: all .25s; }
+.btn-outline-light:hover { border-color: #fff; background: rgba(255,255,255,.1); }
+/* Ads Banner */
+.ads-banner { background: var(--sand-pale); border-top: 1px solid var(--sand-light); border-bottom: 1px solid var(--sand-light); padding: 10px 24px; overflow: hidden; position: relative; }
+.ads-banner-inner { display: flex; align-items: center; gap: 8px; font-size: .75rem; color: var(--mid-gray); }
+.ads-label { background: var(--sand); color: #fff; padding: 2px 8px; border-radius: 3px; font-size: .65rem; font-weight: 700; letter-spacing: 1px; flex-shrink: 0; }
+.ads-scroll { overflow: hidden; flex: 1; }
+.ads-track { display: flex; gap: 40px; animation: scrollAds 20s linear infinite; white-space: nowrap; }
+.ads-track span { color: var(--forest); font-weight: 500; }
+@keyframes scrollAds { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+/* Section */
+.section { padding: 56px 24px; max-width: 1280px; margin: 0 auto; }
+.section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 8px; }
+.section-title { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--charcoal); }
+.section-title span { color: var(--sand); }
+.see-all { background: none; border: none; color: var(--forest); font-size: .82rem; font-weight: 600; cursor: pointer; text-decoration: underline; }
+/* Product Grid */
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+.product-card { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: all .25s; cursor: pointer; }
+.product-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.product-img-wrap { position: relative; aspect-ratio: 3/4; background: var(--sand-pale); overflow: hidden; }
+.product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+.product-card:hover .product-img-wrap img { transform: scale(1.06); }
+.product-badge { position: absolute; top: 10px; left: 10px; background: var(--rust); color: #fff; font-size: .62rem; padding: 3px 8px; border-radius: 4px; font-weight: 700; letter-spacing: .5px; }
+.product-badge.new { background: var(--forest); }
+.product-badge.collab { background: var(--sand); color: var(--charcoal); }
+.product-wishlist { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,.9); border: none; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .8rem; color: var(--mid-gray); transition: all .2s; }
+.product-wishlist:hover, .product-wishlist.active { color: var(--rust); }
+.product-info { padding: 12px 14px; }
+.product-designer { font-size: .7rem; color: var(--sand); font-weight: 600; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px; }
+.product-name { font-size: .9rem; font-weight: 600; color: var(--charcoal); margin-bottom: 8px; line-height: 1.3; }
+.product-footer { display: flex; align-items: center; justify-content: space-between; }
+.product-price { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--forest); }
+.product-add { background: var(--forest); color: #fff; border: none; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .75rem; transition: all .2s; }
+.product-add:hover { background: var(--rust); transform: scale(1.1); }
+/* Filters */
+.filters-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--light-gray); }
+.filter-chip { background: var(--white); border: 1.5px solid var(--light-gray); color: var(--mid-gray); padding: 6px 14px; border-radius: 20px; font-size: .78rem; font-weight: 500; cursor: pointer; transition: all .2s; }
+.filter-chip:hover, .filter-chip.active { border-color: var(--forest); color: var(--forest); background: var(--sand-pale); }
+.search-wrap { flex: 1; min-width: 200px; position: relative; }
+.search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--mid-gray); font-size: .85rem; }
+[dir="rtl"] .search-wrap i { left: auto; right: 12px; }
+.search-wrap input { width: 100%; border: 1.5px solid var(--light-gray); border-radius: 20px; padding: 7px 16px 7px 36px; font-size: .82rem; font-family: var(--font-body); outline: none; transition: border-color .2s; background: var(--white); }
+[dir="rtl"] .search-wrap input { padding: 7px 36px 7px 16px; }
+.search-wrap input:focus { border-color: var(--forest); }
+/* ─── MODAL ─── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box { background: var(--white); border-radius: var(--radius); width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; padding: 36px 32px; position: relative; transform: translateY(20px); transition: transform .25s; }
+.modal-overlay.open .modal-box { transform: translateY(0); }
+.modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 1.1rem; color: var(--mid-gray); cursor: pointer; }
+[dir="rtl"] .modal-close { right: auto; left: 16px; }
+.modal-logo { text-align: center; margin-bottom: 24px; }
+.modal-logo img { width: 50px; }
+.modal-title { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 6px; }
+.modal-sub { text-align: center; color: var(--mid-gray); font-size: .82rem; margin-bottom: 24px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: .78rem; font-weight: 600; color: var(--charcoal); margin-bottom: 5px; }
+.form-control { width: 100%; border: 1.5px solid var(--light-gray); border-radius: var(--radius-sm); padding: 10px 14px; font-size: .88rem; font-family: var(--font-body); outline: none; transition: border-color .2s; background: var(--white); color: var(--charcoal); }
+.form-control:focus { border-color: var(--forest); }
+select.form-control { appearance: none; cursor: pointer; }
+.btn-block { width: 100%; padding: 12px; border-radius: var(--radius-sm); font-weight: 700; font-size: .9rem; cursor: pointer; transition: all .2s; border: none; }
+.btn-forest { background: var(--forest); color: #fff; }
+.btn-forest:hover { background: var(--forest-mid); }
+.btn-sand { background: var(--sand); color: var(--charcoal); }
+.btn-sand:hover { background: var(--sand-light); }
+.form-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
+.form-divider::before, .form-divider::after { content:''; flex: 1; height: 1px; background: var(--light-gray); }
+.form-divider span { font-size: .75rem; color: var(--mid-gray); }
+.form-link { background: none; border: none; color: var(--forest); font-size: .82rem; cursor: pointer; text-decoration: underline; }
+.role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.role-card { border: 1.5px solid var(--light-gray); border-radius: var(--radius-sm); padding: 12px; text-align: center; cursor: pointer; transition: all .2s; }
+.role-card:hover { border-color: var(--sand); }
+.role-card.selected { border-color: var(--forest); background: var(--sand-pale); }
+.role-card i { font-size: 1.3rem; margin-bottom: 6px; display: block; color: var(--forest); }
+.role-card span { font-size: .78rem; font-weight: 600; }
+/* ─── DASHBOARD LAYOUTS ─── */
+.dash-layout { display: flex; min-height: calc(100vh - var(--nav-h)); }
+.dash-sidebar { width: 240px; background: var(--charcoal); color: #fff; flex-shrink: 0; padding: 24px 0; }
+.dash-sidebar .brand { padding: 0 20px 24px; border-bottom: 1px solid rgba(255,255,255,.1); margin-bottom: 16px; }
+.dash-sidebar .brand-name { font-family: var(--font-heading); font-size: 1.1rem; letter-spacing: 2px; }
+.dash-sidebar .brand-role { font-size: .65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sand); margin-top: 2px; }
+.sidebar-nav { list-style: none; }
+.sidebar-nav li a, .sidebar-nav li button { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: rgba(255,255,255,.65); font-size: .83rem; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; transition: all .2s; font-family: var(--font-body); }
+.sidebar-nav li a:hover, .sidebar-nav li button:hover, .sidebar-nav li.active a, .sidebar-nav li.active button { color: #fff; background: rgba(201,169,110,.15); border-left: 3px solid var(--sand); }
+.sidebar-nav li a i, .sidebar-nav li button i { width: 16px; text-align: center; font-size: .85rem; }
+.dash-main { flex: 1; padding: 32px; overflow-y: auto; background: var(--sand-pale); }
+.dash-header { margin-bottom: 28px; }
+.dash-header h2 { font-family: var(--font-heading); font-size: 1.7rem; font-weight: 700; }
+.dash-header p { color: var(--mid-gray); font-size: .85rem; margin-top: 4px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.stat-card { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+.stat-card .stat-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1rem; margin-bottom: 12px; }
+.stat-card .stat-val { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; }
+.stat-card .stat-label { font-size: .75rem; color: var(--mid-gray); margin-top: 2px; }
+.dash-card { background: var(--white); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.dash-card h3 { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+th { background: var(--sand-pale); padding: 10px 12px; text-align: left; font-weight: 600; font-size: .75rem; color: var(--mid-gray); text-transform: uppercase; letter-spacing: .5px; }
+[dir="rtl"] th { text-align: right; }
+td { padding: 10px 12px; border-bottom: 1px solid var(--light-gray); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--sand-pale); }
+.badge-status { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: .7rem; font-weight: 600; }
+.badge-pending { background: #FFF3CD; color: #856404; }
+.badge-approved { background: #D1E7DD; color: #0f5132; }
+.badge-rejected { background: #F8D7DA; color: #842029; }
+.badge-delivering { background: #D0E8FF; color: #084298; }
+.badge-completed { background: #D1FAE5; color: #065f46; }
+/* ─── PROFILE PAGE ─── */
+.profile-layout { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+.profile-cover { background: linear-gradient(135deg, var(--forest), var(--forest-mid)); height: 140px; border-radius: var(--radius) var(--radius) 0 0; position: relative; }
+.profile-avatar-wrap { position: absolute; bottom: -40px; left: 32px; }
+[dir="rtl"] .profile-avatar-wrap { left: auto; right: 32px; }
+.profile-avatar { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--white); object-fit: cover; background: var(--sand); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; font-weight: 700; overflow: hidden; }
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-body { background: var(--white); border-radius: 0 0 var(--radius) var(--radius); padding: 56px 32px 32px; box-shadow: var(--shadow); }
+.profile-name { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; }
+.profile-role-badge { display: inline-block; background: var(--forest); color: #fff; font-size: .65rem; padding: 3px 10px; border-radius: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-left: 8px; vertical-align: middle; }
+.profile-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--light-gray); margin-bottom: 24px; flex-wrap: wrap; }
+.profile-tab { background: none; border: none; padding: 10px 16px; font-size: .83rem; font-weight: 600; color: var(--mid-gray); cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; }
+.profile-tab.active { color: var(--forest); border-bottom-color: var(--forest); }
+.profile-tab-content { display: none; }
+.profile-tab-content.active { display: block; }
+/* Avatar upload */
+.avatar-upload-zone { width: 80px; height: 80px; border-radius: 50%; border: 2px dashed var(--sand); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; margin: 0 auto 16px; }
+.avatar-upload-zone img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-upload-zone .overlay { position: absolute; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: center; justify-content: center; color: #fff; font-size: .75rem; border-radius: 50%; }
+.avatar-upload-zone:hover .overlay { display: flex; }
+/* ─── PRODUCT DETAIL MODAL ─── */
+.product-detail { display: flex; gap: 28px; }
+.product-detail-img { flex: 1; border-radius: var(--radius); overflow: hidden; }
+.product-detail-img img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+.product-detail-info { flex: 1; }
+.product-detail-info h2 { font-family: var(--font-heading); font-size: 1.6rem; margin-bottom: 6px; }
+.product-detail-info .designer { color: var(--sand); font-size: .8rem; font-weight: 600; margin-bottom: 12px; }
+.product-detail-info .price { font-family: var(--font-heading); font-size: 2rem; color: var(--forest); margin-bottom: 16px; }
+.size-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.size-btn { border: 1.5px solid var(--light-gray); background: var(--white); width: 40px; height: 40px; border-radius: var(--radius-sm); font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+.size-btn:hover, .size-btn.selected { border-color: var(--forest); background: var(--forest); color: #fff; }
+/* ─── CART DRAWER ─── */
+.cart-drawer { position: fixed; top: 0; right: -400px; width: 380px; height: 100vh; background: var(--white); box-shadow: var(--shadow-lg); z-index: 300; transition: right .3s; display: flex; flex-direction: column; }
+[dir="rtl"] .cart-drawer { right: auto; left: -400px; transition: left .3s; }
+.cart-drawer.open { right: 0; }
+[dir="rtl"] .cart-drawer.open { left: 0; right: auto; }
+.cart-header { padding: 20px; border-bottom: 1px solid var(--light-gray); display: flex; align-items: center; justify-content: space-between; }
+.cart-header h3 { font-family: var(--font-heading); font-size: 1.2rem; }
+.cart-items { flex: 1; overflow-y: auto; padding: 16px; }
+.cart-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--light-gray); }
+.cart-item img { width: 60px; height: 72px; object-fit: cover; border-radius: var(--radius-sm); }
+.cart-item-info { flex: 1; }
+.cart-item-name { font-size: .85rem; font-weight: 600; margin-bottom: 4px; }
+.cart-item-sub { font-size: .75rem; color: var(--mid-gray); }
+.cart-item-price { font-family: var(--font-heading); font-size: 1rem; color: var(--forest); font-weight: 700; }
+.cart-qty { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.cart-qty button { background: var(--sand-pale); border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-size: .8rem; }
+.cart-footer { padding: 20px; border-top: 1px solid var(--light-gray); }
+.cart-total { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 16px; font-size: 1rem; }
+.cart-total span:last-child { font-family: var(--font-heading); font-size: 1.3rem; color: var(--forest); }
+/* ─── DESIGNER UPLOAD ─── */
+.upload-zone { border: 2px dashed var(--sand); border-radius: var(--radius); padding: 40px; text-align: center; cursor: pointer; transition: all .2s; }
+.upload-zone:hover { background: var(--sand-pale); border-color: var(--forest); }
+.upload-zone i { font-size: 2rem; color: var(--sand); margin-bottom: 10px; display: block; }
+.upload-zone p { font-size: .85rem; color: var(--mid-gray); }
+/* ─── SETTINGS ─── */
+.settings-section { background: var(--white); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 16px; }
+.settings-section h4 { font-family: var(--font-heading); font-size: 1.1rem; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--light-gray); }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--light-gray); flex-wrap: wrap; gap: 8px; }
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: .85rem; font-weight: 600; }
+.settings-desc { font-size: .75rem; color: var(--mid-gray); }
+/* Toggle switch */
+.toggle { position: relative; display: inline-block; width: 42px; height: 24px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--light-gray); border-radius: 24px; cursor: pointer; transition: .3s; }
+.toggle-slider::before { content:''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .3s; }
+input:checked + .toggle-slider { background: var(--forest); }
+input:checked + .toggle-slider::before { transform: translateX(18px); }
+/* ─── FOOTER ─── */
+footer { background: var(--charcoal); color: rgba(255,255,255,.6); padding: 40px 24px 20px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; max-width: 1280px; margin: 0 auto 32px; }
+.footer-brand .brand-name { font-family: var(--font-heading); font-size: 1.5rem; color: #fff; letter-spacing: 3px; margin-bottom: 8px; }
+.footer-brand p { font-size: .8rem; line-height: 1.7; max-width: 260px; }
+.footer-col h5 { color: #fff; font-size: .82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+.footer-col a { display: block; color: rgba(255,255,255,.5); font-size: .8rem; margin-bottom: 7px; text-decoration: none; transition: color .2s; cursor: pointer; background: none; border: none; }
+.footer-col a:hover { color: var(--sand); }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 20px; text-align: center; font-size: .75rem; max-width: 1280px; margin: 0 auto; }
+/* ─── RESPONSIVE ─── */
+@media (max-width: 991px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .dash-sidebar { width: 200px; }
+  .product-detail { flex-direction: column; }
+}
+@media (max-width: 767px) {
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .dash-layout { flex-direction: column; }
+  .dash-sidebar { width: 100%; padding: 12px 0; }
+  .sidebar-nav { display: flex; overflow-x: auto; }
+  .sidebar-nav li a, .sidebar-nav li button { padding: 8px 14px; white-space: nowrap; }
+  .sidebar-nav li.active a, .sidebar-nav li.active button { border-left: none; border-bottom: 3px solid var(--sand); }
+  .modal-box { padding: 24px 20px; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .role-grid { grid-template-columns: 1fr 1fr; }
+  .cart-drawer { width: 100%; right: -100%; }
+  .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+/* ─── LOADER ─── */
+.page-loader { position: fixed; inset: 0; background: var(--cream); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+.loader-logo { width: 70px; animation: pulse 1.5s ease infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(.95);opacity:.7} }
+.loader-bar { width: 120px; height: 3px; background: var(--light-gray); border-radius: 2px; overflow: hidden; }
+.loader-bar-fill { height: 100%; background: var(--sand); animation: loadBar 1.5s ease infinite; }
+@keyframes loadBar { 0%{width:0;margin-left:0} 50%{width:100%;margin-left:0} 100%{width:0;margin-left:100%} }
+/* ─── HELPERS ─── */
+.text-sand { color: var(--sand); }
+.text-forest { color: var(--forest); }
+.text-rust { color: var(--rust); }
+.mt-16 { margin-top: 16px; }
+.mt-8 { margin-top: 8px; }
+.gap-8 { gap: 8px; }
+.d-flex { display: flex; }
+.align-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.fw-600 { font-weight: 600; }
+.fs-sm { font-size: .82rem; }
+.color-mid { color: var(--mid-gray); }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div class="page-loader" id="page-loader">
+  <img src="https://i.imgur.com/placeholder.png" class="loader-logo" id="loader-logo" alt="Naxshin"/>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- CART DRAWER -->
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-header">
+    <h3 id="txt-cart">Shopping Cart</h3>
+    <button class="nav-icon-btn" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="cart-items" id="cart-items-list"></div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span id="txt-total">Total</span>
+      <span id="cart-total-val">$0.00</span>
+    </div>
+    <button class="btn-block btn-forest" onclick="checkout()" id="txt-checkout">Checkout</button>
+  </div>
+</div>
+<div id="cart-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:299" onclick="toggleCart()"></div>
+
+<!-- ══════════ NAVIGATION ══════════ -->
+<nav id="main-nav">
+  <a class="nav-brand" href="#" onclick="showPage('home');return false;">
+    <img src="" class="nav-logo" id="nav-logo" alt="Naxshin"/>
+    <div class="nav-brand-text">
+      <span class="nav-brand-name">NAXSHIN</span>
+      <span class="nav-brand-sub">Print & Design</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <button class="nav-link-btn active" onclick="showPage('home');setActiveNav(this)" id="nav-home">Home</button>
+    <button class="nav-link-btn" onclick="showPage('shop');setActiveNav(this)" id="nav-shop">Shop</button>
+    <button class="nav-link-btn" onclick="showPage('designers');setActiveNav(this)" id="nav-designers">Designers</button>
+    <button class="nav-link-btn" onclick="showPage('about');setActiveNav(this)" id="nav-about">About</button>
+    <button class="nav-link-btn" onclick="showPage('contact');setActiveNav(this)" id="nav-contact">Contact</button>
+  </div>
+  <div class="nav-right">
+    <button class="lang-toggle" onclick="toggleLang()" id="lang-btn">کوردی</button>
+    <button class="nav-icon-btn" onclick="toggleCart()" id="cart-btn" title="Cart">
+      <i class="fas fa-shopping-bag"></i>
+      <span class="cart-badge hidden" id="cart-count">0</span>
+    </button>
+    <div id="nav-auth-area">
+      <button class="btn-login" onclick="openModal('login-modal')" id="txt-login">Login</button>
+      <button class="btn-signup" onclick="openModal('register-modal')" id="txt-signup">Sign Up</button>
+    </div>
+    <div id="nav-user-area" class="hidden d-flex align-center gap-8">
+      <div class="nav-avatar-placeholder" id="nav-avatar-init" onclick="showPage('profile')">U</div>
+    </div>
+  </div>
+  <button class="hamburger" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <button class="nav-link-btn" onclick="showPage('home');toggleMobileMenu()">Home</button>
+  <button class="nav-link-btn" onclick="showPage('shop');toggleMobileMenu()">Shop</button>
+  <button class="nav-link-btn" onclick="showPage('designers');toggleMobileMenu()">Designers</button>
+  <button class="nav-link-btn" onclick="showPage('about');toggleMobileMenu()">About</button>
+  <button class="nav-link-btn" onclick="showPage('contact');toggleMobileMenu()">Contact</button>
+</div>
+
+<!-- ══════════ PAGES ══════════ -->
+
+<!-- ─── HOME PAGE ─── -->
+<div class="page active" id="page-home">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">✦ Kurdish Heritage · Modern Expression</div>
+      <h1>Fashion Crafted <span>for Every Story</span></h1>
+      <p>Discover unique print-on-demand fashion from local designers. Wear your culture, express your identity.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="showPage('shop')">Shop Now</button>
+        <button class="btn-outline-light" onclick="openModal('partner-modal')">Become a Partner →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ads Banner -->
+  <div class="ads-banner">
+    <div class="ads-banner-inner">
+      <span class="ads-label">AD</span>
+      <div class="ads-scroll">
+        <div class="ads-track" id="ads-track">
+          <span>🌟 Partner Brand — Premium Quality Fabrics</span>
+          <span>🎨 Kurdish Artisan Collective — Handcrafted Designs</span>
+          <span>📦 Fast Delivery Across Kurdistan Region</span>
+          <span>💎 Exclusive Collab Drop — Limited Edition</span>
+          <span>🌟 Partner Brand — Premium Quality Fabrics</span>
+          <span>🎨 Kurdish Artisan Collective — Handcrafted Designs</span>
+          <span>📦 Fast Delivery Across Kurdistan Region</span>
+          <span>💎 Exclusive Collab Drop — Limited Edition</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trending -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">🔥 <span>Trending</span> Now</h2>
+      <button class="see-all" onclick="showPage('shop')">See all →</button>
+    </div>
+    <div class="product-grid" id="trending-grid"></div>
+  </div>
+
+  <!-- New Arrivals -->
+  <div class="section" style="padding-top:0">
+    <div class="section-header">
+      <h2 class="section-title">✨ New <span>Arrivals</span></h2>
+      <button class="see-all" onclick="showPage('shop')">See all →</button>
+    </div>
+    <div class="product-grid" id="new-arrivals-grid"></div>
+  </div>
+
+  <!-- All Products -->
+  <div class="section" style="padding-top:0">
+    <div class="section-header">
+      <h2 class="section-title">All <span>Products</span></h2>
+    </div>
+    <div class="filters-bar" id="home-filters">
+      <div class="search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search products, designers..." id="home-search" oninput="filterProducts()"/>
+      </div>
+      <button class="filter-chip active" data-cat="all" onclick="setCategory(this,'all')">All</button>
+      <button class="filter-chip" data-cat="tshirt" onclick="setCategory(this,'tshirt')">T-Shirts</button>
+      <button class="filter-chip" data-cat="hoodie" onclick="setCategory(this,'hoodie')">Hoodies</button>
+      <button class="filter-chip" data-cat="dress" onclick="setCategory(this,'dress')">Dresses</button>
+      <button class="filter-chip" data-cat="jacket" onclick="setCategory(this,'jacket')">Jackets</button>
+      <button class="filter-chip" data-cat="collab" onclick="setCategory(this,'collab')">Collabs</button>
+    </div>
+    <div class="product-grid" id="all-products-grid"></div>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand-name">NAXSHIN</div>
+        <p>Where Kurdish heritage meets modern design. Wear your story.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <a onclick="showPage('shop')">All Products</a>
+        <a onclick="showPage('shop')">New Arrivals</a>
+        <a onclick="showPage('designers')">Designers</a>
+        <a onclick="openModal('partner-modal')">Collaborate</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a onclick="showPage('about')">About Us</a>
+        <a onclick="showPage('contact')">Contact</a>
+        <a>Privacy Policy</a>
+        <a>Terms of Service</a>
+      </div>
+      <div class="footer-col">
+        <h5>Account</h5>
+        <a onclick="openModal('login-modal')">Login</a>
+        <a onclick="openModal('register-modal')">Register</a>
+        <a onclick="showPage('profile')">My Profile</a>
+        <a onclick="showPage('profile')">My Orders</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2025 Naxshin Print & Design — Made with ❤️ in Kurdistan</div>
+  </footer>
+</div>
+
+<!-- ─── SHOP PAGE ─── -->
+<div class="page" id="page-shop">
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">All <span>Products</span></h2>
+    </div>
+    <div class="filters-bar">
+      <div class="search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search products, designers..." id="shop-search" oninput="filterShop()"/>
+      </div>
+      <button class="filter-chip active" data-cat="all" onclick="setShopCategory(this,'all')">All</button>
+      <button class="filter-chip" data-cat="tshirt" onclick="setShopCategory(this,'tshirt')">T-Shirts</button>
+      <button class="filter-chip" data-cat="hoodie" onclick="setShopCategory(this,'hoodie')">Hoodies</button>
+      <button class="filter-chip" data-cat="dress" onclick="setShopCategory(this,'dress')">Dresses</button>
+      <button class="filter-chip" data-cat="jacket" onclick="setShopCategory(this,'jacket')">Jackets</button>
+      <button class="filter-chip" data-cat="collab" onclick="setShopCategory(this,'collab')">Collabs</button>
+    </div>
+    <div class="product-grid" id="shop-grid"></div>
+  </div>
+</div>
+
+<!-- ─── DESIGNERS PAGE ─── -->
+<div class="page" id="page-designers">
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Our <span>Designers</span></h2>
+    </div>
+    <div class="filters-bar">
+      <div class="search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search designers..." id="designer-search" oninput="filterDesigners()"/>
+      </div>
+    </div>
+    <div class="product-grid" id="designers-grid"></div>
+  </div>
+</div>
+
+<!-- ─── ABOUT PAGE ─── -->
+<div class="page" id="page-about">
+  <div class="hero" style="padding:60px 24px">
+    <div class="hero-content">
+      <div class="hero-badge">Our Story</div>
+      <h1>About <span>Naxshin</span></h1>
+      <p>We are a Kurdish-rooted fashion platform connecting local designers, print partners, and customers across the region.</p>
+    </div>
+  </div>
+  <div class="section" style="max-width:800px;margin:0 auto">
+    <div class="dash-card">
+      <h3>Our Mission</h3>
+      <p style="color:var(--mid-gray);line-height:1.8;font-size:.9rem">Naxshin was born from a desire to celebrate Kurdish identity through wearable art. We partner with local designers, give them a platform to share their creations, and connect them with customers who want authentic, meaningful clothing. Our name — Naxshin — means "decorated" or "adorned" in Kurdish, and that's exactly what we aim to do: adorn everyday life with beauty and culture.</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9"><i class="fas fa-tshirt text-forest"></i></div><div class="stat-val">200+</div><div class="stat-label">Products</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFF8E1"><i class="fas fa-palette text-sand"></i></div><div class="stat-val">40+</div><div class="stat-label">Designers</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFEBEE"><i class="fas fa-users text-rust"></i></div><div class="stat-val">1000+</div><div class="stat-label">Customers</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#E3F2FD"><i class="fas fa-handshake" style="color:#1565C0"></i></div><div class="stat-val">12</div><div class="stat-label">Partners</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CONTACT PAGE ─── -->
+<div class="page" id="page-contact">
+  <div class="section" style="max-width:700px;margin:0 auto">
+    <div class="section-header"><h2 class="section-title">Contact <span>Us</span></h2></div>
+    <div class="dash-card">
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input class="form-control" type="text" id="contact-name" placeholder="Full name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-control" type="email" id="contact-email" placeholder="email@example.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <select class="form-control" id="contact-subject">
+          <option>General Inquiry</option>
+          <option>Partnership</option>
+          <option>Order Issue</option>
+          <option>Design Submission</option>
+          <option>Report a Bug</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea class="form-control" rows="5" id="contact-msg" placeholder="Write your message..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Attach Image (optional)</label>
+        <input type="file" class="form-control" accept="image/*" id="contact-img"/>
+      </div>
+      <button class="btn-block btn-forest" onclick="submitContact()">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PROFILE PAGE ─── -->
+<div class="page" id="page-profile">
+  <div class="profile-layout">
+    <div class="profile-cover"></div>
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar" id="profile-avatar-display">U</div>
+    </div>
+    <div class="profile-body">
+      <div class="d-flex align-center justify-between flex-wrap gap-8 mb-3">
+        <div>
+          <span class="profile-name" id="profile-name-display">User Name</span>
+          <span class="profile-role-badge" id="profile-role-badge">Customer</span>
+        </div>
+        <div class="d-flex gap-8">
+          <button class="btn-login" style="font-size:.78rem;padding:6px 14px" onclick="showPage('dashboard')">Dashboard</button>
+          <button class="btn-signup" style="font-size:.78rem;padding:6px 14px" onclick="signOut()">Sign Out</button>
+        </div>
+      </div>
+      <div class="profile-tabs">
+        <button class="profile-tab active" onclick="switchProfileTab(this,'tab-info')">Profile Info</button>
+        <button class="profile-tab" onclick="switchProfileTab(this,'tab-orders')">My Orders</button>
+        <button class="profile-tab" onclick="switchProfileTab(this,'tab-wishlist')">Wishlist</button>
+        <button class="profile-tab" onclick="switchProfileTab(this,'tab-settings')">Settings</button>
+        <button class="profile-tab" onclick="switchProfileTab(this,'tab-report')">Report Bug</button>
+      </div>
+      <!-- Tab: Info -->
+      <div class="profile-tab-content active" id="tab-info">
+        <div style="text-align:center;margin-bottom:20px">
+          <div class="avatar-upload-zone" onclick="document.getElementById('avatar-file').click()">
+            <img src="" id="profile-avatar-img" style="display:none"/>
+            <div id="profile-avatar-initials" style="font-size:1.5rem;font-weight:700;color:var(--forest)">U</div>
+            <div class="overlay"><i class="fas fa-camera"></i> Change</div>
+          </div>
+          <input type="file" id="avatar-file" accept="image/*" style="display:none" onchange="uploadAvatar(event)"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-control" type="text" id="profile-name-input" placeholder="Your name"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-control" type="email" id="profile-email-input" placeholder="email@example.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <input class="form-control" type="password" id="profile-pw-input" placeholder="Leave blank to keep current"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input class="form-control" type="tel" id="profile-phone-input" placeholder="+964 ..."/>
+        </div>
+        <button class="btn-block btn-forest" onclick="saveProfile()">Save Changes</button>
+      </div>
+      <!-- Tab: Orders -->
+      <div class="profile-tab-content" id="tab-orders">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+            <tbody id="user-orders-table">
+              <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--mid-gray)">No orders yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Tab: Wishlist -->
+      <div class="profile-tab-content" id="tab-wishlist">
+        <div class="product-grid" id="wishlist-grid">
+          <p style="color:var(--mid-gray);font-size:.85rem">Your wishlist is empty.</p>
+        </div>
+      </div>
+      <!-- Tab: Settings -->
+      <div class="profile-tab-content" id="tab-settings">
+        <div class="settings-section">
+          <h4>Preferences</h4>
+          <div class="settings-row">
+            <div><div class="settings-label">Email Notifications</div><div class="settings-desc">Receive order updates by email</div></div>
+            <label class="toggle"><input type="checkbox" checked id="pref-email-notif"/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Language</div><div class="settings-desc">Switch between English and Kurdish</div></div>
+            <button class="lang-toggle" onclick="toggleLang()">کوردی</button>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Two-Factor Auth</div><div class="settings-desc">Add extra security to your account</div></div>
+            <label class="toggle"><input type="checkbox" id="pref-2fa"/><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="settings-section">
+          <h4>Danger Zone</h4>
+          <div class="settings-row">
+            <div><div class="settings-label" style="color:var(--rust)">Delete Account</div><div class="settings-desc">Permanently remove your account</div></div>
+            <button class="btn-login" style="border-color:var(--rust);color:var(--rust);font-size:.78rem;padding:6px 14px" onclick="toast('Please contact support to delete your account.','error')">Request Deletion</button>
+          </div>
+        </div>
+      </div>
+      <!-- Tab: Report -->
+      <div class="profile-tab-content" id="tab-report">
+        <div class="form-group">
+          <label class="form-label">Bug Description</label>
+          <textarea class="form-control" rows="4" id="bug-desc" placeholder="Describe what went wrong..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Attach Screenshot</label>
+          <input type="file" class="form-control" accept="image/*" id="bug-img"/>
+        </div>
+        <button class="btn-block btn-forest" onclick="submitBugReport()">Submit Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DASHBOARD PAGE (role-based) ─── -->
+<div class="page" id="page-dashboard">
+  <div class="dash-layout">
+    <!-- Sidebar -->
+    <div class="dash-sidebar">
+      <div class="brand">
+        <div class="brand-name">NAXSHIN</div>
+        <div class="brand-role" id="sidebar-role">Dashboard</div>
+      </div>
+      <ul class="sidebar-nav" id="sidebar-nav"></ul>
+    </div>
+    <!-- Main -->
+    <div class="dash-main" id="dash-main-content">
+      <!-- Loaded dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- Login Modal -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('login-modal')"><i class="fas fa-times"></i></button>
+    <div class="modal-logo"><img src="" id="modal-logo" alt="" style="width:44px"/></div>
+    <div class="modal-title" id="txt-signin">Sign In</div>
+    <div class="modal-sub" id="txt-signin-sub">Welcome back to Naxshin</div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-control" type="email" id="login-email" placeholder="email@example.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;justify-content:space-between">
+        <span>Password</span>
+        <button class="form-link" onclick="forgotPassword()" style="font-size:.75rem" id="txt-forgot">Forgot password?</button>
+      </label>
+      <input class="form-control" type="password" id="login-pw" placeholder="••••••••"/>
+    </div>
+    <button class="btn-block btn-forest" onclick="doLogin()" id="txt-continue">Continue</button>
+    <div class="form-divider"><span id="txt-or">or</span></div>
+    <p style="text-align:center;font-size:.82rem;color:var(--mid-gray)">
+      <span id="txt-no-account">Don't have an account?</span>
+      <button class="form-link" onclick="switchModal('login-modal','register-modal')" id="txt-signup-link">Sign up</button>
+    </p>
+    <div class="form-divider" style="margin-top:20px"><span>DEMO</span></div>
+    <div class="role-grid" style="margin-top:0">
+      <div class="role-card" onclick="demoLogin('customer')"><i class="fas fa-shopping-bag"></i><span>Customer</span></div>
+      <div class="role-card" onclick="demoLogin('designer')"><i class="fas fa-palette"></i><span>Designer</span></div>
+      <div class="role-card" onclick="demoLogin('printer')"><i class="fas fa-print"></i><span>Printer</span></div>
+      <div class="role-card" onclick="demoLogin('admin')"><i class="fas fa-crown"></i><span>Admin</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal-overlay" id="register-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('register-modal')"><i class="fas fa-times"></i></button>
+    <div class="modal-logo"><img src="" class="modal-logo-img" alt="" style="width:44px"/></div>
+    <div class="modal-title" id="txt-create">Create Account</div>
+    <div class="modal-sub" id="txt-create-sub">Join the Naxshin community</div>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input class="form-control" type="text" id="reg-name" placeholder="Your name"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-control" type="email" id="reg-email" placeholder="email@example.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-control" type="password" id="reg-pw" placeholder="Min 6 characters"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="txt-req-role">Request Role</label>
+      <div class="role-grid" id="role-selector">
+        <div class="role-card selected" data-role="customer" onclick="selectRole(this)"><i class="fas fa-shopping-bag"></i><span>Customer</span></div>
+        <div class="role-card" data-role="designer" onclick="selectRole(this)"><i class="fas fa-palette"></i><span>Designer</span></div>
+        <div class="role-card" data-role="printer" onclick="selectRole(this)"><i class="fas fa-print"></i><span>Printer</span></div>
+        <div class="role-card" data-role="advertiser" onclick="selectRole(this)"><i class="fas fa-bullhorn"></i><span>Advertiser</span></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--mid-gray);margin-top:6px" id="txt-role-note">⏳ Designer, Printer, Advertiser require admin approval.</p>
+    </div>
+    <button class="btn-block btn-forest" onclick="doRegister()" id="txt-create-btn">Create Account</button>
+    <p style="text-align:center;font-size:.82rem;color:var(--mid-gray);margin-top:12px">
+      <span id="txt-have-account">Already have an account?</span>
+      <button class="form-link" onclick="switchModal('register-modal','login-modal')" id="txt-signin-link">Sign in</button>
+    </p>
+  </div>
+</div>
+
+<!-- Product Detail Modal -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal-box" style="max-width:700px">
+    <button class="modal-close" onclick="closeModal('product-modal')"><i class="fas fa-times"></i></button>
+    <div class="product-detail" id="product-detail-content"></div>
+  </div>
+</div>
+
+<!-- Partner Modal -->
+<div class="modal-overlay" id="partner-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('partner-modal')"><i class="fas fa-times"></i></button>
+    <div class="modal-title">Partner with Naxshin</div>
+    <div class="modal-sub">Choose how you'd like to collaborate with us.</div>
+    <div class="role-grid" style="grid-template-columns:1fr 1fr;margin:20px 0">
+      <div class="role-card" onclick="selectPartner(this,'designer')"><i class="fas fa-palette"></i><span>Designer</span></div>
+      <div class="role-card" onclick="selectPartner(this,'printer')"><i class="fas fa-print"></i><span>Print Partner</span></div>
+      <div class="role-card" onclick="selectPartner(this,'advertiser')"><i class="fas fa-bullhorn"></i><span>Advertiser</span></div>
+      <div class="role-card" onclick="selectPartner(this,'brand')"><i class="fas fa-tags"></i><span>Brand Collab</span></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Your Name / Company</label>
+      <input class="form-control" type="text" id="partner-name" placeholder="Name or company"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-control" type="email" id="partner-email" placeholder="email@example.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Message</label>
+      <textarea class="form-control" rows="3" id="partner-msg" placeholder="Tell us about yourself..."></textarea>
+    </div>
+    <button class="btn-block btn-forest" onclick="submitPartner()">Submit Request →</button>
+  </div>
+</div>
+
+<!-- ══════════ FIREBASE + APP JS ══════════ -->
+<script type="module">
+// ════════════════════════════════════════
+// FIREBASE CONFIG — replace with your own
+// ════════════════════════════════════════
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as fbSignOut, updateProfile, updateEmail, updatePassword, sendPasswordResetEmail, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// ─── GLOBAL STATE ───
+let currentUser = null;
+let currentRole = 'customer';
+let cart = JSON.parse(localStorage.getItem('naxshin-cart') || '[]');
+let wishlist = JSON.parse(localStorage.getItem('naxshin-wishlist') || '[]');
+let currentCategory = 'all';
+let shopCategory = 'all';
+let selectedRole = 'customer';
+let selectedPartnerType = '';
+let lang = 'en';
+
+// ─── DEMO PRODUCTS (shown when Firebase not configured) ───
+const demoProducts = [
+  { id:'p1', name:'Heritage Tee', designer:'Aryan Studio', price:25, category:'tshirt', badge:'trending', img:'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400&q=80', description:'A beautifully crafted heritage-inspired t-shirt with traditional Kurdish patterns.' },
+  { id:'p2', name:'Nomad Hoodie', designer:'Kawa Designs', price:55, category:'hoodie', badge:'new', img:'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80', description:'Premium quality hoodie with embroidered nomadic motifs.' },
+  { id:'p3', name:'Soran Dress', designer:'Shirin Couture', price:70, category:'dress', badge:'collab', img:'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&q=80', description:'Elegant dress featuring geometric Soran patterns.' },
+  { id:'p4', name:'Mountain Jacket', designer:'Aryan Studio', price:95, category:'jacket', badge:'trending', img:'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&q=80', description:'Rugged jacket inspired by the Zagros mountains.' },
+  { id:'p5', name:'Nawroz Tee', designer:'Kawa Designs', price:28, category:'tshirt', badge:'new', img:'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&q=80', description:'Celebrate Nawroz in style with this vibrant graphic tee.' },
+  { id:'p6', name:'Desert Rose Shirt', designer:'Shirin Couture', price:42, category:'tshirt', badge:'collab', img:'https://images.unsplash.com/photo-1564859228273-274232fdb516?w=400&q=80', description:'A collab piece with desert rose motif hand-printed.' },
+  { id:'p7', name:'Kurd Fit Hoodie', designer:'Zana Wear', price:60, category:'hoodie', badge:'trending', img:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80', description:'Relaxed fit hoodie with classic Kurd typography.' },
+  { id:'p8', name:'Sunset Bomber', designer:'Zana Wear', price:110, category:'jacket', badge:'new', img:'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&q=80', description:'Statement bomber jacket with sunset-inspired embroidery.' },
+];
+
+// ─── TRANSLATIONS ───
+const translations = {
+  en: {
+    home:'Home', shop:'Shop', designers:'Designers', about:'About', contact:'Contact',
+    login:'Login', signup:'Sign Up', cart:'Shopping Cart', total:'Total', checkout:'Checkout',
+    signin:'Sign In', signinSub:'Welcome back to Naxshin', forgot:'Forgot password?', continue:'Continue',
+    or:'or', noAccount:"Don't have an account?", signupLink:'Sign up',
+    create:'Create Account', createSub:'Join the Naxshin community', createBtn:'Create Account',
+    haveAccount:'Already have an account?', signinLink:'Sign in',
+    reqRole:'Request Role', roleNote:'⏳ Designer, Printer, Advertiser require admin approval.',
+  },
+  ku: {
+    home:'سەرەکی', shop:'فرۆشگا', designers:'دیزاینەرەکان', about:'دەربارەی ئێمە', contact:'پەیوەندی',
+    login:'چوونەژوورەوە', signup:'تۆمارکردن', cart:'سەبەتەی کڕین', total:'کۆی گشتی', checkout:'پارەدان',
+    signin:'چوونەژوورەوە', signinSub:'بەخێربێیتەوە بۆ ناکشین', forgot:'وشەی نهێنیت بیرچووتەوە؟', continue:'بەردەوامبوون',
+    or:'یان', noAccount:'هەژمارت نییە؟', signupLink:'تۆمارکردن',
+    create:'دروستکردنی هەژمار', createSub:'بەشداری کۆمەڵگەی ناکشین بکە', createBtn:'دروستکردنی هەژمار',
+    haveAccount:'پێشتر هەژماری تۆمارکراوت هەیە؟', signinLink:'چوونەژوورەوە',
+    reqRole:'داواکردنی ڕۆڵ', roleNote:'⏳ دیزاینەر، چاپخانە، ڕیکلامکار پێویستیان بە پەسەندکردنی ئەدمین هەیە.',
+  }
+};
+
+function t(key) { return translations[lang][key] || translations.en[key] || key; }
+
+// ─── LOGO SETUP (use uploaded logo encoded as base64 placeholder) ───
+const LOGO_URL = 'data:image/svg+xml;base64,' + btoa(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" fill="none"/>
+  <g transform="translate(50,44) rotate(45)">
+    <rect x="-28" y="-28" width="56" height="56" fill="#C9A96E" rx="2"/>
+    <rect x="-22" y="-22" width="44" height="44" fill="#2D4A3E" rx="1"/>
+    <rect x="-16" y="-16" width="32" height="32" fill="#8B2E0F" rx="1"/>
+    <rect x="-10" y="-10" width="20" height="20" fill="white" rx="1"/>
+    <rect x="-6" y="-6" width="12" height="12" fill="#2D4A3E" rx="1"/>
+  </g>
+</svg>`);
+
+document.querySelectorAll('#nav-logo, #loader-logo, #modal-logo, .modal-logo-img').forEach(el => {
+  el.src = LOGO_URL;
+});
+
+// ─── EXPOSE TO WINDOW ───
+window.doLogin = doLogin;
+window.doRegister = doRegister;
+window.forgotPassword = forgotPassword;
+window.demoLogin = demoLogin;
+window.signOut = signOut;
+window.saveProfile = saveProfile;
+window.uploadAvatar = uploadAvatar;
+window.submitBugReport = submitBugReport;
+window.submitContact = submitContact;
+window.submitPartner = submitPartner;
+window.toggleCart = toggleCart;
+window.checkout = checkout;
+window.filterProducts = filterProducts;
+window.filterShop = filterShop;
+window.filterDesigners = filterDesigners;
+window.setCategory = setCategory;
+window.setShopCategory = setShopCategory;
+window.selectRole = selectRole;
+window.selectPartner = selectPartner;
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.changeQty = changeQty;
+window.openProductModal = openProductModal;
+window.toggleWishlist = toggleWishlist;
+window.showPage = showPage;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.switchModal = switchModal;
+window.toast = toast;
+window.setActiveNav = setActiveNav;
+window.toggleMobileMenu = toggleMobileMenu;
+window.toggleLang = toggleLang;
+window.switchProfileTab = switchProfileTab;
+window.showDashSection = showDashSection;
+window.adminAction = adminAction;
+window.designerAction = designerAction;
+window.printerAction = printerAction;
+
+// ─── AUTH STATE ───
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (snap.exists()) {
+      currentUser = { uid: user.uid, ...snap.data() };
+      currentRole = currentUser.role || 'customer';
+    } else {
+      currentUser = { uid: user.uid, email: user.email, name: user.displayName || 'User', role: 'customer', photoURL: '' };
+      currentRole = 'customer';
+    }
+    updateNavForUser();
+  } else {
+    currentUser = null;
+    currentRole = 'guest';
+    updateNavForGuest();
+  }
+  hideLoader();
+});
+
+function hideLoader() {
+  setTimeout(() => {
+    const l = document.getElementById('page-loader');
+    if (l) { l.style.opacity = '0'; l.style.transition = 'opacity .4s'; setTimeout(()=>l.remove(),400); }
+  }, 800);
+}
+
+function updateNavForUser() {
+  document.getElementById('nav-auth-area').classList.add('hidden');
+  document.getElementById('nav-user-area').classList.remove('hidden');
+  const init = document.getElementById('nav-avatar-init');
+  if (currentUser.photoURL) {
+    init.innerHTML = `<img src="${currentUser.photoURL}" style="width:34px;height:34px;border-radius:50%;object-fit:cover"/>`;
+  } else {
+    init.textContent = (currentUser.name || 'U')[0].toUpperCase();
+  }
+  updateProfilePage();
+}
+function updateNavForGuest() {
+  document.getElementById('nav-auth-area').classList.remove('hidden');
+  document.getElementById('nav-user-area').classList.add('hidden');
+}
+
+// ─── AUTH ACTIONS ───
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-pw').value;
+  if (!email || !pw) { toast('Fill in all fields','error'); return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pw);
+    closeModal('login-modal');
+    toast('Welcome back! 👋','success');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pw = document.getElementById('reg-pw').value;
+  if (!name || !email || !pw) { toast('Fill in all fields','error'); return; }
+  if (pw.length < 6) { toast('Password must be at least 6 characters','error'); return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
+    await updateProfile(cred.user, { displayName: name });
+    const role = selectedRole;
+    const status = ['designer','printer','advertiser'].includes(role) ? 'pending' : 'active';
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      name, email, role, status, createdAt: serverTimestamp(), photoURL: '', phone: ''
+    });
+    closeModal('register-modal');
+    toast(status === 'pending' ? 'Account created! Awaiting admin approval.' : 'Welcome to Naxshin! 🎉', 'success');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+function demoLogin(role) {
+  const demoUsers = {
+    customer: { uid:'demo-customer', name:'Sara Ahmad', email:'customer@demo.com', role:'customer', status:'active', photoURL:'' },
+    designer: { uid:'demo-designer', name:'Aryan Studio', email:'designer@demo.com', role:'designer', status:'active', photoURL:'' },
+    printer:  { uid:'demo-printer', name:'Kurdish Print Co.', email:'printer@demo.com', role:'printer', status:'active', photoURL:'' },
+    admin:    { uid:'demo-admin', name:'Admin Naxshin', email:'admin@demo.com', role:'admin', status:'active', photoURL:'' },
+  };
+  currentUser = demoUsers[role];
+  currentRole = role;
+  updateNavForUser();
+  closeModal('login-modal');
+  toast(`Demo login as ${role} ✓`, 'success');
+}
+
+async function signOut() {
+  try {
+    if (!currentUser?.uid?.startsWith('demo')) await fbSignOut(auth);
+    currentUser = null; currentRole = 'guest';
+    updateNavForGuest();
+    showPage('home');
+    toast('Signed out','success');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+async function forgotPassword() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { toast('Enter your email first','error'); return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    toast('Password reset email sent','success');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ─── PROFILE ───
+function updateProfilePage() {
+  if (!currentUser) return;
+  document.getElementById('profile-name-display').textContent = currentUser.name || '';
+  document.getElementById('profile-role-badge').textContent = currentUser.role || 'Customer';
+  document.getElementById('profile-name-input').value = currentUser.name || '';
+  document.getElementById('profile-email-input').value = currentUser.email || '';
+  const init = document.getElementById('profile-avatar-initials');
+  const img = document.getElementById('profile-avatar-img');
+  if (currentUser.photoURL) {
+    img.src = currentUser.photoURL; img.style.display = 'block'; init.style.display = 'none';
+  } else {
+    init.textContent = (currentUser.name || 'U')[0].toUpperCase(); init.style.display = 'block'; img.style.display = 'none';
+  }
+  // Profile avatar display
+  const pad = document.getElementById('profile-avatar-display');
+  if (currentUser.photoURL) {
+    pad.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+  } else {
+    pad.textContent = (currentUser.name||'U')[0].toUpperCase();
+  }
+  loadUserOrders();
+  loadWishlistTab();
+}
+
+async function saveProfile() {
+  if (!currentUser) { toast('Please log in first','error'); return; }
+  const name = document.getElementById('profile-name-input').value.trim();
+  const email = document.getElementById('profile-email-input').value.trim();
+  const pw = document.getElementById('profile-pw-input').value;
+  const phone = document.getElementById('profile-phone-input').value.trim();
+  try {
+    if (!currentUser.uid.startsWith('demo')) {
+      const user = auth.currentUser;
+      if (name) await updateProfile(user, { displayName: name });
+      if (email && email !== user.email) await updateEmail(user, email);
+      if (pw && pw.length >= 6) await updatePassword(user, pw);
+      await updateDoc(doc(db, 'users', currentUser.uid), { name, email, phone });
+    }
+    currentUser.name = name; currentUser.email = email; currentUser.phone = phone;
+    updateNavForUser();
+    toast('Profile updated successfully','success');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+async function uploadAvatar(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const url = e.target.result;
+    document.getElementById('profile-avatar-img').src = url;
+    document.getElementById('profile-avatar-img').style.display = 'block';
+    document.getElementById('profile-avatar-initials').style.display = 'none';
+    if (currentUser && !currentUser.uid.startsWith('demo')) {
+      try {
+        const storageRef = ref(storage, `avatars/${currentUser.uid}`);
+        const response = await fetch(url);
+        const blob = await response.blob();
+        await uploadBytes(storageRef, blob);
+        const downloadURL = await getDownloadURL(storageRef);
+        await updateProfile(auth.currentUser, { photoURL: downloadURL });
+        await updateDoc(doc(db, 'users', currentUser.uid), { photoURL: downloadURL });
+        currentUser.photoURL = downloadURL;
+      } catch(e) { console.log('Storage not configured, using local preview'); }
+    }
+    currentUser.photoURL = url;
+    updateNavForUser();
+    toast('Avatar updated','success');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function loadUserOrders() {
+  const tb = document.getElementById('user-orders-table');
+  if (!currentUser) return;
+  try {
+    if (currentUser.uid.startsWith('demo')) {
+      tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--mid-gray)">No orders yet (demo mode)</td></tr>`;
+      return;
+    }
+    const q = query(collection(db,'orders'), where('userId','==',currentUser.uid), orderBy('createdAt','desc'));
+    const snap = await getDocs(q);
+    if (snap.empty) { tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--mid-gray)">No orders yet</td></tr>`; return; }
+    tb.innerHTML = snap.docs.map(d => {
+      const o = d.data();
+      return `<tr>
+        <td>#${d.id.slice(-6).toUpperCase()}</td>
+        <td>${o.createdAt?.toDate?.().toLocaleDateString() || '—'}</td>
+        <td>${o.items?.length || 0}</td>
+        <td>$${o.total?.toFixed(2) || '0.00'}</td>
+        <td><span class="badge-status badge-${o.status}">${o.status}</span></td>
+      </tr>`;
+    }).join('');
+  } catch(e) { console.log(e); }
+}
+
+// ─── BUG REPORT ───
+async function submitBugReport() {
+  const desc = document.getElementById('bug-desc').value.trim();
+  if (!desc) { toast('Please describe the bug','error'); return; }
+  try {
+    if (!currentUser?.uid?.startsWith('demo')) {
+      await addDoc(collection(db,'bug-reports'), {
+        userId: currentUser?.uid || 'anonymous',
+        description: desc,
+        createdAt: serverTimestamp()
+      });
+    }
+    document.getElementById('bug-desc').value = '';
+    toast('Bug report submitted, thank you!','success');
+  } catch(e) { toast('Report submitted (offline mode)','success'); }
+}
+
+// ─── CONTACT ───
+async function submitContact() {
+  const name = document.getElementById('contact-name').value.trim();
+  const email = document.getElementById('contact-email').value.trim();
+  const msg = document.getElementById('contact-msg').value.trim();
+  if (!name || !email || !msg) { toast('Fill required fields','error'); return; }
+  try {
+    if (!currentUser?.uid?.startsWith('demo')) {
+      await addDoc(collection(db,'contact-messages'), { name, email, message: msg, createdAt: serverTimestamp() });
+    }
+    document.getElementById('contact-name').value = '';
+    document.getElementById('contact-email').value = '';
+    document.getElementById('contact-msg').value = '';
+    toast('Message sent! We\'ll respond within 2-3 days.','success');
+  } catch(e) { toast('Message sent (offline mode)','success'); }
+}
+
+// ─── PARTNER ───
+function selectPartner(el, type) {
+  document.querySelectorAll('#partner-modal .role-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPartnerType = type;
+}
+async function submitPartner() {
+  const name = document.getElementById('partner-name').value.trim();
+  const email = document.getElementById('partner-email').value.trim();
+  if (!name || !email || !selectedPartnerType) { toast('Fill all fields and select a type','error'); return; }
+  try {
+    if (!currentUser?.uid?.startsWith('demo')) {
+      await addDoc(collection(db,'partner-requests'), { name, email, type: selectedPartnerType, message: document.getElementById('partner-msg').value, createdAt: serverTimestamp() });
+    }
+    closeModal('partner-modal');
+    toast('Partner request submitted! We\'ll contact you soon.','success');
+  } catch(e) { closeModal('partner-modal'); toast('Request submitted!','success'); }
+}
+
+// ─── PRODUCTS ───
+async function loadProducts() {
+  try {
+    if (currentUser && !currentUser?.uid?.startsWith('demo')) {
+      const snap = await getDocs(collection(db,'products'));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+  } catch(e) { /* fall through to demo */ }
+  return demoProducts;
+}
+
+function renderProductCard(p, extraClass='') {
+  const inWish = wishlist.includes(p.id);
+  const badgeClass = p.badge === 'new' ? 'new' : p.badge === 'collab' ? 'collab' : '';
+  const badgeLabel = p.badge === 'new' ? 'NEW' : p.badge === 'collab' ? 'COLLAB' : 'HOT';
+  return `
+  <div class="product-card ${extraClass}" onclick="openProductModal('${p.id}')">
+    <div class="product-img-wrap">
+      <img src="${p.img}" alt="${p.name}" loading="lazy"/>
+      ${p.badge ? `<span class="product-badge ${badgeClass}">${badgeLabel}</span>` : ''}
+      <button class="product-wishlist ${inWish?'active':''}" onclick="toggleWishlist(event,'${p.id}')">
+        <i class="${inWish?'fas':'far'} fa-heart"></i>
+      </button>
+    </div>
+    <div class="product-info">
+      <div class="product-designer">${p.designer}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-footer">
+        <span class="product-price">$${p.price}</span>
+        <button class="product-add" onclick="addToCart(event,'${p.id}')"><i class="fas fa-plus"></i></button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function renderHome() {
+  const products = await loadProducts();
+  const trending = products.filter(p => p.badge === 'trending' || p.badge === 'hot').slice(0,4);
+  const newArr = products.filter(p => p.badge === 'new').slice(0,4);
+  document.getElementById('trending-grid').innerHTML = trending.length ? trending.map(renderProductCard).join('') : products.slice(0,4).map(renderProductCard).join('');
+  document.getElementById('new-arrivals-grid').innerHTML = newArr.length ? newArr.map(renderProductCard).join('') : products.slice(4,8).map(renderProductCard).join('');
+  document.getElementById('all-products-grid').innerHTML = products.map(renderProductCard).join('');
+  window._allProducts = products;
+}
+
+async function renderShop() {
+  const products = await loadProducts();
+  window._allProducts = products;
+  document.getElementById('shop-grid').innerHTML = products.map(renderProductCard).join('');
+}
+
+async function renderDesigners() {
+  const products = await loadProducts();
+  const designers = {};
+  products.forEach(p => {
+    if (!designers[p.designer]) designers[p.designer] = { name: p.designer, count: 0, img: p.img, products: [] };
+    designers[p.designer].count++;
+    designers[p.designer].products.push(p);
+  });
+  document.getElementById('designers-grid').innerHTML = Object.values(designers).map(d => `
+    <div class="product-card" onclick="filterByDesigner('${d.name}')">
+      <div class="product-img-wrap">
+        <img src="${d.img}" alt="${d.name}" loading="lazy"/>
+        <span class="product-badge new">DESIGNER</span>
+      </div>
+      <div class="product-info">
+        <div class="product-name">${d.name}</div>
+        <div class="product-designer">${d.count} Products</div>
+      </div>
+    </div>`).join('');
+  window._allProducts = products;
+  window._allDesigners = Object.values(designers);
+}
+
+window.filterByDesigner = function(name) {
+  showPage('shop');
+  setTimeout(()=>{
+    document.getElementById('shop-search').value = name;
+    filterShop();
+  },100);
+};
+
+function filterProducts() {
+  const q = document.getElementById('home-search').value.toLowerCase();
+  const products = (window._allProducts || demoProducts).filter(p =>
+    (currentCategory === 'all' || p.category === currentCategory) &&
+    (p.name.toLowerCase().includes(q) || p.designer.toLowerCase().includes(q))
+  );
+  document.getElementById('all-products-grid').innerHTML = products.map(renderProductCard).join('');
+}
+function filterShop() {
+  const q = document.getElementById('shop-search').value.toLowerCase();
+  const products = (window._allProducts || demoProducts).filter(p =>
+    (shopCategory === 'all' || p.category === shopCategory) &&
+    (p.name.toLowerCase().includes(q) || p.designer.toLowerCase().includes(q))
+  );
+  document.getElementById('shop-grid').innerHTML = products.map(renderProductCard).join('');
+}
+function filterDesigners() {
+  const q = document.getElementById('designer-search').value.toLowerCase();
+  const designers = (window._allDesigners || []).filter(d => d.name.toLowerCase().includes(q));
+  document.getElementById('designers-grid').innerHTML = designers.map(d => `
+    <div class="product-card" onclick="filterByDesigner('${d.name}')">
+      <div class="product-img-wrap"><img src="${d.img}" alt="${d.name}" loading="lazy"/>
+        <span class="product-badge new">DESIGNER</span></div>
+      <div class="product-info"><div class="product-name">${d.name}</div>
+        <div class="product-designer">${d.count} Products</div></div>
+    </div>`).join('');
+}
+function setCategory(el, cat) {
+  currentCategory = cat;
+  document.querySelectorAll('#home-filters .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filterProducts();
+}
+function setShopCategory(el, cat) {
+  shopCategory = cat;
+  document.querySelectorAll('#page-shop .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filterShop();
+}
+
+// Product detail modal
+async function openProductModal(id) {
+  const products = window._allProducts || demoProducts;
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('product-detail-content').innerHTML = `
+    <div class="product-detail-img"><img src="${p.img}" alt="${p.name}"/></div>
+    <div class="product-detail-info">
+      <h2>${p.name}</h2>
+      <div class="designer">By ${p.designer}</div>
+      <div class="price">$${p.price}</div>
+      <p style="font-size:.85rem;color:var(--mid-gray);margin-bottom:16px;line-height:1.7">${p.description || 'Premium quality garment by '+p.designer+'.'}</p>
+      <div style="font-size:.8rem;font-weight:600;margin-bottom:8px">Size</div>
+      <div class="size-grid">
+        ${['XS','S','M','L','XL','XXL'].map(s=>`<button class="size-btn" onclick="this.parentElement.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')">${s}</button>`).join('')}
+      </div>
+      <button class="btn-block btn-forest" style="margin-top:16px" onclick="addToCart(null,'${p.id}');closeModal('product-modal')">
+        <i class="fas fa-shopping-bag"></i> Add to Cart
+      </button>
+      <button class="btn-block" style="margin-top:8px;background:var(--sand-pale);border:1.5px solid var(--sand);color:var(--charcoal)" onclick="toggleWishlist(null,'${p.id}')">
+        <i class="${wishlist.includes(p.id)?'fas':'far'} fa-heart"></i> ${wishlist.includes(p.id)?'Remove from Wishlist':'Add to Wishlist'}
+      </button>
+    </div>`;
+  openModal('product-modal');
+}
+
+// ─── CART ───
+function addToCart(e, id) {
+  if (e) e.stopPropagation();
+  const products = window._allProducts || demoProducts;
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  const existing = cart.find(c => c.id === id);
+  if (existing) existing.qty++;
+  else cart.push({ id, name: p.name, price: p.price, img: p.img, qty: 1 });
+  saveCart();
+  toast(`${p.name} added to cart 🛍️`,'success');
+}
+function removeFromCart(id) {
+  cart = cart.filter(c => c.id !== id);
+  saveCart(); renderCart();
+}
+function changeQty(id, delta) {
+  const item = cart.find(c => c.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) cart = cart.filter(c => c.id !== id);
+  saveCart(); renderCart();
+}
+function saveCart() {
+  localStorage.setItem('naxshin-cart', JSON.stringify(cart));
+  const count = cart.reduce((a,c)=>a+c.qty,0);
+  const badge = document.getElementById('cart-count');
+  badge.textContent = count;
+  if (count > 0) badge.classList.remove('hidden');
+  else badge.classList.add('hidden');
+  renderCart();
+}
+function renderCart() {
+  const list = document.getElementById('cart-items-list');
+  if (!cart.length) { list.innerHTML = `<p style="text-align:center;color:var(--mid-gray);padding:40px 0;font-size:.85rem">Your cart is empty</p>`; }
+  else list.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <img src="${item.img}" alt="${item.name}"/>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-sub">$${item.price} each</div>
+        <div class="cart-qty">
+          <button onclick="changeQty('${item.id}',-1)">−</button>
+          <span>${item.qty}</span>
+          <button onclick="changeQty('${item.id}',1)">+</button>
+          <button onclick="removeFromCart('${item.id}')" style="background:var(--sand-pale);margin-left:8px"><i class="fas fa-trash" style="color:var(--rust);font-size:.7rem"></i></button>
+        </div>
+      </div>
+      <div class="cart-item-price">$${(item.price*item.qty).toFixed(2)}</div>
+    </div>`).join('');
+  const total = cart.reduce((a,c)=>a+(c.price*c.qty),0);
+  document.getElementById('cart-total-val').textContent = '$'+total.toFixed(2);
+}
+function toggleCart() {
+  const drawer = document.getElementById('cart-drawer');
+  const overlay = document.getElementById('cart-overlay');
+  const isOpen = drawer.classList.contains('open');
+  drawer.classList.toggle('open',!isOpen);
+  overlay.style.display = isOpen ? 'none' : 'block';
+}
+async function checkout() {
+  if (!currentUser) { closeCart(); openModal('login-modal'); return; }
+  if (!cart.length) { toast('Cart is empty','error'); return; }
+  const total = cart.reduce((a,c)=>a+(c.price*c.qty),0);
+  try {
+    if (!currentUser.uid.startsWith('demo')) {
+      await addDoc(collection(db,'orders'), {
+        userId: currentUser.uid,
+        items: cart,
+        total,
+        status: 'pending',
+        createdAt: serverTimestamp()
+      });
+    }
+    cart = []; saveCart(); toggleCart();
+    toast(`Order placed! Total: $${total.toFixed(2)} 🎉`,'success');
+  } catch(e) { cart=[]; saveCart(); toggleCart(); toast('Order placed! (demo mode)','success'); }
+}
+function closeCart() {
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('cart-overlay').style.display='none';
+}
+
+// ─── WISHLIST ───
+function toggleWishlist(e, id) {
+  if (e) e.stopPropagation();
+  if (wishlist.includes(id)) wishlist = wishlist.filter(w=>w!==id);
+  else wishlist.push(id);
+  localStorage.setItem('naxshin-wishlist',JSON.stringify(wishlist));
+  toast(wishlist.includes(id)?'Added to wishlist ❤️':'Removed from wishlist');
+  // Re-render cards
+  document.querySelectorAll('.product-wishlist').forEach(btn => {
+    const pid = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+    if (pid === id) {
+      btn.classList.toggle('active', wishlist.includes(id));
+      btn.innerHTML = `<i class="${wishlist.includes(id)?'fas':'far'} fa-heart"></i>`;
+    }
+  });
+}
+function loadWishlistTab() {
+  const products = window._allProducts || demoProducts;
+  const items = products.filter(p => wishlist.includes(p.id));
+  const grid = document.getElementById('wishlist-grid');
+  grid.innerHTML = items.length ? items.map(renderProductCard).join('') : '<p style="color:var(--mid-gray);font-size:.85rem">Your wishlist is empty.</p>';
+}
+
+// ─── DASHBOARD ───
+function renderDashboard() {
+  const sidebar = document.getElementById('sidebar-nav');
+  const main = document.getElementById('dash-main-content');
+  document.getElementById('sidebar-role').textContent = currentRole.toUpperCase();
+
+  const navItems = {
+    customer: [
+      { icon:'fa-tachometer-alt', label:'Overview', section:'overview' },
+      { icon:'fa-shopping-bag', label:'My Orders', section:'my-orders' },
+      { icon:'fa-heart', label:'Wishlist', section:'wishlist' },
+      { icon:'fa-user', label:'Profile', section:'profile' },
+    ],
+    designer: [
+      { icon:'fa-tachometer-alt', label:'Dashboard', section:'overview' },
+      { icon:'fa-palette', label:'My Designs', section:'designs' },
+      { icon:'fa-upload', label:'Upload Design', section:'upload' },
+      { icon:'fa-chart-bar', label:'Sales', section:'sales' },
+      { icon:'fa-user', label:'Profile', section:'profile' },
+    ],
+    printer: [
+      { icon:'fa-tachometer-alt', label:'Dashboard', section:'overview' },
+      { icon:'fa-list', label:'Print Queue', section:'queue' },
+      { icon:'fa-truck', label:'Orders', section:'orders' },
+      { icon:'fa-user', label:'Profile', section:'profile' },
+    ],
+    admin: [
+      { icon:'fa-crown', label:'Overview', section:'overview' },
+      { icon:'fa-users', label:'Users', section:'users' },
+      { icon:'fa-tshirt', label:'Products', section:'products' },
+      { icon:'fa-clipboard-list', label:'Orders', section:'orders' },
+      { icon:'fa-user-check', label:'Requests', section:'requests' },
+      { icon:'fa-chart-line', label:'Analytics', section:'analytics' },
+      { icon:'fa-bullhorn', label:'Ads Manager', section:'ads' },
+    ]
+  };
+  const items = navItems[currentRole] || navItems.customer;
+  sidebar.innerHTML = items.map((item,i) => `
+    <li class="${i===0?'active':''}">
+      <button onclick="showDashSection('${item.section}',this)">
+        <i class="fas ${item.icon}"></i> ${item.label}
+      </button>
+    </li>`).join('') +
+    `<li style="margin-top:auto"><button onclick="showPage('home')"><i class="fas fa-arrow-left"></i> Back to Shop</button></li>`;
+
+  showDashSection('overview', sidebar.querySelector('li button'));
+}
+
+function showDashSection(section, btn) {
+  if (btn) {
+    document.querySelectorAll('.sidebar-nav li').forEach(l => l.classList.remove('active'));
+    btn.closest('li')?.classList.add('active');
+  }
+  const main = document.getElementById('dash-main-content');
+
+  if (section === 'overview') {
+    if (currentRole === 'admin') renderAdminOverview(main);
+    else if (currentRole === 'designer') renderDesignerOverview(main);
+    else if (currentRole === 'printer') renderPrinterOverview(main);
+    else renderCustomerOverview(main);
+  } else if (section === 'upload') { renderDesignerUpload(main); }
+  else if (section === 'designs') { renderDesignerDesigns(main); }
+  else if (section === 'sales') { renderDesignerSales(main); }
+  else if (section === 'users') { renderAdminUsers(main); }
+  else if (section === 'products') { renderAdminProducts(main); }
+  else if (section === 'orders') { renderAdminOrders(main); }
+  else if (section === 'requests') { renderAdminRequests(main); }
+  else if (section === 'analytics') { renderAdminAnalytics(main); }
+  else if (section === 'ads') { renderAdminAds(main); }
+  else if (section === 'queue') { renderPrinterQueue(main); }
+  else if (section === 'profile') { showPage('profile'); }
+  else if (section === 'my-orders') { renderCustomerOrders(main); }
+  else if (section === 'wishlist') { renderCustomerWishlist(main); }
+}
+
+function renderCustomerOverview(main) {
+  main.innerHTML = `
+    <div class="dash-header"><h2>Welcome back, ${currentUser?.name?.split(' ')[0] || 'User'} 👋</h2><p>Here's your shopping overview</p></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9"><i class="fas fa-shopping-bag text-forest"></i></div><div class="stat-val">${cart.length}</div><div class="stat-label">Cart Items</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFF8E1"><i class="fas fa-heart text-sand"></i></div><div class="stat-val">${wishlist.length}</div><div class="stat-label">Wishlist</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFEBEE"><i class="fas fa-box text-rust"></i></div><div class="stat-val">0</div><div class="stat-label">Orders</div></div>
+    </div>
+    <div class="dash-card"><h3>Quick Actions</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="showPage('shop')">Browse Shop</button>
+        <button class="btn-outline-light" style="background:var(--sand-pale);border:1.5px solid var(--sand);color:var(--charcoal);padding:10px 20px;border-radius:var(--radius-sm);font-weight:600;cursor:pointer" onclick="toggleCart()">View Cart</button>
+      </div>
+    </div>`;
+}
+function renderCustomerOrders(main) {
+  main.innerHTML = `<div class="dash-header"><h2>My Orders</h2></div>
+    <div class="dash-card"><div class="table-wrap"><table>
+      <thead><tr><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--mid-gray)">No orders yet. <a href="#" onclick="showPage('shop')">Start shopping!</a></td></tr></tbody>
+    </table></div></div>`;
+}
+function renderCustomerWishlist(main) {
+  const products = (window._allProducts || demoProducts).filter(p => wishlist.includes(p.id));
+  main.innerHTML = `<div class="dash-header"><h2>My Wishlist</h2></div>
+    <div class="product-grid">${products.length ? products.map(renderProductCard).join('') : '<p style="color:var(--mid-gray)">Your wishlist is empty.</p>'}</div>`;
+}
+
+function renderDesignerOverview(main) {
+  main.innerHTML = `
+    <div class="dash-header"><h2>Designer Dashboard</h2><p>Manage your designs and track your sales</p></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9"><i class="fas fa-palette text-forest"></i></div><div class="stat-val">12</div><div class="stat-label">Designs Uploaded</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFF8E1"><i class="fas fa-dollar-sign text-sand"></i></div><div class="stat-val">$840</div><div class="stat-label">Total Sales</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFEBEE"><i class="fas fa-shopping-bag text-rust"></i></div><div class="stat-val">34</div><div class="stat-label">Items Sold</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#E3F2FD"><i class="fas fa-star" style="color:#1565C0"></i></div><div class="stat-val">4.8</div><div class="stat-label">Avg Rating</div></div>
+    </div>
+    <div class="dash-card"><h3>Top Selling Items</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Product</th><th>Sales</th><th>Revenue</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Heritage Tee</td><td>15</td><td>$375</td><td><span class="badge-status badge-approved">Active</span></td></tr>
+          <tr><td>Nawroz Tee</td><td>12</td><td>$336</td><td><span class="badge-status badge-approved">Active</span></td></tr>
+          <tr><td>Desert Rose Shirt</td><td>7</td><td>$294</td><td><span class="badge-status badge-pending">Pending Review</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>`;
+}
+function renderDesignerUpload(main) {
+  main.innerHTML = `<div class="dash-header"><h2>Upload Design</h2><p>Share your new creation</p></div>
+    <div class="dash-card">
+      <div class="form-group"><label class="form-label">Product Name</label><input class="form-control" type="text" id="d-name" placeholder="e.g. Heritage Tee"/></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-control" rows="3" id="d-desc" placeholder="Describe your design..."></textarea></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-control" id="d-cat"><option value="tshirt">T-Shirt</option><option value="hoodie">Hoodie</option><option value="dress">Dress</option><option value="jacket">Jacket</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Price ($)</label><input class="form-control" type="number" id="d-price" placeholder="0.00" min="1"/></div>
+      <div class="form-group"><label class="form-label">Product Images</label>
+        <div class="upload-zone" onclick="document.getElementById('d-images').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Click or drag images here<br/><span style="font-size:.75rem">PNG, JPG up to 10MB each</span></p>
+        </div>
+        <input type="file" id="d-images" accept="image/*" multiple style="display:none"/>
+      </div>
+      <button class="btn-block btn-forest" onclick="designerAction('upload')">Submit Design for Review</button>
+    </div>`;
+}
+function renderDesignerDesigns(main) {
+  main.innerHTML = `<div class="dash-header"><h2>My Designs</h2></div>
+    <div class="product-grid">${demoProducts.slice(0,4).map(p => `
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="${p.img}" alt="${p.name}" loading="lazy"/>
+          <span class="badge-status badge-approved" style="position:absolute;top:10px;left:10px">Active</span>
+        </div>
+        <div class="product-info">
+          <div class="product-name">${p.name}</div>
+          <div class="product-footer">
+            <span class="product-price">$${p.price}</span>
+            <div style="display:flex;gap:6px">
+              <button class="product-add" onclick="designerAction('edit','${p.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+              <button class="product-add" style="background:var(--rust)" onclick="designerAction('delete','${p.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+}
+function renderDesignerSales(main) {
+  main.innerHTML = `<div class="dash-header"><h2>Sales Analytics</h2></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9"><i class="fas fa-dollar-sign text-forest"></i></div><div class="stat-val">$840</div><div class="stat-label">Total Revenue</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFF8E1"><i class="fas fa-shopping-bag text-sand"></i></div><div class="stat-val">34</div><div class="stat-label">Units Sold</div></div>
+    </div>
+    <div class="dash-card"><h3>Monthly Sales</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Top Item</th></tr></thead>
+        <tbody>
+          <tr><td>May 2025</td><td>12</td><td>$340</td><td>Heritage Tee</td></tr>
+          <tr><td>Apr 2025</td><td>8</td><td>$260</td><td>Nawroz Tee</td></tr>
+          <tr><td>Mar 2025</td><td>14</td><td>$240</td><td>Desert Rose Shirt</td></tr>
+        </tbody>
+      </table></div>
+    </div>`;
+}
+
+function renderPrinterOverview(main) {
+  main.innerHTML = `<div class="dash-header"><h2>Printer Dashboard</h2></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9"><i class="fas fa-print text-forest"></i></div><div class="stat-val">7</div><div class="stat-label">In Queue</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFF8E1"><i class="fas fa-check text-sand"></i></div><div class="stat-val">142</div><div class="stat-label">Completed</div></div>
+    </div>`;
+}
+function renderPrinterQueue(main) {
+  main.innerHTML = `<div class="dash-header"><h2>Print Queue</h2></div>
+    <div class="dash-card"><div class="table-wrap"><table>
+      <thead><tr><th>Order #</th><th>Item</th><th>Qty</th><th>Designer</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td>#A1B2C3</td><td>Heritage Tee</td><td>3</td><td>Aryan Studio</td><td><span class="badge-status badge-pending">Pending</span></td>
+          <td><button onclick="printerAction('start','A1B2C3')" style="background:var(--forest);color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.75rem">Start</button></td></tr>
+        <tr><td>#D4E5F6</td><td>Nawroz Tee</td><td>1</td><td>Kawa Designs</td><td><span class="badge-status badge-delivering">Printing</span></td>
+          <td><button onclick="printerAction('complete','D4E5F6')" style="background:var(--forest);color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.75rem">Done</button></td></tr>
+      </tbody>
+    </table></div></div>`;
+}
+
+function renderAdminOverview(main) {
+  main.innerHTML = `
+    <div class="dash-header"><h2>Admin Overview 👑</h2><p>Full system access</p></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9"><i class="fas fa-users text-forest"></i></div><div class="stat-val">128</div><div class="stat-label">Total Users</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFF8E1"><i class="fas fa-tshirt text-sand"></i></div><div class="stat-val">86</div><div class="stat-label">Products</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFEBEE"><i class="fas fa-shopping-bag text-rust"></i></div><div class="stat-val">342</div><div class="stat-label">Orders</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#E3F2FD"><i class="fas fa-dollar-sign" style="color:#1565C0"></i></div><div class="stat-val">$12,480</div><div class="stat-label">Revenue</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#F3E5F5"><i class="fas fa-palette" style="color:#6A1B9A"></i></div><div class="stat-val">14</div><div class="stat-label">Designers</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFF3E0"><i class="fas fa-print" style="color:#E65100"></i></div><div class="stat-val">3</div><div class="stat-label">Printers</div></div>
+    </div>
+    <div class="dash-card"><h3>Recent Orders</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Order #</th><th>Customer</th><th>Designer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td>#F1E2D3</td><td>Sara Ahmad</td><td>Aryan Studio</td><td>$75</td><td><span class="badge-status badge-pending">Pending</span></td>
+            <td style="display:flex;gap:6px;padding:10px 12px">
+              <button onclick="adminAction('approve','F1E2D3')" style="background:var(--forest);color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.72rem">Approve</button>
+              <button onclick="adminAction('cancel','F1E2D3')" style="background:var(--rust);color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.72rem">Cancel</button>
+            </td></tr>
+          <tr><td>#G4H5I6</td><td>Kamaran Ali</td><td>Kawa Designs</td><td>$55</td><td><span class="badge-status badge-delivering">Delivering</span></td>
+            <td style="padding:10px 12px"><span class="badge-status badge-delivering">In Transit</span></td></tr>
+          <tr><td>#J7K8L9</td><td>Roza Hassan</td><td>Shirin Couture</td><td>$110</td><td><span class="badge-status badge-completed">Completed</span></td>
+            <td style="padding:10px 12px"><span class="badge-status badge-completed">Done</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>`;
+}
+function renderAdminUsers(main) {
+  main.innerHTML = `<div class="dash-header"><h2>Users Management</h2></div>
+    <div class="dash-card"><div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td>Sara Ahmad</td><td>sara@example.com</td><td>Customer</td><td><span class="badge-status badge-approved">Active</span></td>
+          <td><select onchange="adminSetRole(this,'sara')" style="border:1px solid var(--light-gray);padding:3px 6px;border-radius:4px;font-size:.75rem">
+            <option>Customer</option><option>Designer</option><option>Printer</option><option>Admin</option></select></td></tr>
+        <tr><td>Aryan Studio</td><td>aryan@example.com</td><td>Designer</td><td><span class="badge-status badge-approved">Active</span></td>
+          <td><select onchange="adminSetRole(this,'aryan')" style="border:1px solid var(--light-gray);padding:3px 6px;border-radius:4px;font-size:.75rem">
+            <option>Customer</option><option selected>Designer</option><option>Printer</option><option>Admin</option></select></td></tr>
+        <tr><td>New User</td><td>new@example.com</td><td>Designer</td><td><span class="badge-status badge-pending">Pending</span></td>
+          <td style="display:flex;gap:6px;padding:10px 12px">
+            <button onclick="adminAction('approve-user','new')" style="background:var(--forest);color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.72rem">Approve</button>
+            <button onclick="adminAction('reject-user','new')" style="background:var(--rust);color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.72rem">Reject</button>
+          </td></tr>
+      </tbody>
+    </table></div></div>`;
+}
+function renderAdminProducts(main) {
+  main.innerHTML = `<div class="dash-header"><h2>Products Management</h2></div>
+    <div class="product-grid">${demoProducts.map(p=>`
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="${p.img}" alt="${p.name}" loading="lazy"/></div>
+        <div class="product-info">
+          <div class="product-designer">${p.designer}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-footer">
+            <span class="product-price">$${p.price}</span>
+            <div style="display:flex;gap:4px">
+              <button class="product-add" style="background:var(--sand)" onclick="adminAction('edit-product','${p.id}')"><i class="fas fa-edit"></i></button>
+              <button class="product-add" style="background:var(--rust)" onclick="adminAction('remove-product','${p.id}')"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+}
+function renderAdminOrders(main) {
+  main.innerHTML = `<div class="dash-header"><h2>All Orders</h2></div>
+    <div class="dash-card"><div class="table-wrap"><table>
+      <thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td>#F1E2D3</td><td>Sara Ahmad</td><td>2</td><td>$75</td><td><span class="badge-status badge-pending">Pending</span></td>
+          <td style="display:flex;gap:4px;padding:10px 12px">
+            <button onclick="adminAction('approve','F1E2D3')" style="background:var(--forest);color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:.72rem">✓</button>
+            <button onclick="adminAction('cancel','F1E2D3')" style="background:var(--rust);color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:.72rem">✗</button>
+          </td></tr>
+        <tr><td>#G4H5I6</td><td>Kamaran Ali</td><td>1</td><td>$55</td><td><span class="badge-status badge-delivering">Delivering</span></td><td></td></tr>
+        <tr><td>#J7K8L9</td><td>Roza Hassan</td><td>3</td><td>$110</td><td><span class="badge-status badge-completed">Completed</span></td><td></td></tr>
+      </tbody>
+    </table></div></div>`;
+}
+function renderAdminRequests(main) {
+  main.innerHTML = `<div class="dash-header"><h2>Role Requests</h2></div>
+    <div class="dash-card"><div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Email</th><th>Requested Role</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td>Zana Majid</td><td>zana@example.com</td><td>Designer</td><td>May 2025</td>
+          <td style="display:flex;gap:6px;padding:10px 12px">
+            <button onclick="adminAction('approve-req','1')" style="background:var(--forest);color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.72rem">Approve</button>
+            <button onclick="adminAction('reject-req','1')" style="background:var(--rust);color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.72rem">Reject</button>
+          </td></tr>
+        <tr><td>Kurdish Print Co.</td><td>kpc@example.com</td><td>Printer</td><td>May 2025</td>
+          <td style="display:flex;gap:6px;padding:10px 12px">
+            <button onclick="adminAction('approve-req','2')" style="background:var(--forest);color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.72rem">Approve</button>
+            <button onclick="adminAction('reject-req','2')" style="background:var(--rust);color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.72rem">Reject</button>
+          </td></tr>
+      </tbody>
+    </table></div></div>`;
+}
+function renderAdminAnalytics(main) {
+  main.innerHTML = `<div class="dash-header"><h2>Analytics</h2></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9"><i class="fas fa-dollar-sign text-forest"></i></div><div class="stat-val">$12,480</div><div class="stat-label">Total Revenue</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFF8E1"><i class="fas fa-shopping-bag text-sand"></i></div><div class="stat-val">342</div><div class="stat-label">Total Orders</div></div>
+    </div>
+    <div class="dash-card"><h3>Top Products</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Product</th><th>Designer</th><th>Sales</th><th>Revenue</th></tr></thead>
+        <tbody>
+          <tr><td>Heritage Tee</td><td>Aryan Studio</td><td>48</td><td>$1,200</td></tr>
+          <tr><td>Mountain Jacket</td><td>Aryan Studio</td><td>22</td><td>$2,090</td></tr>
+          <tr><td>Nomad Hoodie</td><td>Kawa Designs</td><td>35</td><td>$1,925</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="dash-card"><h3>Top Customers</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Customer</th><th>Orders</th><th>Total Spent</th></tr></thead>
+        <tbody>
+          <tr><td>Sara Ahmad</td><td>8</td><td>$420</td></tr>
+          <tr><td>Kamaran Ali</td><td>5</td><td>$310</td></tr>
+          <tr><td>Roza Hassan</td><td>12</td><td>$580</td></tr>
+        </tbody>
+      </table></div>
+    </div>`;
+}
+function renderAdminAds(main) {
+  main.innerHTML = `<div class="dash-header"><h2>Ads Manager</h2></div>
+    <div class="dash-card">
+      <h3>Active Banner Ads</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Advertiser</th><th>Text</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="ads-table">
+          <tr><td>Kurdish Artisan Collective</td><td>Handcrafted Designs</td><td><span class="badge-status badge-approved">Active</span></td>
+            <td><button onclick="adminAction('deactivate-ad','1')" style="background:var(--rust);color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:.72rem">Deactivate</button></td></tr>
+        </tbody>
+      </table></div>
+      <div style="margin-top:20px"><h3>Add New Ad</h3>
+        <div class="form-group"><input class="form-control" type="text" id="ad-advertiser" placeholder="Advertiser name"/></div>
+        <div class="form-group"><input class="form-control" type="text" id="ad-text" placeholder="Ad text (shown in banner)"/></div>
+        <button class="btn-block btn-forest" onclick="adminAddAd()">Add Banner Ad</button>
+      </div>
+    </div>`;
+}
+
+// ─── ADMIN ACTIONS ───
+function adminAction(action, id) {
+  const msgs = {
+    'approve': `Order #${id} approved ✓`,
+    'cancel': `Order #${id} cancelled`,
+    'approve-user': 'User approved ✓',
+    'reject-user': 'User rejected',
+    'approve-req': 'Role request approved ✓',
+    'reject-req': 'Role request rejected',
+    'edit-product': 'Editing product (Firebase integration needed)',
+    'remove-product': 'Product removed',
+    'deactivate-ad': 'Ad deactivated',
+  };
+  toast(msgs[action] || `Action: ${action}`, action.includes('reject')||action.includes('cancel')||action.includes('remove') ? 'error' : 'success');
+}
+function adminSetRole(select, userId) {
+  toast(`Role updated to ${select.value} for user ${userId} ✓`, 'success');
+}
+function adminAddAd() {
+  const advertiser = document.getElementById('ad-advertiser').value.trim();
+  const text = document.getElementById('ad-text').value.trim();
+  if (!advertiser || !text) { toast('Fill all fields','error'); return; }
+  const tb = document.getElementById('ads-table');
+  tb.innerHTML += `<tr><td>${advertiser}</td><td>${text}</td><td><span class="badge-status badge-approved">Active</span></td><td><button style="background:var(--rust);color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:.72rem">Deactivate</button></td></tr>`;
+  // Update ads banner
+  const track = document.getElementById('ads-track');
+  if (track) { const span = document.createElement('span'); span.textContent = `🌟 ${advertiser} — ${text}`; track.appendChild(span.cloneNode(true)); }
+  document.getElementById('ad-advertiser').value = '';
+  document.getElementById('ad-text').value = '';
+  toast('Ad added to banner ✓','success');
+}
+function designerAction(action, id) {
+  if (action === 'upload') {
+    const name = document.getElementById('d-name').value.trim();
+    if (!name) { toast('Enter product name','error'); return; }
+    toast('Design submitted for review ✓','success');
+  } else if (action === 'edit') { toast('Edit functionality requires Firebase configuration','error'); }
+  else if (action === 'delete') { toast('Design removed','success'); }
+}
+function printerAction(action, id) {
+  if (action === 'start') toast(`Printing started for order #${id}`, 'success');
+  else if (action === 'complete') toast(`Order #${id} marked as printed ✓`, 'success');
+}
+
+// ─── NAV + PAGE UTILS ───
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (!target) return;
+  target.classList.add('active');
+  window.scrollTo(0,0);
+  if (page === 'home') { renderHome(); }
+  else if (page === 'shop') { renderShop(); }
+  else if (page === 'designers') { renderDesigners(); }
+  else if (page === 'dashboard') { if (!currentUser) { openModal('login-modal'); return; } renderDashboard(); }
+  else if (page === 'profile') { if (!currentUser) { openModal('login-modal'); return; } updateProfilePage(); }
+  // Update nav active
+  document.querySelectorAll('.nav-link-btn').forEach(b => b.classList.remove('active'));
+  const navMap = { home:'nav-home', shop:'nav-shop', designers:'nav-designers', about:'nav-about', contact:'nav-contact' };
+  if (navMap[page]) document.getElementById(navMap[page])?.classList.add('active');
+}
+function setActiveNav(el) {
+  document.querySelectorAll('.nav-link-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+function toggleMobileMenu() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.classList.add('modal-open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.classList.remove('modal-open');
+}
+function switchModal(from, to) { closeModal(from); openModal(to); }
+function selectRole(el) {
+  document.querySelectorAll('#role-selector .role-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRole = el.dataset.role;
+}
+
+// ─── LANGUAGE ───
+function toggleLang() {
+  lang = lang === 'en' ? 'ku' : 'en';
+  const html = document.documentElement;
+  if (lang === 'ku') {
+    html.setAttribute('dir','rtl');
+    html.setAttribute('lang','ku');
+    document.getElementById('lang-btn').textContent = 'English';
+  } else {
+    html.setAttribute('dir','ltr');
+    html.setAttribute('lang','en');
+    document.getElementById('lang-btn').textContent = 'کوردی';
+  }
+  applyTranslations();
+}
+function applyTranslations() {
+  const map = {
+    'nav-home': t('home'), 'nav-shop': t('shop'), 'nav-designers': t('designers'),
+    'nav-about': t('about'), 'nav-contact': t('contact'),
+    'txt-login': t('login'), 'txt-signup': t('signup'),
+    'txt-cart': t('cart'), 'txt-total': t('total'), 'txt-checkout': t('checkout'),
+    'txt-signin': t('signin'), 'txt-signin-sub': t('signinSub'), 'txt-forgot': t('forgot'),
+    'txt-continue': t('continue'), 'txt-or': t('or'), 'txt-no-account': t('noAccount'),
+    'txt-signup-link': t('signupLink'), 'txt-create': t('create'), 'txt-create-sub': t('createSub'),
+    'txt-create-btn': t('createBtn'), 'txt-have-account': t('haveAccount'), 'txt-signin-link': t('signinLink'),
+    'txt-req-role': t('reqRole'), 'txt-role-note': t('roleNote'),
+  };
+  Object.entries(map).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.textContent = val; });
+}
+
+// ─── TOAST ───
+function toast(msg, type='') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast-msg ${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ─── PROFILE TAB ───
+function switchProfileTab(btn, tabId) {
+  document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.profile-tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ─── INIT ───
+saveCart();
+renderHome();
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) { overlay.classList.remove('open'); document.body.classList.remove('modal-open'); } });
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
