@@ -5,6 +5,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title id="page-title">Naxshin — Print & Design</title>
+  <meta name="description" content="Naxshin — Kurdish heritage meets modern fashion. Discover unique print-on-demand designs from local Kurdish designers."/>
+  <meta name="keywords" content="Naxshin, Kurdish fashion, print design, Kurdish clothes, نەکشین"/>
+  <meta property="og:title" content="Naxshin — Print & Design"/>
+  <meta property="og:description" content="Kurdish heritage meets modern fashion."/>
+  <meta property="og:url" content="https://naxshin.github.io/Naxshin.KRD/"/>
+  <link rel="canonical" href="https://naxshin.github.io/Naxshin.KRD/"/>
   <link
     href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
@@ -992,8 +998,8 @@
     }
 
     .product-price {
-      font-family: var(--font-h);
-      font-size: 1.1rem;
+      font-family: var(--font-b);
+      font-size: 1rem;
       font-weight: 700;
       color: var(--forest);
     }
@@ -2831,13 +2837,15 @@
         color: var(--mob-text) !important;
         font-size: .82rem !important;
         font-weight: 600 !important;
-        letter-spacing: .3px;
-        text-transform: uppercase;
+        letter-spacing: 0;
+        text-transform: none !important;
       }
 
       .product-price {
         color: var(--mob-gold) !important;
         font-size: .95rem !important;
+        font-family: var(--font-b) !important;
+        font-weight: 700 !important;
       }
 
       .product-add {
@@ -3794,17 +3802,7 @@
       <p style="text-align:center;font-size:.79rem;color:var(--mid-gray)"><span id="txt-no-account">Don't have an
           account?</span><button class="form-link" onclick="switchModal('login-modal','register-modal')"
           id="txt-signup-link"> Sign up</button></p>
-      <div class="form-divider"><span>DEMO LOGIN</span></div>
-      <div class="role-grid">
-        <div class="role-card" onclick="demoLogin('customer')"><i class="fas fa-shopping-bag"></i><span
-            id="demo-customer">Customer</span></div>
-        <div class="role-card" onclick="demoLogin('designer')"><i class="fas fa-palette"></i><span
-            id="demo-designer">Designer</span></div>
-        <div class="role-card" onclick="demoLogin('printer')"><i class="fas fa-print"></i><span
-            id="demo-printer">Printer</span></div>
-        <div class="role-card" onclick="demoLogin('admin')"><i class="fas fa-crown"></i><span
-            id="demo-admin">Admin</span></div>
-      </div>
+
     </div>
   </div>
   <!-- Register -->
@@ -3932,21 +3930,27 @@
     import { getStorage, ref, uploadBytes, getDownloadURL }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
+    // ════════════════════════════════════════════════
+    // NAXSHIN FIREBASE CONFIGURATION
+    // Project: naxshin-e5e25  |  naxshinkrd@gmail.com
+    // ════════════════════════════════════════════════
     const firebaseConfig = {
-  apiKey: "AIzaSyAj8HjDS80m2POVmbBwNNG1uHlCqJ0DmMQ",
-  authDomain: "naxshin-e5e25.firebaseapp.com",
-  projectId: "naxshin-e5e25",
-  storageBucket: "naxshin-e5e25.firebasestorage.app",
-  messagingSenderId: "666973865382",
-  appId: "1:666973865382:web:5e284dc80a7f1798f7bb67"
-};
+      apiKey:            "AIzaSyAj8HjDS80m2POVmbBwNNG1uHlCqJ0DmMQ",
+      authDomain:        "naxshin-e5e25.firebaseapp.com",
+      projectId:         "naxshin-e5e25",
+      storageBucket:     "naxshin-e5e25.firebasestorage.app",
+      messagingSenderId: "666973865382",
+      appId:             "1:666973865382:web:5e284dc80a7f1798f7bb67",
+      databaseURL:       "https://naxshin-e5e25-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+    const ADMIN_EMAIL = "naxshinkrd@gmail.com";
 
     let auth, db, storage;
     let fbReady = false;
     try {
       const app = initializeApp(firebaseConfig);
       auth = getAuth(app); db = getFirestore(app); storage = getStorage(app);
-      if (!firebaseConfig.apiKey.startsWith('YOUR')) fbReady = true;
+      fbReady = true; // Real Firebase config active
     } catch (e) { console.warn('Firebase not configured — demo mode active'); }
 
     // ─── STATE ───
@@ -4098,7 +4102,7 @@
 
     // ─── EXPOSE ───
     Object.assign(window, {
-      doLogin, doRegister, forgotPassword, demoLogin, signOut, saveProfile, uploadAvatar,
+      doLogin, doRegister, forgotPassword, signOut, saveProfile, uploadAvatar,
       submitBugReport, submitContact, submitPartner, toggleCart, checkout, submitCheckoutForm, generateOrderId,
       filterProducts, filterShop, filterDesigners, setCategory, setShopCategory,
       selectRole, selectPartner, addToCart, removeFromCart, changeQty,
@@ -4114,10 +4118,23 @@
         if (user) {
           try {
             const snap = await getDoc(doc(db, 'users', user.uid));
-            currentUser = snap.exists()
-              ? { uid: user.uid, ...snap.data() }
-              : { uid: user.uid, email: user.email, name: user.displayName || 'User', role: 'customer', status: 'active', photoURL: '', phone: '' };
-            if (!snap.exists()) await setDoc(doc(db, 'users', user.uid), currentUser);
+            if (snap.exists()) {
+              currentUser = { uid: user.uid, ...snap.data() };
+              // Auto-promote admin email to admin role
+              if (user.email === ADMIN_EMAIL && currentUser.role !== 'admin') {
+                await updateDoc(doc(db, 'users', user.uid), { role: 'admin', status: 'active' });
+                currentUser.role = 'admin';
+              }
+            } else {
+              const isAdminAcc = user.email === ADMIN_EMAIL;
+              currentUser = {
+                uid: user.uid, email: user.email,
+                name: user.displayName || (isAdminAcc ? 'Admin Naxshin' : 'User'),
+                role: isAdminAcc ? 'admin' : 'customer',
+                status: 'active', photoURL: '', phone: ''
+              };
+              await setDoc(doc(db, 'users', user.uid), currentUser);
+            }
             currentRole = currentUser.role || 'customer';
             updateNavUser();
           } catch (e) { console.error(e); }
@@ -4143,7 +4160,7 @@
 
     // ─── AUTH ───
     async function doLogin() {
-      if (!fbReady) { toast('Firebase not configured — use demo buttons below', 'error'); return; }
+      if (!fbReady) { toast('Firebase connection error. Please try again.', 'error'); return; }
       const email = document.getElementById('login-email').value.trim();
       const pw = document.getElementById('login-pw').value;
       if (!email || !pw) { toast('Fill in all fields', 'error'); return; }
@@ -4151,7 +4168,7 @@
       catch (e) { const m = { 'auth/user-not-found': 'No account with that email.', 'auth/wrong-password': 'Wrong password.', 'auth/invalid-email': 'Invalid email.' }; toast(m[e.code] || e.message, 'error'); }
     }
     async function doRegister() {
-      if (!fbReady) { toast('Firebase not configured — use demo buttons', 'error'); return; }
+      if (!fbReady) { toast('Registration unavailable. Please try again.', 'error'); return; }
       const name = document.getElementById('reg-name').value.trim();
       const email = document.getElementById('reg-email').value.trim();
       const pw = document.getElementById('reg-pw').value;
@@ -4167,10 +4184,7 @@
         toast(status === 'pending' ? 'Account created! Awaiting admin approval.' : 'Welcome to Naxshin! 🎉', 'success');
       } catch (e) { const m = { 'auth/email-already-in-use': 'Email already in use.', 'auth/weak-password': 'Password too weak.' }; toast(m[e.code] || e.message, 'error'); }
     }
-    function demoLogin(role) {
-      const users = { customer: { uid: 'demo-customer', name: 'Sara Ahmad', email: 'customer@demo.com', role: 'customer', status: 'active', photoURL: '' }, designer: { uid: 'demo-designer', name: 'Aryan Studio', email: 'designer@demo.com', role: 'designer', status: 'active', photoURL: '' }, printer: { uid: 'demo-printer', name: 'Kurdish Print Co.', email: 'printer@demo.com', role: 'printer', status: 'active', photoURL: '' }, admin: { uid: 'demo-admin', name: 'Admin Naxshin', email: 'admin@demo.com', role: 'admin', status: 'active', photoURL: '' } };
-      currentUser = users[role]; currentRole = role; updateNavUser(); closeModal('login-modal'); toast(`Demo: ${role} ✓`, 'success');
-    }
+
     async function signOut() {
       try { if (fbReady && !currentUser?.uid?.startsWith('demo')) await fbSignOut(auth); currentUser = null; currentRole = 'guest'; updateNavGuest(); showPage('home'); toast('Signed out', 'success'); }
       catch (e) { toast(e.message, 'error'); }
@@ -4401,7 +4415,7 @@
         customer: [{ i: 'fa-tachometer-alt', l: 'Overview', s: 'overview' }, { i: 'fa-shopping-bag', l: t('ptabOrders'), s: 'my-orders' }, { i: 'fa-heart', l: t('ptabWishlist'), s: 'wishlist' }, { i: 'fa-user', l: t('ptabInfo'), s: 'profile' }],
         designer: [{ i: 'fa-tachometer-alt', l: 'Dashboard', s: 'overview' }, { i: 'fa-palette', l: 'My Designs', s: 'designs' }, { i: 'fa-upload', l: 'Upload Design', s: 'upload' }, { i: 'fa-chart-bar', l: 'Sales', s: 'sales' }, { i: 'fa-user', l: t('ptabInfo'), s: 'profile' }],
         printer: [{ i: 'fa-tachometer-alt', l: 'Dashboard', s: 'overview' }, { i: 'fa-list', l: 'Print Queue', s: 'queue' }, { i: 'fa-truck', l: 'Orders', s: 'orders' }, { i: 'fa-user', l: t('ptabInfo'), s: 'profile' }],
-        admin: [{ i: 'fa-crown', l: 'Overview', s: 'overview' }, { i: 'fa-users', l: 'Users', s: 'users' }, { i: 'fa-tshirt', l: 'Products', s: 'products' }, { i: 'fa-clipboard-list', l: 'Orders', s: 'orders' }, { i: 'fa-user-check', l: 'Requests', s: 'requests' }, { i: 'fa-chart-line', l: 'Analytics', s: 'analytics' }, { i: 'fa-bullhorn', l: 'Ads Manager', s: 'ads' }]
+        admin: [{ i: 'fa-crown', l: 'Overview', s: 'overview' }, { i: 'fa-users', l: 'Users', s: 'users' }, { i: 'fa-tshirt', l: 'Products', s: 'products' }, { i: 'fa-clipboard-list', l: 'Orders', s: 'orders' }, { i: 'fa-user-check', l: 'Requests', s: 'requests' }, { i: 'fa-chart-line', l: 'Analytics', s: 'analytics' }, { i: 'fa-bullhorn', l: 'Ads Manager', s: 'ads' }, { i: 'fa-shield-alt', l: 'Security Rules', s: 'rules' }]
       };
       const items = navs[currentRole] || navs.customer;
       document.getElementById('sidebar-nav').innerHTML = items.map((x, i) => `<li class="${i === 0 ? 'active' : ''}"><button onclick="showDashSection('${x.s}',this)"><i class="fas ${x.i}"></i> ${x.l}</button></li>`).join('') + `<li style="margin-top:12px"><button onclick="showPage('home')"><i class="fas fa-arrow-left"></i> Back to Shop</button></li>`;
@@ -4415,7 +4429,7 @@
       else if (s === 'upload') rDesUp(m); else if (s === 'designs') rDesDes(m); else if (s === 'sales') rDesSales(m);
       else if (s === 'queue') rPrintQ(m); else if (s === 'users') rAdminUsers(m); else if (s === 'products') rAdminProducts(m);
       else if (s === 'orders') rAdminOrders(m); else if (s === 'requests') rAdminReqs(m); else if (s === 'analytics') rAdminAnalytics(m);
-      else if (s === 'ads') rAdminAds(m); else if (s === 'profile') showPage('profile');
+      else if (s === 'ads') rAdminAds(m); else if (s === 'rules') rAdminRules(m); else if (s === 'profile') showPage('profile');
     }
     const sc = (bg, ic, val, lbl) => `<div class="stat-card"><div class="stat-icon" style="background:${bg}">${ic}</div><div class="stat-val">${val}</div><div class="stat-label">${lbl}</div></div>`;
     function rCustOv(m) { m.innerHTML = `<div class="dash-header"><h2>Welcome, ${currentUser?.name?.split(' ')[0] || 'User'} 👋</h2><p>Your shopping overview</p></div><div class="stat-grid">${sc('#E8F5E9', '<i class="fas fa-shopping-bag" style="color:var(--forest)"></i>', cart.length, 'Cart Items')}${sc('#FFF8E1', '<i class="fas fa-heart" style="color:var(--gold-dark)"></i>', wishlist.length, 'Wishlist')}${sc('#FFEBEE', '<i class="fas fa-box" style="color:var(--rust)"></i>', 0, 'Orders')}</div><div class="dash-card"><h3>Quick Actions</h3><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn-primary" onclick="showPage('shop')">Browse Shop</button><button style="background:var(--sand-pale);border:1.5px solid var(--sand);color:var(--charcoal);padding:10px 18px;border-radius:var(--radius-sm);font-weight:600;cursor:pointer" onclick="toggleCart()">View Cart</button></div></div>`; }
@@ -4525,7 +4539,7 @@
       set('footer-company-title', t('footerCompany')); set('footer-about', t('footerAbout')); set('footer-contact-link', t('footerContact')); set('footer-privacy', t('footerPrivacy')); set('footer-terms', t('footerTerms'));
       set('footer-account-title', t('footerAccount')); set('footer-login', t('footerLogin')); set('footer-register', t('footerRegister')); set('footer-profile', t('footerProfile')); set('footer-orders', t('footerOrders')); set('footer-copy', t('footerCopy'));
       set('txt-signin', t('signin')); set('txt-signin-sub', t('signinSub')); set('lbl-login-email', t('lblEmail')); set('lbl-pw', t('pw')); set('txt-forgot', t('forgot')); set('txt-continue', t('continue')); set('txt-or', t('or')); set('txt-no-account', t('noAccount')); set('txt-signup-link', t('signupLink'));
-      set('demo-customer', t('demoCustomer')); set('demo-designer', t('demoDesigner')); set('demo-printer', t('demoPrinter')); set('demo-admin', t('demoAdmin'));
+      // demo buttons removed
       set('txt-create', t('create')); set('txt-create-sub', t('createSub')); set('lbl-reg-name', t('lblFullName')); set('lbl-reg-email', t('lblEmail')); set('lbl-reg-pw', t('pw')); set('txt-req-role', t('reqRole')); set('txt-role-note', t('roleNote')); set('txt-create-btn', t('createBtn')); set('txt-have-account', t('haveAccount')); set('txt-signin-link', t('signinLink'));
       set('role-customer', t('roleCustomer')); set('role-designer', t('roleDesigner')); set('role-printer', t('rolePrinter')); set('role-advertiser', t('roleAdvertiser'));
       set('txt-dashboard-btn', t('dashboardBtn')); set('txt-signout', t('signout'));
@@ -4697,6 +4711,100 @@
       updateMobDrawerUser();
       if (lang === 'ku') applyMobTranslations();
     }, 300);
+
+
+    // ─── ADMIN: SECURITY RULES ───
+    function rAdminRules(m) {
+      const recommended = `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Users: own data + admin access ──
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ── Products: public read, designer/admin write ──
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin','designer'];
+    }
+
+    // ── Orders: user creates/reads own, admin/printer can update ──
+    match /orders/{orderId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin','designer','printer']
+      );
+      allow update: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin','printer'];
+    }
+
+    // ── Contact / Bug / Partner: public create, admin read ──
+    match /contact-messages/{id} {
+      allow create: if true;
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /bug-reports/{id} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /partner-requests/{id} {
+      allow create: if true;
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}`;
+
+      m.innerHTML = `
+        <div class="dash-header"><h2>🛡️ Security Rules</h2><p>Manage Firestore security rules for your database</p></div>
+        <div class="dash-card" style="margin-bottom:16px">
+          <h3>Quick Links</h3>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+            <a href="https://console.firebase.google.com/project/naxshin-e5e25/firestore/databases/-default-/rules" target="_blank" rel="noopener"
+               style="background:var(--forest);color:#fff;padding:9px 18px;border-radius:6px;font-size:.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+              <i class="fas fa-external-link-alt"></i> Open Firebase Console
+            </a>
+            <a href="https://console.firebase.google.com/project/naxshin-e5e25/authentication/users" target="_blank" rel="noopener"
+               style="background:var(--gold-dark);color:#fff;padding:9px 18px;border-radius:6px;font-size:.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+              <i class="fas fa-users"></i> Manage Auth Users
+            </a>
+          </div>
+        </div>
+        <div class="dash-card">
+          <h3>Recommended Firestore Rules</h3>
+          <p style="color:var(--mid-gray);font-size:.8rem;margin-bottom:14px">Copy these rules and paste them in the Firebase Console → Firestore → Rules tab. Click "Open Firebase Console" above.</p>
+          <div style="position:relative">
+            <pre id="rules-code" style="background:#0f0f0f;color:#c9d1d9;padding:18px;border-radius:8px;font-size:.75rem;line-height:1.7;overflow-x:auto;white-space:pre-wrap;border:1px solid rgba(255,255,255,.1)">${recommended.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+            <button onclick="copyRules()" style="position:absolute;top:10px;right:10px;background:var(--gold);color:#1A0A0E;border:none;padding:5px 12px;border-radius:5px;font-size:.72rem;font-weight:700;cursor:pointer">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+          <p style="color:var(--mid-gray);font-size:.74rem;margin-top:10px">⚠️ Current rules are set to <strong>deny all</strong>. You must update them in Firebase Console before real users can read/write data.</p>
+        </div>
+        <div class="dash-card">
+          <h3>Current Rules Status</h3>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--sand-pale);border-radius:8px">
+            <i class="fas fa-exclamation-triangle" style="color:var(--rust);font-size:1.3rem"></i>
+            <div>
+              <div style="font-weight:600;font-size:.85rem;color:var(--rust)">Rules are currently LOCKED (deny all)</div>
+              <div style="font-size:.75rem;color:var(--mid-gray);margin-top:2px">Firebase Auth works, but Firestore reads/writes will fail until rules are updated. Copy rules above and publish them in the Firebase Console.</div>
+            </div>
+          </div>
+        </div>`;
+      window.copyRules = function() {
+        navigator.clipboard.writeText(recommended).then(() => toast('Rules copied to clipboard ✓','success')).catch(() => {
+          const ta = document.createElement('textarea'); ta.value = recommended; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); toast('Rules copied ✓','success');
+        });
+      };
+    }
 
     // ─── INIT ───
     if (lang === 'ku') { document.documentElement.setAttribute('dir', 'rtl'); document.documentElement.setAttribute('lang', 'ku'); document.getElementById('lang-btn').textContent = 'English'; applyTranslations(); }
