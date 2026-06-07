@@ -3247,57 +3247,6 @@
         left: 12px !important;
       }
     }
-
-    /* ══ ROLE BADGE COLORS ══ */
-    .profile-role-badge[data-role="admin"]      { background: #8B2E0F !important; }
-    .profile-role-badge[data-role="designer"]   { background: #6A1B9A !important; }
-    .profile-role-badge[data-role="printer"]    { background: #0277BD !important; }
-    .profile-role-badge[data-role="advertiser"] { background: #E65100 !important; }
-    .profile-role-badge[data-role="customer"]   { background: #2D4A3E !important; }
-    .profile-role-badge[data-role="technician"] { background: #00695C !important; }
-    .nav-avatar-placeholder[data-role="admin"]      { border-color: #8B2E0F; background: #8B2E0F; }
-    .nav-avatar-placeholder[data-role="designer"]   { border-color: #6A1B9A; background: #6A1B9A; }
-    .nav-avatar-placeholder[data-role="printer"]    { border-color: #0277BD; background: #0277BD; }
-    .nav-avatar-placeholder[data-role="admin"] .role-glow { box-shadow: 0 0 0 3px rgba(139,46,15,.4); }
-    
-    /* ══ DESIGNER PROFILE PAGE ══ */
-    .designer-profile-cover {
-      height: 200px;
-      background: linear-gradient(135deg, #3B1219 0%, var(--burgundy) 40%, #6A1B9A 80%, #0277BD 100%);
-      position: relative; overflow: hidden; border-radius: var(--radius) var(--radius) 0 0;
-    }
-    .designer-profile-cover::before {
-      content: ''; position: absolute; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cg fill='%23C9A96E' fill-opacity='0.12'%3E%3Cpolygon points='30,2 58,30 30,58 2,30'/%3E%3C/g%3E%3C/svg%3E");
-      background-size: 60px 60px;
-    }
-    .designer-profile-body { background: var(--white); border-radius: 0 0 var(--radius) var(--radius); padding: 60px 26px 26px; box-shadow: var(--shadow); }
-    .designer-bio { font-size: .88rem; color: var(--mid-gray); line-height: 1.8; margin: 12px 0 20px; max-width: 600px; }
-    .designer-stats { display: flex; gap: 24px; margin-bottom: 20px; flex-wrap: wrap; }
-    .designer-stat { text-align: center; }
-    .designer-stat-val { font-family: var(--font-h); font-size: 1.4rem; font-weight: 700; color: var(--forest); display: block; }
-    .designer-stat-lbl { font-size: .7rem; color: var(--mid-gray); text-transform: uppercase; letter-spacing: .5px; }
-    
-    /* ══ GOOGLE BUTTON ══ */
-    .btn-google {
-      width: 100%; padding: 11px; border-radius: var(--radius-sm); border: 1.5px solid var(--light-gray);
-      background: var(--white); color: var(--charcoal); font-weight: 600; font-size: .87rem;
-      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all .2s;
-    }
-    .btn-google:hover { border-color: #4285F4; background: #f8f9ff; }
-    
-    /* ══ 2FA ══ */
-    .tfa-code-grid { display: flex; gap: 8px; justify-content: center; margin: 18px 0; }
-    .tfa-code-grid input {
-      width: 44px; height: 52px; text-align: center; font-size: 1.3rem; font-weight: 700;
-      border: 2px solid var(--light-gray); border-radius: var(--radius-sm); outline: none;
-      font-family: var(--font-b); transition: border-color .2s;
-    }
-    .tfa-code-grid input:focus { border-color: var(--forest); }
-    .tfa-qr { text-align: center; margin: 16px 0; }
-    .tfa-qr img { border: 4px solid var(--white); border-radius: var(--radius-sm); box-shadow: var(--shadow); }
-    .tfa-secret { font-family: monospace; font-size: .75rem; background: var(--sand-pale); padding: 6px 10px; border-radius: 4px; word-break: break-all; text-align: center; margin: 8px 0; }
-
   </style>
 </head>
 
@@ -3371,6 +3320,1499 @@
       <button class="mob-drawer-item" id="md-profile" onclick="showPage('profile');closeMobDrawer()"><i
           class="fas fa-user"></i><span id="mdi-profile">Profile</span></button>
     </div>
+    <div class="mob-lang-row">
+      <span class="mob-lang-label" id="md-lang-lbl">Language</span>
+      <button class="mob-lang-toggle" onclick="toggleLang()"
+        id="md-lang-btn">&#x06A9;&#x0648;&#x0631;&#x062F;&#x06CC;</button>
+    </div>
+    <div class="mob-drawer-footer" id="mob-drawer-footer-auth">
+      <button class="mob-btn-full primary" onclick="openModal('login-modal');closeMobDrawer()"
+        id="mdi-login">Login</button>
+      <button class="mob-btn-full outline" onclick="openModal('register-modal');closeMobDrawer()" id="mdi-signup">Sign
+        Up</button>
+    </div>
+    <div class="mob-drawer-footer hidden" id="mob-drawer-footer-user">
+      <button class="mob-btn-full outline" style="border-color:rgba(212,160,67,.3);color:rgba(245,237,216,.6)"
+        onclick="signOut();closeMobDrawer()" id="mdi-signout">Sign Out</button>
+    </div>
   </div>
+  <!-- ══ MOBILE BOTTOM NAV ══ -->
+  <nav id="mob-bottom-nav">
+    <button class="mob-nav-item active" id="mn-home" onclick="showPage('home');setMobBottomActive('mn-home')"><i
+        class="fas fa-home"></i><span id="mni-home">Home</span></button>
+    <button class="mob-nav-item" id="mn-shop" onclick="showPage('shop');setMobBottomActive('mn-shop')"><i
+        class="fas fa-th-large"></i><span id="mni-shop">Collection</span></button>
+    <button class="mob-nav-item" id="mn-wish"
+      onclick="showPage('profile');switchProfileTab(document.getElementById('ptab-wishlist'),'tab-wishlist');setMobBottomActive('mn-wish')"><i
+        class="fas fa-heart"></i><span id="mni-wish">Favourites</span></button>
+    <button class="mob-nav-item" id="mn-profile" onclick="showPage('profile');setMobBottomActive('mn-profile')"><i
+        class="fas fa-user"></i><span id="mni-profile">Profile</span></button>
+  </nav>
+
+  <!-- CART -->
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-header">
+      <h3 id="txt-cart">Shopping Cart</h3>
+      <button class="nav-icon-btn" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items" id="cart-items-list"></div>
+    <div class="cart-footer">
+      <div class="cart-total"><span id="txt-total">Total</span><span id="cart-total-val">$0.00</span></div>
+      <button class="btn-block btn-forest" onclick="checkout()" id="txt-checkout">Checkout</button>
+    </div>
+  </div>
+  <div id="cart-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:299"
+    onclick="toggleCart()"></div>
+
+  <!-- NAV -->
+  <nav id="main-nav">
+    <a class="nav-brand" href="#" onclick="showPage('home');return false;">
+      <img src="" class="nav-logo" id="nav-logo" alt="Naxshin" />
+      <div class="nav-brand-text">
+        <span class="nav-brand-name">NAXSHIN</span>
+        <span class="nav-brand-sub" id="nav-brand-sub">Print & Design</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <button class="nav-link-btn active" onclick="showPage('home');setActiveNav(this)" id="nav-home">Home</button>
+      <button class="nav-link-btn" onclick="showPage('shop');setActiveNav(this)" id="nav-shop">Shop</button>
+      <button class="nav-link-btn" onclick="showPage('designers');setActiveNav(this)"
+        id="nav-designers">Designers</button>
+      <button class="nav-link-btn" onclick="showPage('about');setActiveNav(this)" id="nav-about">About</button>
+      <button class="nav-link-btn" onclick="showPage('contact');setActiveNav(this)" id="nav-contact">Contact</button>
+    </div>
+    <div class="nav-right">
+      <button class="lang-toggle" onclick="toggleLang()" id="lang-btn">کوردی</button>
+      <button class="nav-icon-btn" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+      <div id="nav-auth-area">
+        <button class="btn-login" onclick="openModal('login-modal')" id="txt-nav-login">Login</button>
+        <button class="btn-signup" onclick="openModal('register-modal')" id="txt-nav-signup">Sign Up</button>
+      </div>
+      <div id="nav-user-area" class="hidden d-flex align-center gap-8">
+        <div class="nav-avatar-placeholder" id="nav-avatar-init" onclick="showPage('profile')">U</div>
+      </div>
+    </div>
+    <button class="hamburger" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+  </nav>
+  <div class="mobile-menu" id="mobile-menu">
+    <button class="nav-link-btn" onclick="showPage('home');toggleMobileMenu()" id="mob-home">Home</button>
+    <button class="nav-link-btn" onclick="showPage('shop');toggleMobileMenu()" id="mob-shop">Shop</button>
+    <button class="nav-link-btn" onclick="showPage('designers');toggleMobileMenu()"
+      id="mob-designers">Designers</button>
+    <button class="nav-link-btn" onclick="showPage('about');toggleMobileMenu()" id="mob-about">About</button>
+    <button class="nav-link-btn" onclick="showPage('contact');toggleMobileMenu()" id="mob-contact">Contact</button>
+    <div style="display:flex;gap:8px;padding-top:4px" id="mob-auth">
+      <button class="btn-login" style="flex:1" onclick="openModal('login-modal');toggleMobileMenu()"
+        id="mob-login">Login</button>
+      <button class="btn-signup" style="flex:1" onclick="openModal('register-modal');toggleMobileMenu()"
+        id="mob-signup">Sign Up</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ HOME ═══════════ -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-stripe-bottom"></div>
+      <div class="hero-content">
+        <div class="hero-ornament">
+          <div class="hero-ornament-line"></div>
+          <div class="hero-ornament-diamond"></div>
+          <div class="hero-ornament-line r"></div>
+        </div>
+        <!-- Kilim logo ornament for mobile -->
+        <svg class="hero-kilim-icon" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(60,60) rotate(45)">
+            <rect x="-46" y="-46" width="92" height="92" fill="rgba(107,26,42,0.6)" rx="3" />
+            <rect x="-38" y="-38" width="76" height="76" fill="rgba(201,169,110,0.3)" rx="2" />
+            <rect x="-30" y="-30" width="60" height="60" fill="rgba(139,46,15,0.7)" rx="2" />
+            <rect x="-20" y="-20" width="40" height="40" fill="rgba(245,237,216,0.15)" rx="1" />
+            <rect x="-13" y="-13" width="26" height="26" fill="rgba(45,74,62,0.8)" rx="1" />
+            <rect x="-6" y="-6" width="12" height="12" fill="rgba(201,169,110,0.9)" />
+            <rect x="-2" y="-2" width="4" height="4" fill="#1A0A0E" />
+          </g>
+          <!-- corner diamonds -->
+          <rect x="57" y="3" width="6" height="6" fill="rgba(201,169,110,0.5)" transform="rotate(45 60 6)" />
+          <rect x="57" y="111" width="6" height="6" fill="rgba(201,169,110,0.5)" transform="rotate(45 60 114)" />
+          <rect x="3" y="57" width="6" height="6" fill="rgba(201,169,110,0.5)" transform="rotate(45 6 60)" />
+          <rect x="111" y="57" width="6" height="6" fill="rgba(201,169,110,0.5)" transform="rotate(45 114 60)" />
+        </svg>
+        <div class="hero-badge" id="hero-badge-text">Kurdish Heritage · Modern Expression</div>
+        <h1 id="hero-h1">Fashion Crafted <span>for Every Story</span></h1>
+        <p id="hero-p">Discover unique print-on-demand fashion from local designers. Wear your culture, express your
+          identity.</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="showPage('shop')" id="txt-shop-now">Shop Now</button>
+          <button class="btn-outline-light" onclick="openModal('partner-modal')" id="txt-partner">Become a Partner
+            →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RICH MEDIA ADS -->
+    <div class="ads-section">
+      <div class="ads-section-header">
+        <div class="d-flex align-center gap-8">
+          <span class="ads-label-badge" id="txt-ad">AD</span>
+          <span class="ads-section-title" id="txt-sponsored">SPONSORED PARTNERS</span>
+        </div>
+        <button class="ads-advertise-link" onclick="openModal('partner-modal')" id="txt-advertise-here">Advertise Here
+          →</button>
+      </div>
+      <div class="ads-ticker">
+        <div class="ads-ticker-track" id="ads-ticker-track">
+          <span><i class="fas fa-star"></i>Partner Brand — Premium Quality Fabrics</span>
+          <span><i class="fas fa-palette"></i>Kurdish Artisan Collective — Handcrafted Designs</span>
+          <span><i class="fas fa-truck"></i>Fast Delivery Across Kurdistan Region</span>
+          <span><i class="fas fa-gem"></i>Exclusive Collab Drop — Limited Edition</span>
+          <span><i class="fas fa-star"></i>Partner Brand — Premium Quality Fabrics</span>
+          <span><i class="fas fa-palette"></i>Kurdish Artisan Collective — Handcrafted Designs</span>
+          <span><i class="fas fa-truck"></i>Fast Delivery Across Kurdistan Region</span>
+          <span><i class="fas fa-gem"></i>Exclusive Collab Drop — Limited Edition</span>
+        </div>
+      </div>
+      <div class="ads-slots" id="ads-slots">
+        <div class="ad-slot" id="main-ad-slot">
+          <div class="ad-slot-placeholder">
+            <i class="fas fa-bullhorn"></i>
+            <p id="txt-ad-slot1">Your Ad Here — Image or Video</p>
+            <button class="ad-cta" onclick="openModal('partner-modal')" id="txt-ad-cta1">Advertise Here</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title" id="txt-trending">🔥 <span>Trending</span> Now</h2><button class="see-all"
+          onclick="showPage('shop')" id="txt-see-all-t">See all →</button>
+      </div>
+      <div class="product-grid" id="trending-grid"></div>
+    </div>
+    <div class="section" style="padding-top:0">
+      <div class="section-header">
+        <h2 class="section-title" id="txt-new-arrivals">✨ New <span>Arrivals</span></h2><button class="see-all"
+          onclick="showPage('shop')" id="txt-see-all-n">See all →</button>
+      </div>
+      <div class="product-grid" id="new-arrivals-grid"></div>
+    </div>
+    <div class="section" style="padding-top:0">
+      <div class="section-header">
+        <h2 class="section-title" id="txt-all-products">All <span>Products</span></h2>
+      </div>
+      <div class="filters-bar" id="home-filters">
+        <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="home-search"
+            oninput="filterProducts()" /></div>
+        <button class="filter-chip active" onclick="setCategory(this,'all')" id="fcat-all">All</button>
+        <button class="filter-chip" onclick="setCategory(this,'tshirt')" id="fcat-tshirt">T-Shirts</button>
+        <button class="filter-chip" onclick="setCategory(this,'hoodie')" id="fcat-hoodie">Hoodies</button>
+        <button class="filter-chip" onclick="setCategory(this,'dress')" id="fcat-dress">Dresses</button>
+        <button class="filter-chip" onclick="setCategory(this,'jacket')" id="fcat-jacket">Jackets</button>
+        <button class="filter-chip" onclick="setCategory(this,'collab')" id="fcat-collab">Collabs</button>
+      </div>
+      <div class="product-grid" id="all-products-grid"></div>
+    </div>
+
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-name">NAXSHIN</div>
+          <p id="footer-desc">Where Kurdish heritage meets modern design. Wear your story.</p>
+        </div>
+        <div class="footer-col">
+          <h5 id="footer-shop-title">Shop</h5><a onclick="showPage('shop')" id="footer-all-products">All Products</a><a
+            onclick="showPage('shop')" id="footer-new">New Arrivals</a><a onclick="showPage('designers')"
+            id="footer-designers-link">Designers</a><a onclick="openModal('partner-modal')"
+            id="footer-collab">Collaborate</a>
+        </div>
+        <div class="footer-col">
+          <h5 id="footer-company-title">Company</h5><a onclick="showPage('about')" id="footer-about">About Us</a><a
+            onclick="showPage('contact')" id="footer-contact-link">Contact</a><a id="footer-privacy">Privacy
+            Policy</a><a id="footer-terms">Terms of Service</a>
+        </div>
+        <div class="footer-col">
+          <h5 id="footer-account-title">Account</h5><a onclick="openModal('login-modal')" id="footer-login">Login</a><a
+            onclick="openModal('register-modal')" id="footer-register">Register</a><a onclick="showPage('profile')"
+            id="footer-profile">My Profile</a><a onclick="showPage('profile')" id="footer-orders">My Orders</a>
+        </div>
+      </div>
+      <div class="footer-bottom" id="footer-copy">© 2025 Naxshin Print & Design — Made with ❤️ in Kurdistan</div>
+    </footer>
+  </div>
+
+  <!-- SHOP -->
+  <div class="page" id="page-shop">
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title" id="shop-title">All <span>Products</span></h2>
+      </div>
+      <div class="filters-bar">
+        <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="shop-search"
+            oninput="filterShop()" /></div>
+        <button class="filter-chip active" onclick="setShopCategory(this,'all')" id="sfcat-all">All</button>
+        <button class="filter-chip" onclick="setShopCategory(this,'tshirt')" id="sfcat-tshirt">T-Shirts</button>
+        <button class="filter-chip" onclick="setShopCategory(this,'hoodie')" id="sfcat-hoodie">Hoodies</button>
+        <button class="filter-chip" onclick="setShopCategory(this,'dress')" id="sfcat-dress">Dresses</button>
+        <button class="filter-chip" onclick="setShopCategory(this,'jacket')" id="sfcat-jacket">Jackets</button>
+        <button class="filter-chip" onclick="setShopCategory(this,'collab')" id="sfcat-collab">Collabs</button>
+      </div>
+      <div class="product-grid" id="shop-grid"></div>
+    </div>
+  </div>
+
+  <!-- DESIGNERS -->
+  <div class="page" id="page-designers">
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title" id="designers-title">Our <span>Designers</span></h2>
+      </div>
+      <div class="filters-bar">
+        <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="designer-search"
+            oninput="filterDesigners()" /></div>
+      </div>
+      <div class="product-grid" id="designers-grid"></div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="page" id="page-about">
+    <div class="about-hero">
+      <div class="about-hero-content">
+        <div class="hero-badge" style="margin-bottom:12px" id="about-badge">Our Story</div>
+        <h1 style="font-family:var(--font-h);font-size:clamp(1.7rem,5vw,2.8rem);margin-bottom:10px" id="about-title">
+          About <span style="color:var(--sand)">Naxshin</span></h1>
+        <p style="max-width:480px;margin:0 auto;opacity:.8;line-height:1.8;font-size:.88rem" id="about-sub">A
+          Kurdish-rooted fashion platform connecting local designers, print partners, and customers.</p>
+      </div>
+    </div>
+    <div class="section" style="max-width:780px;margin:0 auto">
+      <div class="dash-card">
+        <h3 id="about-mission-title">Our Mission</h3>
+        <p style="color:var(--mid-gray);line-height:1.9;font-size:.87rem" id="about-mission-text">Naxshin was born from
+          a desire to celebrate Kurdish identity through wearable art. We partner with local designers, give them a
+          platform to share their creations, and connect them with customers who want authentic, meaningful clothing.
+          Our name — Naxshin — means "decorated" or "adorned" in Kurdish.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#E8F5E9"><i class="fas fa-tshirt" style="color:var(--forest)"></i>
+          </div>
+          <div class="stat-val">200+</div>
+          <div class="stat-label" id="stat-products">Products</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#FFF8E1"><i class="fas fa-palette"
+              style="color:var(--gold-dark)"></i></div>
+          <div class="stat-val">40+</div>
+          <div class="stat-label" id="stat-designers">Designers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#FFEBEE"><i class="fas fa-users" style="color:var(--rust)"></i></div>
+          <div class="stat-val">1000+</div>
+          <div class="stat-label" id="stat-customers">Customers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#F3E5F5"><i class="fas fa-handshake" style="color:#6A1B9A"></i></div>
+          <div class="stat-val">12</div>
+          <div class="stat-label" id="stat-partners">Partners</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="page" id="page-contact">
+    <div class="section" style="max-width:660px;margin:0 auto">
+      <div class="section-header">
+        <h2 class="section-title" id="contact-title">Contact <span>Us</span></h2>
+      </div>
+      <div class="dash-card">
+        <div class="form-group"><label class="form-label" id="lbl-your-name">Your Name</label><input
+            class="form-control" type="text" id="contact-name" /></div>
+        <div class="form-group"><label class="form-label" id="lbl-c-email">Email</label><input class="form-control"
+            type="email" id="contact-email" /></div>
+        <div class="form-group"><label class="form-label" id="lbl-subject">Subject</label>
+          <select class="form-control" id="contact-subject">
+            <option id="csubj-general">General Inquiry</option>
+            <option id="csubj-partner">Partnership</option>
+            <option id="csubj-order">Order Issue</option>
+            <option id="csubj-design">Design Submission</option>
+            <option id="csubj-bug">Report a Bug</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label" id="lbl-message">Message</label><textarea class="form-control"
+            rows="5" id="contact-msg"></textarea></div>
+        <div class="form-group"><label class="form-label" id="lbl-attach">Attach Image (optional)</label><input
+            type="file" class="form-control" accept="image/*" id="contact-img" /></div>
+        <button class="btn-block btn-forest" onclick="submitContact()" id="txt-send-msg">Send Message</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="page" id="page-profile">
+    <div class="profile-layout">
+      <div class="profile-cover-section">
+        <div class="profile-cover"></div>
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="profile-avatar-display">U</div>
+        </div>
+      </div>
+      <div class="profile-body">
+        <div class="d-flex align-center justify-between mb-16" style="flex-wrap:wrap;gap:8px">
+          <div><span class="profile-name" id="profile-name-display">User</span><span class="profile-role-badge"
+              id="profile-role-badge">Customer</span></div>
+          <div class="d-flex gap-8">
+            <button class="btn-login" style="font-size:.74rem;padding:5px 11px" onclick="showPage('dashboard')"
+              id="txt-dashboard-btn">Dashboard</button>
+            <button class="btn-signup" style="font-size:.74rem;padding:5px 11px" onclick="signOut()"
+              id="txt-signout">Sign Out</button>
+          </div>
+        </div>
+        <div class="profile-tabs">
+          <button class="profile-tab active" onclick="switchProfileTab(this,'tab-info')" id="ptab-info">Profile
+            Info</button>
+          <button class="profile-tab" onclick="switchProfileTab(this,'tab-orders')" id="ptab-orders">My Orders</button>
+          <button class="profile-tab" onclick="switchProfileTab(this,'tab-wishlist')"
+            id="ptab-wishlist">Wishlist</button>
+          <button class="profile-tab" onclick="switchProfileTab(this,'tab-settings')"
+            id="ptab-settings">Settings</button>
+          <button class="profile-tab" onclick="switchProfileTab(this,'tab-report')" id="ptab-report">Report Bug</button>
+        </div>
+        <div class="profile-tab-content active" id="tab-info">
+          <div style="text-align:center;margin-bottom:16px">
+            <div class="avatar-upload-zone" onclick="document.getElementById('avatar-file').click()">
+              <img src="" id="profile-avatar-img" style="width:100%;height:100%;object-fit:cover;display:none" />
+              <div id="profile-avatar-initials" style="font-size:1.3rem;font-weight:700;color:var(--forest)">U</div>
+              <div class="overlay"><i class="fas fa-camera"></i></div>
+            </div>
+            <input type="file" id="avatar-file" accept="image/*" style="display:none" onchange="uploadAvatar(event)" />
+          </div>
+          <div class="form-group"><label class="form-label" id="lbl-full-name">Full Name</label><input
+              class="form-control" type="text" id="profile-name-input" /></div>
+          <div class="form-group"><label class="form-label" id="lbl-p-email">Email</label><input class="form-control"
+              type="email" id="profile-email-input" /></div>
+          <div class="form-group"><label class="form-label" id="lbl-new-pw">New Password</label><input
+              class="form-control" type="password" id="profile-pw-input" /></div>
+          <div class="form-group"><label class="form-label" id="lbl-phone">Phone</label><input class="form-control"
+              type="tel" id="profile-phone-input" placeholder="+964 ..." /></div>
+          <button class="btn-block btn-forest" onclick="saveProfile()" id="txt-save-changes">Save Changes</button>
+        </div>
+        <div class="profile-tab-content" id="tab-orders">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th id="th-order">Order #</th>
+                  <th id="th-date">Date</th>
+                  <th id="th-items">Items</th>
+                  <th id="th-total">Total</th>
+                  <th id="th-status">Status</th>
+                </tr>
+              </thead>
+              <tbody id="user-orders-table">
+                <tr>
+                  <td colspan="5" style="text-align:center;padding:22px;color:var(--mid-gray)" id="txt-no-orders">No
+                    orders yet</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="profile-tab-content" id="tab-wishlist">
+          <div class="product-grid" id="wishlist-grid">
+            <p style="color:var(--mid-gray);font-size:.83rem" id="txt-empty-wish">Your wishlist is empty.</p>
+          </div>
+        </div>
+        <div class="profile-tab-content" id="tab-settings">
+          <div class="settings-section">
+            <h4 id="txt-preferences">Preferences</h4>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label" id="lbl-email-notif">Email Notifications</div>
+                <div class="settings-desc" id="desc-email-notif">Receive order updates by email</div>
+              </div><label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label" id="lbl-language">Language</div>
+                <div class="settings-desc" id="desc-language">Switch between English and Kurdish</div>
+              </div><button class="lang-toggle" onclick="toggleLang()">کوردی / EN</button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h4 id="txt-danger-zone">Danger Zone</h4>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label" style="color:var(--rust)" id="lbl-delete-acc">Delete Account</div>
+                <div class="settings-desc" id="desc-delete-acc">Permanently remove your account</div>
+              </div><button class="btn-login"
+                style="border-color:var(--rust);color:var(--rust);font-size:.74rem;padding:5px 11px"
+                onclick="toast('Contact support to delete your account.','error')" id="txt-req-deletion">Request
+                Deletion</button>
+            </div>
+          </div>
+        </div>
+        <div class="profile-tab-content" id="tab-report">
+          <div class="form-group"><label class="form-label" id="lbl-bug-desc">Bug Description</label><textarea
+              class="form-control" rows="4" id="bug-desc"></textarea></div>
+          <div class="form-group"><label class="form-label" id="lbl-bug-img">Attach Screenshot</label><input type="file"
+              class="form-control" accept="image/*" id="bug-img" /></div>
+          <button class="btn-block btn-forest" onclick="submitBugReport()" id="txt-submit-report">Submit Report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page" id="page-dashboard">
+    <div class="dash-layout">
+      <div class="dash-sidebar">
+        <div class="brand">
+          <div class="brand-name">NAXSHIN</div>
+          <div class="brand-role" id="sidebar-role">Dashboard</div>
+        </div>
+        <ul class="sidebar-nav" id="sidebar-nav"></ul>
+      </div>
+      <div class="dash-main" id="dash-main-content"></div>
+    </div>
+  </div>
+
+  <!-- ═══════ MODALS ═══════ -->
+  <!-- Login -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('login-modal')"><i class="fas fa-times"></i></button>
+      <div class="modal-logo"><img src="" id="modal-logo" style="width:42px" alt="" /></div>
+      <div class="modal-title" id="txt-signin">Sign In</div>
+      <div class="modal-sub" id="txt-signin-sub">Welcome back to Naxshin</div>
+      <div class="form-group"><label class="form-label" id="lbl-login-email">Email</label><input class="form-control"
+          type="email" id="login-email" placeholder="email@example.com" /></div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;justify-content:space-between;align-items:center">
+          <span id="lbl-pw">Password</span>
+          <button class="form-link" onclick="forgotPassword()" style="font-size:.72rem" id="txt-forgot">Forgot?</button>
+        </label>
+        <input class="form-control" type="password" id="login-pw" placeholder="••••••••" />
+      </div>
+      <button class="btn-block btn-forest" onclick="doLogin()" id="txt-continue">Continue</button>
+      <div class="form-divider"><span id="txt-or">or</span></div>
+      <p style="text-align:center;font-size:.79rem;color:var(--mid-gray)"><span id="txt-no-account">Don't have an
+          account?</span><button class="form-link" onclick="switchModal('login-modal','register-modal')"
+          id="txt-signup-link"> Sign up</button></p>
+
+    </div>
+  </div>
+  <!-- Register -->
+  <div class="modal-overlay" id="register-modal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('register-modal')"><i class="fas fa-times"></i></button>
+      <div class="modal-logo"><img src="" class="modal-logo-img" style="width:42px" alt="" /></div>
+      <div class="modal-title" id="txt-create">Create Account</div>
+      <div class="modal-sub" id="txt-create-sub">Join the Naxshin community</div>
+      <div class="form-group"><label class="form-label" id="lbl-reg-name">Full Name</label><input class="form-control"
+          type="text" id="reg-name" /></div>
+      <div class="form-group"><label class="form-label" id="lbl-reg-email">Email</label><input class="form-control"
+          type="email" id="reg-email" placeholder="email@example.com" /></div>
+      <div class="form-group"><label class="form-label" id="lbl-reg-pw">Password</label><input class="form-control"
+          type="password" id="reg-pw" placeholder="Min 6 characters" /></div>
+      <div class="form-group">
+        <label class="form-label" id="txt-req-role">Request Role</label>
+        <div class="role-grid" id="role-selector">
+          <div class="role-card selected" data-role="customer" onclick="selectRole(this)"><i
+              class="fas fa-shopping-bag"></i><span id="role-customer">Customer</span></div>
+          <div class="role-card" data-role="designer" onclick="selectRole(this)"><i class="fas fa-palette"></i><span
+              id="role-designer">Designer</span></div>
+          <div class="role-card" data-role="printer" onclick="selectRole(this)"><i class="fas fa-print"></i><span
+              id="role-printer">Printer</span></div>
+          <div class="role-card" data-role="advertiser" onclick="selectRole(this)"><i class="fas fa-bullhorn"></i><span
+              id="role-advertiser">Advertiser</span></div>
+        </div>
+        <p style="font-size:.69rem;color:var(--mid-gray);margin-top:4px" id="txt-role-note">⏳ Designer, Printer,
+          Advertiser require admin approval.</p>
+      </div>
+      <button class="btn-block btn-forest" onclick="doRegister()" id="txt-create-btn">Create Account</button>
+      <p style="text-align:center;font-size:.79rem;color:var(--mid-gray);margin-top:10px"><span
+          id="txt-have-account">Already have an account?</span><button class="form-link"
+          onclick="switchModal('register-modal','login-modal')" id="txt-signin-link"> Sign in</button></p>
+    </div>
+  </div>
+  <!-- Product detail -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-box" style="max-width:660px">
+      <button class="modal-close" onclick="closeModal('product-modal')"><i class="fas fa-times"></i></button>
+      <div id="product-detail-content"></div>
+    </div>
+  </div>
+  <!-- Partner -->
+  <div class="modal-overlay" id="partner-modal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('partner-modal')"><i class="fas fa-times"></i></button>
+      <div class="modal-title" id="txt-partner-title">Partner with Naxshin</div>
+      <div class="modal-sub" id="txt-partner-sub">Choose how you'd like to collaborate.</div>
+      <div class="role-grid" style="grid-template-columns:1fr 1fr;margin:16px 0">
+        <div class="role-card" onclick="selectPartner(this,'designer')"><i class="fas fa-palette"></i><span
+            id="ptype-designer">Designer</span></div>
+        <div class="role-card" onclick="selectPartner(this,'printer')"><i class="fas fa-print"></i><span
+            id="ptype-printer">Print Partner</span></div>
+        <div class="role-card" onclick="selectPartner(this,'advertiser')"><i class="fas fa-bullhorn"></i><span
+            id="ptype-advertiser">Advertiser</span></div>
+        <div class="role-card" onclick="selectPartner(this,'brand')"><i class="fas fa-tags"></i><span
+            id="ptype-brand">Brand Collab</span></div>
+      </div>
+      <div class="form-group"><label class="form-label" id="lbl-partner-name">Name / Company</label><input
+          class="form-control" type="text" id="partner-name" /></div>
+      <div class="form-group"><label class="form-label" id="lbl-partner-email">Email</label><input class="form-control"
+          type="email" id="partner-email" /></div>
+      <div class="form-group"><label class="form-label" id="lbl-partner-msg">Message</label><textarea
+          class="form-control" rows="3" id="partner-msg"></textarea></div>
+      <button class="btn-block btn-forest" onclick="submitPartner()" id="txt-submit-partner">Submit Request →</button>
+    </div>
+  </div>
+
+
+  <!-- Checkout Form Modal -->
+  <div class="modal-overlay" id="checkout-modal">
+    <div class="modal-box" style="max-width:480px">
+      <button class="modal-close" onclick="closeModal('checkout-modal')"><i class="fas fa-times"></i></button>
+      <div class="modal-logo"><i class="fas fa-shopping-bag" style="font-size:1.6rem;color:var(--forest)"></i></div>
+      <div class="modal-title" id="txt-checkout-title">Complete Your Order</div>
+      <div class="modal-sub" id="txt-checkout-sub">Fill in your delivery details</div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-co-orderid">Order ID</label>
+        <input class="form-control" type="text" id="co-order-id" readonly
+          style="background:var(--sand-pale);font-family:var(--font-h);font-size:1.05rem;font-weight:700;color:var(--forest);letter-spacing:2px;cursor:default;text-align:center" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-co-name">Full Name</label>
+        <input class="form-control" type="text" id="co-name" placeholder="Your full name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-co-phone">Phone Number</label>
+        <input class="form-control" type="tel" id="co-phone" placeholder="+964 ..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-co-location">Delivery Location</label>
+        <input class="form-control" type="text" id="co-location" placeholder="City, District, Street..." />
+      </div>
+      <div style="background:var(--sand-pale);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px">
+        <div id="co-order-summary" style="font-size:.77rem;color:var(--mid-gray);line-height:1.9"></div>
+        <div
+          style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--light-gray)">
+          <span style="font-weight:700;font-size:.88rem" id="txt-co-total">Total</span>
+          <span id="co-total-display"
+            style="color:var(--forest);font-family:var(--font-h);font-size:1.25rem;font-weight:700">$0.00</span>
+        </div>
+      </div>
+      <button class="btn-block btn-forest" onclick="submitCheckoutForm()" id="txt-place-order">Place Order</button>
+    </div>
+  </div>
+
+  <!-- ═══════ FIREBASE + APP JS ═══════ -->
+  <script type="module">
+    // ╔══════════════════════════════════════════════════════╗
+    // ║  🔥 FIREBASE CONFIG — paste your project values here ║
+    // ╚══════════════════════════════════════════════════════╝
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+      signOut as fbSignOut, updateProfile, updateEmail, updatePassword,
+      sendPasswordResetEmail, onAuthStateChanged
+    }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc,
+      updateDoc, query, where, orderBy, serverTimestamp
+    }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    // ════════════════════════════════════════════════
+    // NAXSHIN FIREBASE CONFIGURATION
+    // Project: naxshin-e5e25  |  naxshinkrd@gmail.com
+    // ════════════════════════════════════════════════
+    const firebaseConfig = {
+      apiKey:            "AIzaSyAj8HjDS80m2POVmbBwNNG1uHlCqJ0DmMQ",
+      authDomain:        "naxshin-e5e25.firebaseapp.com",
+      projectId:         "naxshin-e5e25",
+      storageBucket:     "naxshin-e5e25.firebasestorage.app",
+      messagingSenderId: "666973865382",
+      appId:             "1:666973865382:web:5e284dc80a7f1798f7bb67",
+      databaseURL:       "https://naxshin-e5e25-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+    const ADMIN_EMAIL = "naxshinkrd@gmail.com";
+
+    let auth, db, storage;
+    let fbReady = false;
+    try {
+      const app = initializeApp(firebaseConfig);
+      auth = getAuth(app); db = getFirestore(app); storage = getStorage(app);
+      fbReady = true; // Real Firebase config active
+    } catch (e) { console.warn('Firebase not configured — demo mode active'); }
+
+    // ─── STATE ───
+    let currentUser = null, currentRole = 'guest';
+    let cart = JSON.parse(localStorage.getItem('naxshin-cart') || '[]');
+    let wishlist = JSON.parse(localStorage.getItem('naxshin-wishlist') || '[]');
+    let currentCategory = 'all', shopCategory = 'all';
+    let selectedRole = 'customer', selectedPartnerType = '';
+    let lang = localStorage.getItem('naxshin-lang') || 'en';
+
+    // ─── LOGO ───
+    const LOGO = 'data:image/svg+xml;base64,' + btoa(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g transform="translate(50,50) rotate(45)">
+    <rect x="-32" y="-32" width="64" height="64" fill="#C9A96E" rx="2"/>
+    <rect x="-24" y="-24" width="48" height="48" fill="#2D4A3E" rx="2"/>
+    <rect x="-18" y="-18" width="36" height="36" fill="#8B2E0F" rx="1"/>
+    <rect x="-11" y="-11" width="22" height="22" fill="white" rx="1"/>
+    <rect x="-6"  y="-6"  width="12" height="12" fill="#2D4A3E"/>
+    <rect x="-2"  y="-2"  width="4"  height="4"  fill="#C9A96E"/>
+  </g>
+</svg>`);
+    document.querySelectorAll('#nav-logo,#loader-logo,#modal-logo,.modal-logo-img').forEach(el => el.src = LOGO);
+
+    // ─── TRANSLATIONS ───
+    const TR = {
+      en: {
+        pageTitle: 'Naxshin — Print & Design', navBrandSub: 'Print & Design',
+        home: 'Home', shop: 'Shop', designers: 'Designers', about: 'About', contact: 'Contact',
+        navLogin: 'Login', navSignup: 'Sign Up', cart: 'Shopping Cart', total: 'Total', checkout: 'Checkout',
+        signin: 'Sign In', signinSub: 'Welcome back to Naxshin', forgot: 'Forgot?', continue: 'Continue',
+        or: 'or', noAccount: "Don't have an account?", signupLink: ' Sign up',
+        create: 'Create Account', createSub: 'Join the Naxshin community', createBtn: 'Create Account',
+        haveAccount: 'Already have an account?', signinLink: ' Sign in',
+        reqRole: 'Request Role', roleNote: '⏳ Designer, Printer, Advertiser require admin approval.',
+        shopNow: 'Shop Now', partner: 'Become a Partner →',
+        heroBadge: 'Kurdish Heritage · Modern Expression',
+        heroH1: 'Fashion Crafted <span>for Every Story</span>',
+        heroP: 'Discover unique print-on-demand fashion from local designers. Wear your culture, express your identity.',
+        trending: '🔥 <span>Trending</span> Now', newArrivals: '✨ New <span>Arrivals</span>',
+        allProducts: 'All <span>Products</span>', seeAll: 'See all →',
+        ad: 'AD', sponsored: 'SPONSORED PARTNERS', advertiseHere: 'Advertise Here →',
+        adSlot: 'Your Ad Here — Image or Video', advertise: 'Advertise Here',
+        footerDesc: 'Where Kurdish heritage meets modern design. Wear your story.',
+        footerShop: 'Shop', footerAllProducts: 'All Products', footerNew: 'New Arrivals',
+        footerDesigners: 'Designers', footerCollab: 'Collaborate',
+        footerCompany: 'Company', footerAbout: 'About Us', footerContact: 'Contact',
+        footerPrivacy: 'Privacy Policy', footerTerms: 'Terms of Service',
+        footerAccount: 'Account', footerLogin: 'Login', footerRegister: 'Register',
+        footerProfile: 'My Profile', footerOrders: 'My Orders',
+        footerCopy: '© 2025 Naxshin Print & Design — Made with ❤️ in Kurdistan',
+        dashboardBtn: 'Dashboard', signout: 'Sign Out',
+        ptabInfo: 'Profile Info', ptabOrders: 'My Orders', ptabWishlist: 'Wishlist', ptabSettings: 'Settings', ptabReport: 'Report Bug',
+        lblFullName: 'Full Name', lblEmail: 'Email', lblNewPw: 'New Password', lblPhone: 'Phone',
+        saveChanges: 'Save Changes', noOrders: 'No orders yet', emptyWish: 'Your wishlist is empty.',
+        preferences: 'Preferences', lblEmailNotif: 'Email Notifications', descEmailNotif: 'Receive order updates by email',
+        lblLanguage: 'Language', descLanguage: 'Switch between English and Kurdish',
+        dangerZone: 'Danger Zone', lblDeleteAcc: 'Delete Account', descDeleteAcc: 'Permanently remove your account', reqDeletion: 'Request Deletion',
+        lblBugDesc: 'Bug Description', lblBugImg: 'Attach Screenshot', submitReport: 'Submit Report',
+        yourName: 'Your Name', subject: 'Subject', message: 'Message', attach: 'Attach Image (optional)', sendMsg: 'Send Message',
+        subjGeneral: 'General Inquiry', subjPartner: 'Partnership', subjOrder: 'Order Issue', subjDesign: 'Design Submission', subjBug: 'Report a Bug',
+        partnerTitle: 'Partner with Naxshin', partnerSub: "Choose how you'd like to collaborate.",
+        ptypeDesigner: 'Designer', ptypePrinter: 'Print Partner', ptypeAdvertiser: 'Advertiser', ptypeBrand: 'Brand Collab',
+        partnerName: 'Name / Company', partnerMsg: 'Message', submitPartner: 'Submit Request →',
+        aboutBadge: 'Our Story', aboutSub: 'A Kurdish-rooted fashion platform connecting local designers, print partners, and customers.',
+        aboutMission: 'Our Mission',
+        aboutMissionText: "Naxshin was born from a desire to celebrate Kurdish identity through wearable art. We partner with local designers, give them a platform to share their creations, and connect them with customers who want authentic, meaningful clothing. Our name — Naxshin — means 'decorated' or 'adorned' in Kurdish.",
+        statProducts: 'Products', statDesigners: 'Designers', statCustomers: 'Customers', statPartners: 'Partners',
+        contactTitle: 'Contact <span>Us</span>',
+        searchPlaceholder: 'Search products, designers...', designerSearch: 'Search designers...',
+        catAll: 'All', catTshirt: 'T-Shirts', catHoodie: 'Hoodies', catDress: 'Dresses', catJacket: 'Jackets', catCollab: 'Collabs',
+        shopTitle: 'All <span>Products</span>', designersTitle: 'Our <span>Designers</span>',
+        aboutTitle: 'About <span style="color:var(--sand)">Naxshin</span>',
+        demoCustomer: 'Customer', demoDesigner: 'Designer', demoPrinter: 'Printer', demoAdmin: 'Admin',
+        roleCustomer: 'Customer', roleDesigner: 'Designer', rolePrinter: 'Printer', roleAdvertiser: 'Advertiser',
+        pw: 'Password',
+        checkoutTitle: 'Complete Your Order', checkoutSub: 'Fill in your delivery details',
+        coOrderId: 'Order ID', coName: 'Full Name', coPhone: 'Phone Number', coLocation: 'Delivery Location',
+        coTotal: 'Total', placeOrder: 'Place Order',
+      },
+      ku: {
+        pageTitle: 'ناکشین — چاپ و دیزاین', navBrandSub: 'چاپ و دیزاین',
+        home: 'سەرەکی', shop: 'فرۆشگا', designers: 'دیزاینەرەکان', about: 'دەربارەمان', contact: 'پەیوەندی',
+        navLogin: 'چوونەژوورەوە', navSignup: 'تۆمارکردن', cart: 'سەبەتەی کڕین', total: 'کۆی گشتی', checkout: 'پارەدان',
+        signin: 'چوونەژوورەوە', signinSub: 'بەخێربێیتەوە بۆ ناکشین', forgot: 'وشەی نهێنیت بیرچووتەوە؟', continue: 'بەردەوامبوون',
+        or: 'یان', noAccount: 'هەژمارت نییە؟', signupLink: ' تۆمارکردن',
+        create: 'دروستکردنی هەژمار', createSub: 'بەشداری کۆمەڵگەی ناکشین بکە', createBtn: 'دروستکردنی هەژمار',
+        haveAccount: 'پێشتر هەژماری تۆمارکراوت هەیە؟', signinLink: ' چوونەژوورەوە',
+        reqRole: 'داواکردنی ڕۆڵ', roleNote: '⏳ دیزاینەر، چاپخانە، ڕیکلامکار پێویستیان بە پەسەندکردنی ئەدمین.',
+        shopNow: 'کڕینی ئێستا', partner: 'هاوبەش بوون →',
+        heroBadge: 'میراتی کوردی · دیزاینی مۆدێرن',
+        heroH1: 'جلوبەرگ بۆ هەموو چیرۆکێک <span>دروستکراوە</span>',
+        heroP: 'دیزاینی ناوخۆی کوردی بدۆزەرەوە. کەلتووری خۆت لەبەر بکە، ناسنامەکەت دەربخە.',
+        trending: '🔥 <span>ترێندەکان</span> ئێستا', newArrivals: '✨ <span>دەستپێشخەرە</span> نوێیەکان',
+        allProducts: 'هەموو <span>کاڵاکان</span>', seeAll: 'هەمووی ببینە →',
+        ad: 'ڕیکلام', sponsored: 'هاوبەشانی سپۆنسەر', advertiseHere: 'ڕیکلامی خۆت لێرە →',
+        adSlot: 'ڕیکلامی تۆ لێرە — وێنە یان ڤیدیۆ', advertise: 'ڕیکلام',
+        footerDesc: 'کەلتووری کوردی بە دیزاینی مۆدێرن. چیرۆکەکەت لەبەر بکە.',
+        footerShop: 'فرۆشگا', footerAllProducts: 'هەموو کاڵاکان', footerNew: 'نوێیەکان',
+        footerDesigners: 'دیزاینەرەکان', footerCollab: 'هاوکاری',
+        footerCompany: 'کۆمپانیا', footerAbout: 'دەربارەمان', footerContact: 'پەیوەندی',
+        footerPrivacy: 'سیاسەتی تایبەتمەندی', footerTerms: 'مەرجەکانی خزمەتگوزاری',
+        footerAccount: 'هەژمار', footerLogin: 'چوونەژوورەوە', footerRegister: 'تۆمارکردن',
+        footerProfile: 'پڕۆفایلم', footerOrders: 'داواکارییەکانم',
+        footerCopy: '© ٢٠٢٥ ناکشین چاپ و دیزاین — دروستکراو بە ❤️ لە کوردستان',
+        dashboardBtn: 'داشبۆرد', signout: 'دەرچوون',
+        ptabInfo: 'زانیاری پڕۆفایل', ptabOrders: 'داواکارییەکانم', ptabWishlist: 'لیستی داواکانم', ptabSettings: 'ڕێکخستنەکان', ptabReport: 'ڕاپۆرتکردنی کێشە',
+        lblFullName: 'ناوی تەواو', lblEmail: 'ئیمەیل', lblNewPw: 'وشەی نهێنی نوێ', lblPhone: 'تەلەفۆن',
+        saveChanges: 'پاشەکەوتکردن', noOrders: 'هیچ داواکاریەک نییە', emptyWish: 'لیستی داواکانت بەتاڵە.',
+        preferences: 'ئامادەکارییەکان', lblEmailNotif: 'ئاگاداریی ئیمەیل', descEmailNotif: 'نوێیەکانی داواکاری وەربگرە',
+        lblLanguage: 'زمان', descLanguage: 'گۆڕین لە نێوان ئینگلیزی و کوردی',
+        dangerZone: 'ناوچەی مەترسیدار', lblDeleteAcc: 'سڕینەوەی هەژمار', descDeleteAcc: 'هەژمارەکەت بە دایمی لاببە', reqDeletion: 'داواکردنی سڕینەوە',
+        lblBugDesc: 'وەسفکردنی کێشەکە', lblBugImg: 'وێنەی سکرینشۆت', submitReport: 'ناردنی ڕاپۆرت',
+        yourName: 'ناوت', subject: 'بابەت', message: 'پەیام', attach: 'پاوەنت کردنی وێنە', sendMsg: 'ناردنی پەیام',
+        subjGeneral: 'پرسیاری گشتی', subjPartner: 'هاوبەشی', subjOrder: 'کێشەی داواکاری', subjDesign: 'ناردنی دیزاین', subjBug: 'ڕاپۆرتکردنی کێشە',
+        partnerTitle: 'هاوبەش بە ناکشین', partnerSub: 'جۆری هاوکاریت هەڵبژێرە.',
+        ptypeDesigner: 'دیزاینەر', ptypePrinter: 'هاوبەشی چاپ', ptypeAdvertiser: 'ڕیکلامکار', ptypeBrand: 'هاوکاری براند',
+        partnerName: 'ناو / کۆمپانیا', partnerMsg: 'پەیام', submitPartner: 'ناردنی داواکاری →',
+        aboutBadge: 'چیرۆکەکەمان', aboutSub: 'پلاتفۆرمی فاشنی کوردی کە دیزاینەرانی ناوخۆ، چاپخانەکان و کڕیارەکان پێکەوە دەبەستینەوە.',
+        aboutMission: 'ئامانجەکەمان',
+        aboutMissionText: 'ناکشین لە داخوازیەکی سروشتی بوو: پیرۆزکردنی ناسنامەی کوردی بە ئامۆژگاری جلوبەرگی. ناکشین بە کوردی مانایەکی جوانی هەیە: دیکۆراسیۆن، زیوکراوی. ئەمەش مەبەستی ئێمەیە.',
+        statProducts: 'کاڵاکان', statDesigners: 'دیزاینەرەکان', statCustomers: 'کڕیارەکان', statPartners: 'هاوبەشەکان',
+        contactTitle: 'پەیوەندی پێوە',
+        searchPlaceholder: 'گەڕان بۆ کاڵا، دیزاینەر...', designerSearch: 'گەڕان بۆ دیزاینەر...',
+        catAll: 'هەمووی', catTshirt: 'تی‌شێرت', catHoodie: 'هودی', catDress: 'کراس', catJacket: 'جاکێت', catCollab: 'هاوکاری',
+        shopTitle: 'هەموو <span>کاڵاکان</span>', designersTitle: '<span>دیزاینەرەکان</span>مان',
+        aboutTitle: 'دەربارەی <span style="color:var(--sand)">ناکشین</span>',
+        demoCustomer: 'کڕیار', demoDesigner: 'دیزاینەر', demoPrinter: 'چاپخانە', demoAdmin: 'ئەدمین',
+        roleCustomer: 'کڕیار', roleDesigner: 'دیزاینەر', rolePrinter: 'چاپخانە', roleAdvertiser: 'ڕیکلامکار',
+        pw: 'وشەی نهێنی',
+        checkoutTitle: 'داواکارییەکەت تەواو بکە', checkoutSub: 'زانیاری گەیاندن پڕبکەوە',
+        coOrderId: 'ژمارەی داواکاری', coName: 'ناوی تەواو', coPhone: 'ژمارەی تەلەفۆن', coLocation: 'شوێنی گەیاندن',
+        coTotal: 'کۆی گشتی', placeOrder: 'داواکاری بکە',
+      }
+    };
+    const t = k => TR[lang][k] ?? TR.en[k] ?? k;
+
+    // ─── DEMO PRODUCTS ───
+    const DEMO = [
+      { id: 'p1', name: 'Heritage Tee', designer: 'Aryan Studio', price: 25, category: 'tshirt', badge: 'trending', img: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=500&q=80', description: 'Heritage-inspired tee with traditional Kurdish geometric patterns.' },
+      { id: 'p2', name: 'Nomad Hoodie', designer: 'Kawa Designs', price: 55, category: 'hoodie', badge: 'new', img: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=500&q=80', description: 'Premium heavyweight hoodie with nomadic motif embroidery.' },
+      { id: 'p3', name: 'Soran Dress', designer: 'Shirin Couture', price: 70, category: 'dress', badge: 'collab', img: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=500&q=80', description: 'Elegant dress with hand-printed Soran geometric patterns.' },
+      { id: 'p4', name: 'Mountain Jacket', designer: 'Aryan Studio', price: 95, category: 'jacket', badge: 'trending', img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&q=80', description: 'Wind-resistant jacket inspired by the Zagros mountains.' },
+      { id: 'p5', name: 'Nawroz Tee', designer: 'Kawa Designs', price: 28, category: 'tshirt', badge: 'new', img: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500&q=80', description: 'Celebrate Nawroz with this vibrant screen-printed tee.' },
+      { id: 'p6', name: 'Desert Rose Shirt', designer: 'Shirin Couture', price: 42, category: 'tshirt', badge: 'collab', img: 'https://images.unsplash.com/photo-1564859228273-274232fdb516?w=500&q=80', description: 'Oversized collab shirt with desert rose motif in terracotta tones.' },
+      { id: 'p7', name: 'Kurd Fit Hoodie', designer: 'Zana Wear', price: 60, category: 'hoodie', badge: 'trending', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80', description: 'Relaxed-fit hoodie with KURD gold thread embossing.' },
+      { id: 'p8', name: 'Sunset Bomber', designer: 'Zana Wear', price: 110, category: 'jacket', badge: 'new', img: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500&q=80', description: 'Statement bomber with sunset-inspired silk embroidery.' },
+    ];
+
+    // ─── EXPOSE ───
+    Object.assign(window, {
+      doLogin, doRegister, forgotPassword, signOut, saveProfile, uploadAvatar,
+      submitBugReport, submitContact, submitPartner, toggleCart, checkout, submitCheckoutForm, generateOrderId,
+      filterProducts, filterShop, filterDesigners, setCategory, setShopCategory,
+      selectRole, selectPartner, addToCart, removeFromCart, changeQty,
+      openProductModal, toggleWishlist, showPage, openModal, closeModal, switchModal,
+      toast, setActiveNav, toggleMobileMenu, toggleLang, switchProfileTab,
+      showDashSection, adminAction, designerAction, printerAction,
+      adminSetRole, adminAddAd, filterByDesigner, previewAdMedia, previewDesignImages
+    });
+
+    // ─── AUTH STATE ───
+    if (fbReady) {
+      onAuthStateChanged(auth, async user => {
+        if (user) {
+          try {
+            const snap = await getDoc(doc(db, 'users', user.uid));
+            if (snap.exists()) {
+              currentUser = { uid: user.uid, ...snap.data() };
+              // Auto-promote admin email to admin role
+              if (user.email === ADMIN_EMAIL && currentUser.role !== 'admin') {
+                await updateDoc(doc(db, 'users', user.uid), { role: 'admin', status: 'active' });
+                currentUser.role = 'admin';
+              }
+            } else {
+              const isAdminAcc = user.email === ADMIN_EMAIL;
+              currentUser = {
+                uid: user.uid, email: user.email,
+                name: user.displayName || (isAdminAcc ? 'Admin Naxshin' : 'User'),
+                role: isAdminAcc ? 'admin' : 'customer',
+                status: 'active', photoURL: '', phone: ''
+              };
+              await setDoc(doc(db, 'users', user.uid), currentUser);
+            }
+            currentRole = currentUser.role || 'customer';
+            updateNavUser();
+          } catch (e) { console.error(e); }
+        } else { currentUser = null; currentRole = 'guest'; updateNavGuest(); }
+        hideLoader();
+      });
+    } else { hideLoader(); updateNavGuest(); }
+
+    function hideLoader() { setTimeout(() => { const l = document.getElementById('page-loader'); if (l) { l.style.opacity = '0'; l.style.transition = 'opacity .4s'; setTimeout(() => l.remove(), 440); } }, 900); }
+    function updateNavUser() {
+      document.getElementById('nav-auth-area').classList.add('hidden');
+      document.getElementById('nav-user-area').classList.remove('hidden');
+      document.getElementById('mob-auth')?.classList.add('hidden');
+      const init = document.getElementById('nav-avatar-init');
+      if (currentUser?.photoURL) init.innerHTML = `<img src="${currentUser.photoURL}"/>`;
+      else init.textContent = (currentUser?.name || 'U')[0].toUpperCase();
+    }
+    function updateNavGuest() {
+      document.getElementById('nav-auth-area').classList.remove('hidden');
+      document.getElementById('nav-user-area').classList.add('hidden');
+      document.getElementById('mob-auth')?.classList.remove('hidden');
+    }
+
+    // ─── AUTH ───
+    async function doLogin() {
+      if (!fbReady) { toast('Firebase connection error. Please try again.', 'error'); return; }
+      const email = document.getElementById('login-email').value.trim();
+      const pw = document.getElementById('login-pw').value;
+      if (!email || !pw) { toast('Fill in all fields', 'error'); return; }
+      try { await signInWithEmailAndPassword(auth, email, pw); closeModal('login-modal'); toast('Welcome back! 👋', 'success'); }
+      catch (e) { const m = { 'auth/user-not-found': 'No account with that email.', 'auth/wrong-password': 'Wrong password.', 'auth/invalid-email': 'Invalid email.' }; toast(m[e.code] || e.message, 'error'); }
+    }
+    async function doRegister() {
+      if (!fbReady) { toast('Registration unavailable. Please try again.', 'error'); return; }
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const pw = document.getElementById('reg-pw').value;
+      if (!name || !email || !pw) { toast('Fill in all fields', 'error'); return; }
+      if (pw.length < 6) { toast('Password must be at least 6 characters', 'error'); return; }
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pw);
+        await updateProfile(cred.user, { displayName: name });
+        const role = selectedRole;
+        const status = ['designer', 'printer', 'advertiser'].includes(role) ? 'pending' : 'active';
+        await setDoc(doc(db, 'users', cred.user.uid), { name, email, role, status, createdAt: serverTimestamp(), photoURL: '', phone: '' });
+        closeModal('register-modal');
+        toast(status === 'pending' ? 'Account created! Awaiting admin approval.' : 'Welcome to Naxshin! 🎉', 'success');
+      } catch (e) { const m = { 'auth/email-already-in-use': 'Email already in use.', 'auth/weak-password': 'Password too weak.' }; toast(m[e.code] || e.message, 'error'); }
+    }
+
+    async function signOut() {
+      try { if (fbReady && !currentUser?.uid?.startsWith('demo')) await fbSignOut(auth); currentUser = null; currentRole = 'guest'; updateNavGuest(); showPage('home'); toast('Signed out', 'success'); }
+      catch (e) { toast(e.message, 'error'); }
+    }
+    async function forgotPassword() {
+      if (!fbReady) { toast('Firebase not configured', 'error'); return; }
+      const email = document.getElementById('login-email').value.trim();
+      if (!email) { toast('Enter your email first', 'error'); return; }
+      try { await sendPasswordResetEmail(auth, email); toast('Reset email sent', 'success'); } catch (e) { toast(e.message, 'error'); }
+    }
+
+    // ─── PROFILE ───
+    function updateProfilePage() {
+      if (!currentUser) return;
+      document.getElementById('profile-name-display').textContent = currentUser.name || '';
+      document.getElementById('profile-role-badge').textContent = currentUser.role || 'Customer';
+      document.getElementById('profile-name-input').value = currentUser.name || '';
+      document.getElementById('profile-email-input').value = currentUser.email || '';
+      document.getElementById('profile-phone-input').value = currentUser.phone || '';
+      const init = document.getElementById('profile-avatar-initials');
+      const img = document.getElementById('profile-avatar-img');
+      if (currentUser.photoURL) { img.src = currentUser.photoURL; img.style.display = 'block'; init.style.display = 'none'; }
+      else { init.textContent = (currentUser.name || 'U')[0].toUpperCase(); init.style.display = 'block'; img.style.display = 'none'; }
+      const pad = document.getElementById('profile-avatar-display');
+      pad.innerHTML = currentUser.photoURL ? `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : (currentUser.name || 'U')[0].toUpperCase();
+      loadUserOrders(); loadWishlistTab();
+    }
+    async function saveProfile() {
+      if (!currentUser) { toast('Please log in first', 'error'); return; }
+      const name = document.getElementById('profile-name-input').value.trim();
+      const email = document.getElementById('profile-email-input').value.trim();
+      const pw = document.getElementById('profile-pw-input').value;
+      const phone = document.getElementById('profile-phone-input').value.trim();
+      try {
+        if (fbReady && !currentUser.uid.startsWith('demo')) {
+          const u = auth.currentUser;
+          if (name) await updateProfile(u, { displayName: name });
+          if (email && email !== u.email) await updateEmail(u, email);
+          if (pw && pw.length >= 6) await updatePassword(u, pw);
+          await updateDoc(doc(db, 'users', currentUser.uid), { name, email, phone });
+        }
+        Object.assign(currentUser, { name, email, phone }); updateNavUser();
+        toast(t('saveChanges') + ' ✓', 'success');
+      } catch (e) { if (e.code === 'auth/requires-recent-login') toast('Please sign out and sign in again to update email/password.', 'error'); else toast(e.message, 'error'); }
+    }
+    async function uploadAvatar(event) {
+      const file = event.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const url = e.target.result;
+        document.getElementById('profile-avatar-img').src = url;
+        document.getElementById('profile-avatar-img').style.display = 'block';
+        document.getElementById('profile-avatar-initials').style.display = 'none';
+        if (fbReady && currentUser && !currentUser.uid.startsWith('demo')) {
+          try {
+            const sr = ref(storage, `avatars/${currentUser.uid}`);
+            const res = await fetch(url); const blob = await res.blob();
+            await uploadBytes(sr, blob);
+            const dl = await getDownloadURL(sr);
+            await updateProfile(auth.currentUser, { photoURL: dl });
+            await updateDoc(doc(db, 'users', currentUser.uid), { photoURL: dl });
+            currentUser.photoURL = dl;
+          } catch (err) { console.log('Storage:', err); }
+        }
+        currentUser.photoURL = url; updateNavUser(); updateProfilePage(); toast('Avatar updated ✓', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+    async function loadUserOrders() {
+      const tb = document.getElementById('user-orders-table'); if (!tb || !currentUser) return;
+      if (currentUser.uid.startsWith('demo')) { tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--mid-gray)">${t('noOrders')} (demo)</td></tr>`; return; }
+      try {
+        const q = query(collection(db, 'orders'), where('userId', '==', currentUser.uid), orderBy('createdAt', 'desc'));
+        const snap = await getDocs(q);
+        if (snap.empty) { tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--mid-gray)">${t('noOrders')}</td></tr>`; return; }
+        tb.innerHTML = snap.docs.map(d => { const o = d.data(); return `<tr><td>#${d.id.slice(-6).toUpperCase()}</td><td>${o.createdAt?.toDate?.().toLocaleDateString() || '—'}</td><td>${o.items?.length || 0}</td><td>$${o.total?.toFixed(2) || '0.00'}</td><td><span class="badge-status badge-${o.status}">${o.status}</span></td></tr>`; }).join('');
+      } catch (e) { console.error(e); }
+    }
+    async function submitBugReport() {
+      const desc = document.getElementById('bug-desc').value.trim();
+      if (!desc) { toast('Please describe the bug', 'error'); return; }
+      try { if (fbReady && !currentUser?.uid?.startsWith('demo')) await addDoc(collection(db, 'bug-reports'), { userId: currentUser?.uid || 'anonymous', description: desc, createdAt: serverTimestamp() }); document.getElementById('bug-desc').value = ''; toast('Bug report submitted — thank you!', 'success'); } catch (e) { toast('Report submitted', 'success'); }
+    }
+    async function submitContact() {
+      const name = document.getElementById('contact-name').value.trim();
+      const email = document.getElementById('contact-email').value.trim();
+      const msg = document.getElementById('contact-msg').value.trim();
+      if (!name || !email || !msg) { toast('Fill required fields', 'error'); return; }
+      try { if (fbReady && !currentUser?.uid?.startsWith('demo')) await addDoc(collection(db, 'contact-messages'), { name, email, message: msg, createdAt: serverTimestamp() }); document.getElementById('contact-name').value = ''; document.getElementById('contact-email').value = ''; document.getElementById('contact-msg').value = ''; toast("Message sent! We'll respond within 2-3 days.", 'success'); } catch (e) { toast('Message sent!', 'success'); }
+    }
+    function selectPartner(el, type) { document.querySelectorAll('#partner-modal .role-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedPartnerType = type; }
+    async function submitPartner() {
+      const name = document.getElementById('partner-name').value.trim();
+      const email = document.getElementById('partner-email').value.trim();
+      if (!name || !email || !selectedPartnerType) { toast('Fill all fields and select a type', 'error'); return; }
+      try { if (fbReady && !currentUser?.uid?.startsWith('demo')) await addDoc(collection(db, 'partner-requests'), { name, email, type: selectedPartnerType, message: document.getElementById('partner-msg').value, createdAt: serverTimestamp() }); closeModal('partner-modal'); toast("Partner request submitted! We'll contact you soon.", 'success'); } catch (e) { closeModal('partner-modal'); toast('Request submitted!', 'success'); }
+    }
+
+    // ─── PRODUCTS ───
+    async function loadProducts() {
+      if (fbReady) { try { const snap = await getDocs(collection(db, 'products')); if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() })); } catch (e) { } }
+      return DEMO;
+    }
+    function card(p) {
+      const iw = wishlist.includes(p.id);
+      const bc = p.badge === 'new' ? 'new' : p.badge === 'collab' ? 'collab' : '';
+      const bl = p.badge === 'new' ? 'NEW' : p.badge === 'collab' ? 'COLLAB' : 'HOT';
+      return `<div class="product-card" onclick="openProductModal('${p.id}')">
+    <div class="product-img-wrap">
+      <img src="${p.img}" alt="${p.name}" loading="lazy"/>
+      ${p.badge ? `<span class="product-badge ${bc}">${bl}</span>` : ''}
+      <button class="product-wishlist ${iw ? 'active' : ''}" onclick="toggleWishlist(event,'${p.id}')"><i class="${iw ? 'fas' : 'far'} fa-heart"></i></button>
+    </div>
+    <div class="product-info">
+      <div class="product-designer">${p.designer}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-footer"><span class="product-price">$${p.price}</span><button class="product-add" onclick="addToCart(event,'${p.id}')"><i class="fas fa-plus"></i></button></div>
+    </div></div>`;
+    }
+    async function renderHome() {
+      const P = await loadProducts(); window._P = P;
+      const tr = P.filter(p => p.badge === 'trending' || p.badge === 'hot').slice(0, 4);
+      const na = P.filter(p => p.badge === 'new').slice(0, 4);
+      document.getElementById('trending-grid').innerHTML = (tr.length ? tr : P.slice(0, 4)).map(card).join('');
+      document.getElementById('new-arrivals-grid').innerHTML = (na.length ? na : P.slice(4, 8)).map(card).join('');
+      document.getElementById('all-products-grid').innerHTML = P.map(card).join('');
+    }
+    async function renderShop() { const P = await loadProducts(); window._P = P; document.getElementById('shop-grid').innerHTML = P.map(card).join(''); }
+    async function renderDesigners() {
+      const P = await loadProducts(); window._P = P;
+      const m = {};
+      P.forEach(p => { if (!m[p.designer]) m[p.designer] = { name: p.designer, count: 0, img: p.img }; m[p.designer].count++; });
+      window._D = Object.values(m);
+      document.getElementById('designers-grid').innerHTML = window._D.map(d => `<div class="product-card" onclick="filterByDesigner('${d.name}')"><div class="product-img-wrap"><img src="${d.img}" alt="${d.name}" loading="lazy"/><span class="product-badge new">DESIGNER</span></div><div class="product-info"><div class="product-name">${d.name}</div><div class="product-designer">${d.count} ${t('statProducts')}</div></div></div>`).join('');
+    }
+    function filterByDesigner(name) { showPage('shop'); setTimeout(() => { document.getElementById('shop-search').value = name; filterShop(); }, 100); }
+    function filterProducts() { const q = document.getElementById('home-search').value.toLowerCase(); document.getElementById('all-products-grid').innerHTML = (window._P || DEMO).filter(p => (currentCategory === 'all' || p.category === currentCategory) && (p.name.toLowerCase().includes(q) || p.designer.toLowerCase().includes(q))).map(card).join(''); }
+    function filterShop() { const q = document.getElementById('shop-search').value.toLowerCase(); document.getElementById('shop-grid').innerHTML = (window._P || DEMO).filter(p => (shopCategory === 'all' || p.category === shopCategory) && (p.name.toLowerCase().includes(q) || p.designer.toLowerCase().includes(q))).map(card).join(''); }
+    function filterDesigners() { const q = document.getElementById('designer-search').value.toLowerCase(); document.getElementById('designers-grid').innerHTML = (window._D || []).filter(d => d.name.toLowerCase().includes(q)).map(d => `<div class="product-card" onclick="filterByDesigner('${d.name}')"><div class="product-img-wrap"><img src="${d.img}" alt="${d.name}" loading="lazy"/><span class="product-badge new">DESIGNER</span></div><div class="product-info"><div class="product-name">${d.name}</div><div class="product-designer">${d.count} ${t('statProducts')}</div></div></div>`).join(''); }
+    function setCategory(el, cat) { currentCategory = cat; document.querySelectorAll('#home-filters .filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); filterProducts(); }
+    function setShopCategory(el, cat) { shopCategory = cat; document.querySelectorAll('#page-shop .filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); filterShop(); }
+
+    async function openProductModal(id) {
+      const p = (window._P || DEMO).find(x => x.id === id); if (!p) return;
+      document.getElementById('product-detail-content').innerHTML = `<div class="product-detail">
+    <div class="product-detail-img"><img src="${p.img}" alt="${p.name}"/></div>
+    <div class="product-detail-info">
+      <h2>${p.name}</h2><div class="designer">By ${p.designer}</div><div class="price">$${p.price}</div>
+      <p style="font-size:.82rem;color:var(--mid-gray);margin-bottom:14px;line-height:1.8">${p.description || 'Premium quality garment.'}</p>
+      <div style="font-size:.77rem;font-weight:600;margin-bottom:7px">Size</div>
+      <div class="size-grid">${['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(s => `<button class="size-btn" onclick="this.closest('.size-grid').querySelectorAll('.size-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')">${s}</button>`).join('')}</div>
+      <button class="btn-block btn-forest" style="margin-top:14px" onclick="addToCart(null,'${p.id}');closeModal('product-modal')"><i class="fas fa-shopping-bag"></i> Add to Cart</button>
+      <button class="btn-block" style="margin-top:8px;background:var(--sand-pale);border:1.5px solid var(--sand);color:var(--charcoal)" onclick="toggleWishlist(null,'${p.id}')"><i class="${wishlist.includes(p.id) ? 'fas' : 'far'} fa-heart"></i> ${wishlist.includes(p.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}</button>
+    </div></div>`;
+      openModal('product-modal');
+    }
+
+    // ─── CART ───
+    function addToCart(e, id) { if (e) e.stopPropagation(); const p = (window._P || DEMO).find(x => x.id === id); if (!p) return; const ex = cart.find(c => c.id === id); if (ex) ex.qty++; else cart.push({ id, name: p.name, price: p.price, img: p.img, qty: 1 }); saveCart(); toast(`${p.name} added to cart 🛍️`, 'success'); }
+    function removeFromCart(id) { cart = cart.filter(c => c.id !== id); saveCart(); renderCart(); }
+    function changeQty(id, d) { const item = cart.find(c => c.id === id); if (!item) return; item.qty += d; if (item.qty <= 0) cart = cart.filter(c => c.id !== id); saveCart(); renderCart(); }
+    function saveCart() { localStorage.setItem('naxshin-cart', JSON.stringify(cart)); const n = cart.reduce((a, c) => a + c.qty, 0); const b = document.getElementById('cart-count'); b.textContent = n; n > 0 ? b.classList.remove('hidden') : b.classList.add('hidden'); renderCart(); }
+    function renderCart() {
+      const list = document.getElementById('cart-items-list');
+      if (!cart.length) { list.innerHTML = `<p style="text-align:center;color:var(--mid-gray);padding:38px 0;font-size:.82rem">Your cart is empty</p>`; }
+      else list.innerHTML = cart.map(item => `<div class="cart-item"><img src="${item.img}" alt="${item.name}"/><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-sub">$${item.price} each</div><div class="cart-qty"><button onclick="changeQty('${item.id}',-1)">−</button><span>${item.qty}</span><button onclick="changeQty('${item.id}',1)">+</button><button onclick="removeFromCart('${item.id}')" style="background:var(--sand-pale);margin-left:6px"><i class="fas fa-trash" style="color:var(--rust);font-size:.66rem"></i></button></div></div><div class="cart-item-price">$${(item.price * item.qty).toFixed(2)}</div></div>`).join('');
+      document.getElementById('cart-total-val').textContent = '$' + cart.reduce((a, c) => a + (c.price * c.qty), 0).toFixed(2);
+    }
+    function toggleCart() { const d = document.getElementById('cart-drawer'); const o = document.getElementById('cart-overlay'); const open = d.classList.contains('open'); d.classList.toggle('open', !open); o.style.display = open ? 'none' : 'block'; }
+    function generateOrderId() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let id = 'NX-';
+      for (let i = 0; i < 8; i++) id += chars.charAt(Math.floor(Math.random() * chars.length));
+      return id;
+    }
+    function checkout() {
+      if (!currentUser) { toggleCart(); openModal('login-modal'); return; }
+      if (!cart.length) { toast('Cart is empty', 'error'); return; }
+      const orderId = generateOrderId();
+      document.getElementById('co-order-id').value = orderId;
+      document.getElementById('co-name').value = currentUser.name || '';
+      document.getElementById('co-phone').value = currentUser.phone || '';
+      document.getElementById('co-location').value = '';
+      const total = cart.reduce((a, c) => a + (c.price * c.qty), 0);
+      document.getElementById('co-total-display').textContent = '$' + total.toFixed(2);
+      document.getElementById('co-order-summary').innerHTML = cart.map(c => `<span style="display:block">• ${c.name} ×${c.qty} — $${(c.price * c.qty).toFixed(2)}</span>`).join('');
+      toggleCart();
+      openModal('checkout-modal');
+    }
+    async function submitCheckoutForm() {
+      const name = document.getElementById('co-name').value.trim();
+      const phone = document.getElementById('co-phone').value.trim();
+      const location = document.getElementById('co-location').value.trim();
+      const orderId = document.getElementById('co-order-id').value;
+      if (!name) { toast('Please enter your full name', 'error'); return; }
+      if (!phone) { toast('Please enter your phone number', 'error'); return; }
+      if (!location) { toast('Please enter your delivery location', 'error'); return; }
+      const total = cart.reduce((a, c) => a + (c.price * c.qty), 0);
+      try {
+        if (fbReady && currentUser && !currentUser.uid.startsWith('demo')) {
+          await addDoc(collection(db, 'orders'), { orderId, userId: currentUser.uid, customerName: name, phone, location, items: cart, total, status: 'pending', createdAt: serverTimestamp() });
+        }
+        closeModal('checkout-modal');
+        cart = []; saveCart();
+        toast('Order ' + orderId + ' placed! 🎉 We will contact you soon.', 'success');
+        if (currentUser) updateProfilePage();
+      } catch (e) {
+        closeModal('checkout-modal');
+        cart = []; saveCart();
+        toast('Order ' + orderId + ' placed! 🎉', 'success');
+      }
+    }
+
+    // ─── WISHLIST ───
+    function toggleWishlist(e, id) {
+      if (e) e.stopPropagation();
+      if (wishlist.includes(id)) wishlist = wishlist.filter(w => w !== id); else wishlist.push(id);
+      localStorage.setItem('naxshin-wishlist', JSON.stringify(wishlist));
+      toast(wishlist.includes(id) ? 'Added to wishlist ❤️' : 'Removed from wishlist');
+      document.querySelectorAll('.product-wishlist').forEach(btn => { const m = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1]; if (m === id) { btn.classList.toggle('active', wishlist.includes(id)); btn.innerHTML = `<i class="${wishlist.includes(id) ? 'fas' : 'far'} fa-heart"></i>`; } });
+    }
+    function loadWishlistTab() { const P = (window._P || DEMO).filter(p => wishlist.includes(p.id)); document.getElementById('wishlist-grid').innerHTML = P.length ? P.map(card).join('') : `<p style="color:var(--mid-gray);font-size:.82rem">${t('emptyWish')}</p>`; }
+
+    // ─── DASHBOARD ───
+    function renderDashboard() {
+      document.getElementById('sidebar-role').textContent = currentRole.toUpperCase();
+      const navs = {
+        customer: [{ i: 'fa-tachometer-alt', l: 'Overview', s: 'overview' }, { i: 'fa-shopping-bag', l: t('ptabOrders'), s: 'my-orders' }, { i: 'fa-heart', l: t('ptabWishlist'), s: 'wishlist' }, { i: 'fa-user', l: t('ptabInfo'), s: 'profile' }],
+        designer: [{ i: 'fa-tachometer-alt', l: 'Dashboard', s: 'overview' }, { i: 'fa-palette', l: 'My Designs', s: 'designs' }, { i: 'fa-upload', l: 'Upload Design', s: 'upload' }, { i: 'fa-chart-bar', l: 'Sales', s: 'sales' }, { i: 'fa-user', l: t('ptabInfo'), s: 'profile' }],
+        printer: [{ i: 'fa-tachometer-alt', l: 'Dashboard', s: 'overview' }, { i: 'fa-list', l: 'Print Queue', s: 'queue' }, { i: 'fa-truck', l: 'Orders', s: 'orders' }, { i: 'fa-user', l: t('ptabInfo'), s: 'profile' }],
+        admin: [{ i: 'fa-crown', l: 'Overview', s: 'overview' }, { i: 'fa-users', l: 'Users', s: 'users' }, { i: 'fa-tshirt', l: 'Products', s: 'products' }, { i: 'fa-clipboard-list', l: 'Orders', s: 'orders' }, { i: 'fa-user-check', l: 'Requests', s: 'requests' }, { i: 'fa-chart-line', l: 'Analytics', s: 'analytics' }, { i: 'fa-bullhorn', l: 'Ads Manager', s: 'ads' }, { i: 'fa-shield-alt', l: 'Security Rules', s: 'rules' }]
+      };
+      const items = navs[currentRole] || navs.customer;
+      document.getElementById('sidebar-nav').innerHTML = items.map((x, i) => `<li class="${i === 0 ? 'active' : ''}"><button onclick="showDashSection('${x.s}',this)"><i class="fas ${x.i}"></i> ${x.l}</button></li>`).join('') + `<li style="margin-top:12px"><button onclick="showPage('home')"><i class="fas fa-arrow-left"></i> Back to Shop</button></li>`;
+      showDashSection('overview', document.getElementById('sidebar-nav').querySelector('button'));
+    }
+    function showDashSection(s, btn) {
+      if (btn) { document.querySelectorAll('.sidebar-nav li').forEach(l => l.classList.remove('active')); btn.closest('li')?.classList.add('active'); }
+      const m = document.getElementById('dash-main-content');
+      if (s === 'overview') { if (currentRole === 'admin') rAdminOv(m); else if (currentRole === 'designer') rDesOv(m); else if (currentRole === 'printer') rPrintOv(m); else rCustOv(m); }
+      else if (s === 'my-orders') rCustOrd(m); else if (s === 'wishlist') rCustWish(m);
+      else if (s === 'upload') rDesUp(m); else if (s === 'designs') rDesDes(m); else if (s === 'sales') rDesSales(m);
+      else if (s === 'queue') rPrintQ(m); else if (s === 'users') rAdminUsers(m); else if (s === 'products') rAdminProducts(m);
+      else if (s === 'orders') rAdminOrders(m); else if (s === 'requests') rAdminReqs(m); else if (s === 'analytics') rAdminAnalytics(m);
+      else if (s === 'ads') rAdminAds(m); else if (s === 'rules') rAdminRules(m); else if (s === 'profile') showPage('profile');
+    }
+    const sc = (bg, ic, val, lbl) => `<div class="stat-card"><div class="stat-icon" style="background:${bg}">${ic}</div><div class="stat-val">${val}</div><div class="stat-label">${lbl}</div></div>`;
+    function rCustOv(m) { m.innerHTML = `<div class="dash-header"><h2>Welcome, ${currentUser?.name?.split(' ')[0] || 'User'} 👋</h2><p>Your shopping overview</p></div><div class="stat-grid">${sc('#E8F5E9', '<i class="fas fa-shopping-bag" style="color:var(--forest)"></i>', cart.length, 'Cart Items')}${sc('#FFF8E1', '<i class="fas fa-heart" style="color:var(--gold-dark)"></i>', wishlist.length, 'Wishlist')}${sc('#FFEBEE', '<i class="fas fa-box" style="color:var(--rust)"></i>', 0, 'Orders')}</div><div class="dash-card"><h3>Quick Actions</h3><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn-primary" onclick="showPage('shop')">Browse Shop</button><button style="background:var(--sand-pale);border:1.5px solid var(--sand);color:var(--charcoal);padding:10px 18px;border-radius:var(--radius-sm);font-weight:600;cursor:pointer" onclick="toggleCart()">View Cart</button></div></div>`; }
+    function rCustOrd(m) { m.innerHTML = `<div class="dash-header"><h2>My Orders</h2></div><div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody><tr><td colspan="5" style="text-align:center;padding:22px;color:var(--mid-gray)">No orders yet</td></tr></tbody></table></div></div>`; }
+    function rCustWish(m) { const P = (window._P || DEMO).filter(p => wishlist.includes(p.id)); m.innerHTML = `<div class="dash-header"><h2>My Wishlist</h2></div><div class="product-grid">${P.length ? P.map(card).join('') : '<p style="color:var(--mid-gray)">Wishlist empty.</p>'}</div>`; }
+    function rDesOv(m) { m.innerHTML = `<div class="dash-header"><h2>Designer Dashboard</h2></div><div class="stat-grid">${sc('#E8F5E9', '<i class="fas fa-palette" style="color:var(--forest)"></i>', 12, 'Designs')}${sc('#FFF8E1', '<i class="fas fa-dollar-sign" style="color:var(--gold-dark)"></i>', '$840', 'Sales')}${sc('#FFEBEE', '<i class="fas fa-shopping-bag" style="color:var(--rust)"></i>', 34, 'Units Sold')}${sc('#E3F2FD', '<i class="fas fa-star" style="color:#1565C0"></i>', '4.8', 'Rating')}</div><div class="dash-card"><h3>Top Items</h3><div class="table-wrap"><table><thead><tr><th>Product</th><th>Sales</th><th>Revenue</th><th>Status</th></tr></thead><tbody><tr><td>Heritage Tee</td><td>15</td><td>$375</td><td><span class="badge-status badge-approved">Active</span></td></tr><tr><td>Nawroz Tee</td><td>12</td><td>$336</td><td><span class="badge-status badge-approved">Active</span></td></tr></tbody></table></div></div>`; }
+    function rDesUp(m) { m.innerHTML = `<div class="dash-header"><h2>Upload Design</h2></div><div class="dash-card"><div class="form-group"><label class="form-label">Product Name</label><input class="form-control" type="text" id="d-name"/></div><div class="form-group"><label class="form-label">Description</label><textarea class="form-control" rows="3" id="d-desc"></textarea></div><div class="form-group"><label class="form-label">Category</label><select class="form-control" id="d-cat"><option value="tshirt">T-Shirt</option><option value="hoodie">Hoodie</option><option value="dress">Dress</option><option value="jacket">Jacket</option></select></div><div class="form-group"><label class="form-label">Price ($)</label><input class="form-control" type="number" id="d-price" min="1"/></div><div class="form-group"><label class="form-label">Images</label><div class="upload-zone" onclick="document.getElementById('d-images').click()"><i class="fas fa-cloud-upload-alt"></i><p>Click to upload images<br/><span style="font-size:.7rem">PNG, JPG up to 10MB</span></p><div id="d-preview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"></div></div><input type="file" id="d-images" accept="image/*" multiple style="display:none" onchange="previewDesignImages(event)"/></div><button class="btn-block btn-forest" onclick="designerAction('upload')">Submit for Review</button></div>`; }
+    function rDesDes(m) { m.innerHTML = `<div class="dash-header"><h2>My Designs</h2></div><div class="product-grid">${DEMO.slice(0, 4).map(p => `<div class="product-card"><div class="product-img-wrap"><img src="${p.img}" alt="${p.name}" loading="lazy"/><span class="badge-status badge-approved" style="position:absolute;top:10px;left:10px;font-size:.58rem">Active</span></div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-footer"><span class="product-price">$${p.price}</span><div style="display:flex;gap:4px"><button class="product-add" style="background:var(--gold-dark)" onclick="designerAction('edit','${p.id}')"><i class="fas fa-edit"></i></button><button class="product-add" style="background:var(--rust)" onclick="designerAction('delete','${p.id}')"><i class="fas fa-trash"></i></button></div></div></div></div>`).join('')}</div>`; }
+    function rDesSales(m) { m.innerHTML = `<div class="dash-header"><h2>Sales Analytics</h2></div><div class="stat-grid">${sc('#E8F5E9', '<i class="fas fa-dollar-sign" style="color:var(--forest)"></i>', '$840', 'Revenue')}${sc('#FFF8E1', '<i class="fas fa-shopping-bag" style="color:var(--gold-dark)"></i>', 34, 'Units Sold')}</div><div class="dash-card"><h3>Monthly Breakdown</h3><div class="table-wrap"><table><thead><tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Top Item</th></tr></thead><tbody><tr><td>May 2025</td><td>12</td><td>$340</td><td>Heritage Tee</td></tr><tr><td>Apr 2025</td><td>8</td><td>$260</td><td>Nawroz Tee</td></tr></tbody></table></div></div>`; }
+    function rPrintOv(m) { m.innerHTML = `<div class="dash-header"><h2>Printer Dashboard</h2></div><div class="stat-grid">${sc('#E8F5E9', '<i class="fas fa-print" style="color:var(--forest)"></i>', 7, 'In Queue')}${sc('#FFF8E1', '<i class="fas fa-check" style="color:var(--gold-dark)"></i>', 142, 'Completed')}</div>`; }
+    function rPrintQ(m) { m.innerHTML = `<div class="dash-header"><h2>Print Queue</h2></div><div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Order #</th><th>Item</th><th>Qty</th><th>Designer</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td>#A1B2C3</td><td>Heritage Tee</td><td>3</td><td>Aryan Studio</td><td><span class="badge-status badge-pending">Pending</span></td><td><button class="action-btn approve" onclick="printerAction('start','A1B2C3')">Start</button></td></tr><tr><td>#D4E5F6</td><td>Nawroz Tee</td><td>1</td><td>Kawa Designs</td><td><span class="badge-status badge-delivering">Printing</span></td><td><button class="action-btn approve" onclick="printerAction('complete','D4E5F6')">Done</button></td></tr></tbody></table></div></div>`; }
+    function rAdminOv(m) { m.innerHTML = `<div class="dash-header"><h2>Admin Overview 👑</h2><p>Full system control</p></div><div class="stat-grid">${sc('#E8F5E9', '<i class="fas fa-users" style="color:var(--forest)"></i>', 128, 'Users')}${sc('#FFF8E1', '<i class="fas fa-tshirt" style="color:var(--gold-dark)"></i>', 86, 'Products')}${sc('#FFEBEE', '<i class="fas fa-shopping-bag" style="color:var(--rust)"></i>', 342, 'Orders')}${sc('#E3F2FD', '<i class="fas fa-dollar-sign" style="color:#1565C0"></i>', '$12,480', 'Revenue')}${sc('#F3E5F5', '<i class="fas fa-palette" style="color:#6A1B9A"></i>', 14, 'Designers')}${sc('#FFF3E0', '<i class="fas fa-print" style="color:#E65100"></i>', 3, 'Printers')}</div><div class="dash-card"><h3>Recent Orders</h3><div class="table-wrap"><table><thead><tr><th>Order #</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody><tr><td>#F1E2D3</td><td>Sara Ahmad</td><td>$75</td><td><span class="badge-status badge-pending">Pending</span></td><td style="display:flex;gap:4px"><button class="action-btn approve" onclick="adminAction('approve','F1E2D3')">✓</button><button class="action-btn cancel" onclick="adminAction('cancel','F1E2D3')">✗</button></td></tr><tr><td>#G4H5I6</td><td>Kamaran Ali</td><td>$55</td><td><span class="badge-status badge-delivering">Delivering</span></td><td></td></tr><tr><td>#J7K8L9</td><td>Roza Hassan</td><td>$110</td><td><span class="badge-status badge-completed">Completed</span></td><td></td></tr></tbody></table></div></div>`; }
+    function rAdminUsers(m) { m.innerHTML = `<div class="dash-header"><h2>Users</h2></div><div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Set Role</th></tr></thead><tbody><tr><td>Sara Ahmad</td><td>sara@example.com</td><td>Customer</td><td><span class="badge-status badge-approved">Active</span></td><td><select onchange="adminSetRole(this,'sara')" style="border:1px solid var(--light-gray);padding:3px 6px;border-radius:4px;font-size:.72rem"><option selected>Customer</option><option>Designer</option><option>Printer</option><option>Admin</option></select></td></tr><tr><td>Aryan Studio</td><td>aryan@example.com</td><td>Designer</td><td><span class="badge-status badge-approved">Active</span></td><td><select onchange="adminSetRole(this,'aryan')" style="border:1px solid var(--light-gray);padding:3px 6px;border-radius:4px;font-size:.72rem"><option>Customer</option><option selected>Designer</option><option>Printer</option><option>Admin</option></select></td></tr><tr><td>New User</td><td>new@example.com</td><td>Designer</td><td><span class="badge-status badge-pending">Pending</span></td><td style="display:flex;gap:4px"><button class="action-btn approve" onclick="adminAction('approve-user','new')">Approve</button><button class="action-btn cancel" onclick="adminAction('reject-user','new')">Reject</button></td></tr></tbody></table></div></div>`; }
+    function rAdminProducts(m) { m.innerHTML = `<div class="dash-header"><h2>Products</h2></div><div class="product-grid">${DEMO.map(p => `<div class="product-card"><div class="product-img-wrap"><img src="${p.img}" alt="${p.name}" loading="lazy"/></div><div class="product-info"><div class="product-designer">${p.designer}</div><div class="product-name">${p.name}</div><div class="product-footer"><span class="product-price">$${p.price}</span><div style="display:flex;gap:4px"><button class="product-add" style="background:var(--gold-dark)" onclick="adminAction('edit','${p.id}')"><i class="fas fa-edit"></i></button><button class="product-add" style="background:var(--rust)" onclick="adminAction('remove','${p.id}')"><i class="fas fa-trash"></i></button></div></div></div></div>`).join('')}</div>`; }
+    function rAdminOrders(m) { m.innerHTML = `<div class="dash-header"><h2>All Orders</h2></div><div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Order #</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody><tr><td>#F1E2D3</td><td>Sara Ahmad</td><td>$75</td><td><span class="badge-status badge-pending">Pending</span></td><td style="display:flex;gap:4px"><button class="action-btn approve" onclick="adminAction('approve','F1E2D3')">✓</button><button class="action-btn cancel" onclick="adminAction('cancel','F1E2D3')">✗</button></td></tr><tr><td>#G4H5I6</td><td>Kamaran Ali</td><td>$55</td><td><span class="badge-status badge-delivering">Delivering</span></td><td></td></tr><tr><td>#J7K8L9</td><td>Roza Hassan</td><td>$110</td><td><span class="badge-status badge-completed">Completed</span></td><td></td></tr></tbody></table></div></div>`; }
+    function rAdminReqs(m) { m.innerHTML = `<div class="dash-header"><h2>Role Requests</h2></div><div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Requested Role</th><th>Date</th><th>Actions</th></tr></thead><tbody><tr><td>Zana Majid</td><td>zana@example.com</td><td>Designer</td><td>May 2025</td><td style="display:flex;gap:4px"><button class="action-btn approve" onclick="adminAction('approve-req','1')">Approve</button><button class="action-btn cancel" onclick="adminAction('reject-req','1')">Reject</button></td></tr><tr><td>Kurdish Print Co.</td><td>kpc@example.com</td><td>Printer</td><td>May 2025</td><td style="display:flex;gap:4px"><button class="action-btn approve" onclick="adminAction('approve-req','2')">Approve</button><button class="action-btn cancel" onclick="adminAction('reject-req','2')">Reject</button></td></tr></tbody></table></div></div>`; }
+    function rAdminAnalytics(m) { m.innerHTML = `<div class="dash-header"><h2>Analytics</h2></div><div class="stat-grid">${sc('#E8F5E9', '<i class="fas fa-dollar-sign" style="color:var(--forest)"></i>', '$12,480', 'Revenue')}${sc('#FFF8E1', '<i class="fas fa-shopping-bag" style="color:var(--gold-dark)"></i>', 342, 'Orders')}</div><div class="dash-card"><h3>Top Products</h3><div class="table-wrap"><table><thead><tr><th>Product</th><th>Designer</th><th>Units</th><th>Revenue</th></tr></thead><tbody><tr><td>Heritage Tee</td><td>Aryan Studio</td><td>48</td><td>$1,200</td></tr><tr><td>Mountain Jacket</td><td>Aryan Studio</td><td>22</td><td>$2,090</td></tr><tr><td>Nomad Hoodie</td><td>Kawa Designs</td><td>35</td><td>$1,925</td></tr></tbody></table></div></div><div class="dash-card"><h3>Top Customers</h3><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Orders</th><th>Spent</th></tr></thead><tbody><tr><td>Roza Hassan</td><td>12</td><td>$580</td></tr><tr><td>Sara Ahmad</td><td>8</td><td>$420</td></tr><tr><td>Kamaran Ali</td><td>5</td><td>$310</td></tr></tbody></table></div></div>`; }
+    function rAdminAds(m) { m.innerHTML = `<div class="dash-header"><h2>Ads Manager</h2><p>Upload images or videos — they appear live on the homepage ad slots</p></div><div class="dash-card"><h3>Active Ads</h3><div class="table-wrap" style="margin-bottom:20px"><table><thead><tr><th>Advertiser</th><th>Type</th><th>Ticker Text</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ads-admin-table"><tr><td>Kurdish Artisan</td><td>Text</td><td>Handcrafted Designs</td><td><span class="badge-status badge-approved">Active</span></td><td><button class="action-btn cancel" onclick="adminAction('remove-ad','1')">Remove</button></td></tr></tbody></table></div><h3>Add New Ad</h3><div class="form-group"><label class="form-label">Advertiser Name</label><input class="form-control" type="text" id="ad-advertiser" placeholder="Company or brand"/></div><div class="form-group"><label class="form-label">Ticker Text (scrolling bar)</label><input class="form-control" type="text" id="ad-text" placeholder="Promo text..."/></div><div class="form-group"><label class="form-label">Ad Media — Image or Video (displayed on homepage)</label><div class="upload-zone" onclick="document.getElementById('ad-media').click()"><i class="fas fa-photo-video"></i><p>Upload image (JPG/PNG) or video (MP4/WEBM)<br/><span style="font-size:.7rem">Max 50MB</span></p><div id="ad-media-preview" style="margin-top:8px"></div></div><input type="file" id="ad-media" accept="image/*,video/*" style="display:none" onchange="previewAdMedia(event)"/></div><button class="btn-block btn-forest" onclick="adminAddAd()">Publish Ad to Homepage</button></div>`; }
+
+    function previewAdMedia(event) {
+      const file = event.target.files[0]; if (!file) return;
+      const preview = document.getElementById('ad-media-preview');
+      const url = URL.createObjectURL(file);
+      if (file.type.startsWith('video/')) preview.innerHTML = `<video src="${url}" style="max-width:100%;max-height:110px;border-radius:6px" controls muted></video>`;
+      else preview.innerHTML = `<img src="${url}" style="max-width:100%;max-height:110px;border-radius:6px;object-fit:cover"/>`;
+      preview._url = url; preview._isVideo = file.type.startsWith('video/');
+    }
+    function previewDesignImages(event) {
+      const preview = document.getElementById('d-preview'); if (!preview) return;
+      preview.innerHTML = '';
+      Array.from(event.target.files).forEach(file => { const url = URL.createObjectURL(file); preview.innerHTML += `<img src="${url}" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:2px solid var(--sand)"/>`; });
+    }
+    function adminAddAd() {
+      const advertiser = document.getElementById('ad-advertiser').value.trim();
+      const text = document.getElementById('ad-text').value.trim();
+      const mp = document.getElementById('ad-media-preview');
+      if (!advertiser) { toast('Enter advertiser name', 'error'); return; }
+      // Add to ticker track
+      if (text) { const track = document.getElementById('ads-ticker-track'); if (track) { const sp = document.createElement('span'); sp.innerHTML = `<i class="fas fa-star"></i>${advertiser} — ${text}`; track.appendChild(sp.cloneNode(true)); track.appendChild(sp); } }
+      // Replace big single ad slot with media
+      if (mp && mp._url) {
+        const mediaDiv = document.getElementById('ads-big-media');
+        if (mediaDiv) {
+          mediaDiv.innerHTML = mp._isVideo
+            ? `<video src="${mp._url}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"></video>`
+            : `<img src="${mp._url}" alt="${advertiser}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"/>`;
+        }
+        const ov = document.getElementById('ads-big-overlay'); if (ov) ov.style.display = 'block';
+        const nm = document.getElementById('ads-big-name'); if (nm) nm.textContent = advertiser;
+        const tg = document.getElementById('ads-big-tag'); if (tg) tg.textContent = text;
+        // make big slot have proper height for absolute media
+        const bigSlot = document.getElementById('ads-big-slot'); if (bigSlot) bigSlot.style.position = 'relative';
+      }
+      const tb = document.getElementById('ads-admin-table');
+      if (tb) tb.innerHTML += `<tr><td>${advertiser}</td><td>${mp._url ? 'Media' : 'Text'}</td><td>${text || '—'}</td><td><span class="badge-status badge-approved">Active</span></td><td><button class="action-btn cancel">Remove</button></td></tr>`;
+      document.getElementById('ad-advertiser').value = ''; document.getElementById('ad-text').value = ''; if (mp) { mp.innerHTML = ''; delete mp._url; }
+      toast('Ad published to homepage ✓', 'success');
+    }
+    function adminAction(a, id) { const m = { approve: 'Order approved ✓', cancel: 'Order cancelled', 'approve-user': 'User approved ✓', 'reject-user': 'User rejected', 'approve-req': 'Role request approved ✓', 'reject-req': 'Role request rejected', edit: 'Edit in Firebase console', remove: 'Product removed', 'remove-ad': 'Ad removed' }; const ok = a.includes('approve') || a === 'edit'; toast(m[a] || `Action: ${a}`, ok ? 'success' : 'error'); }
+    function adminSetRole(sel, uid) { toast(`Role set to ${sel.value} ✓`, 'success'); }
+    function designerAction(a, id) { if (a === 'upload') { const n = document.getElementById('d-name')?.value?.trim(); if (!n) { toast('Enter product name', 'error'); return; } toast('Design submitted for review ✓', 'success'); } else if (a === 'edit') toast('Edit via Firebase console', 'error'); else if (a === 'delete') toast('Design removed', 'success'); }
+    function printerAction(a, id) { if (a === 'start') toast(`Printing started for #${id}`, 'success'); else if (a === 'complete') toast(`Order #${id} done ✓`, 'success'); }
+
+    // ─── NAV ───
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const t2 = document.getElementById('page-' + page); if (!t2) return;
+      t2.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (page === 'home') renderHome();
+      if (page === 'shop') renderShop();
+      if (page === 'designers') renderDesigners();
+      if (page === 'dashboard') { if (!currentUser) { openModal('login-modal'); return; } renderDashboard(); }
+      if (page === 'profile') { if (!currentUser) { openModal('login-modal'); return; } updateProfilePage(); }
+      document.querySelectorAll('.nav-link-btn').forEach(b => b.classList.remove('active'));
+      const nm = { home: 'nav-home', shop: 'nav-shop', designers: 'nav-designers', about: 'nav-about', contact: 'nav-contact' };
+      if (nm[page]) document.getElementById(nm[page])?.classList.add('active');
+    }
+    function setActiveNav(el) { document.querySelectorAll('.nav-link-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
+    function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('open'); }
+    function openModal(id) { document.getElementById(id).classList.add('open'); document.body.classList.add('modal-open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.classList.remove('modal-open'); }
+    function switchModal(a, b) { closeModal(a); openModal(b); }
+    function selectRole(el) { document.querySelectorAll('#role-selector .role-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedRole = el.dataset.role; }
+    function toast(msg, type = '') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = 'toast-msg ' + type; el.textContent = msg; c.appendChild(el); setTimeout(() => el.remove(), 3500); }
+    function switchProfileTab(btn, id) { document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.profile-tab-content').forEach(t => t.classList.remove('active')); btn.classList.add('active'); document.getElementById(id).classList.add('active'); }
+
+    // ─── FULL TRANSLATIONS APPLY ───
+    function applyTranslations() {
+      document.title = t('pageTitle'); document.getElementById('page-title').textContent = t('pageTitle');
+      const set = (id, val, html = false) => { const el = document.getElementById(id); if (el) { if (html) el.innerHTML = val; else el.textContent = val; } };
+      set('nav-brand-sub', t('navBrandSub')); set('nav-home', t('home')); set('nav-shop', t('shop')); set('nav-designers', t('designers')); set('nav-about', t('about')); set('nav-contact', t('contact'));
+      set('txt-nav-login', t('navLogin')); set('txt-nav-signup', t('navSignup'));
+      set('mob-home', t('home')); set('mob-shop', t('shop')); set('mob-designers', t('designers')); set('mob-about', t('about')); set('mob-contact', t('contact')); set('mob-login', t('navLogin')); set('mob-signup', t('navSignup'));
+      set('txt-cart', t('cart')); set('txt-total', t('total')); set('txt-checkout', t('checkout'));
+      set('hero-badge-text', t('heroBadge')); set('hero-h1', t('heroH1'), true); set('hero-p', t('heroP'));
+      set('txt-shop-now', t('shopNow')); set('txt-partner', t('partner'));
+      set('txt-ad', t('ad')); set('txt-sponsored', t('sponsored')); set('txt-advertise-here', t('advertiseHere'));
+      set('txt-ad-slot1', t('adSlot'));
+      set('txt-ad-cta1', t('advertise'));
+      set('txt-trending', t('trending'), true); set('txt-see-all-t', t('seeAll')); set('txt-new-arrivals', t('newArrivals'), true); set('txt-see-all-n', t('seeAll'));
+      set('txt-all-products', t('allProducts'), true);
+      ['fcat-all', 'sfcat-all'].forEach(id => set(id, t('catAll')));['fcat-tshirt', 'sfcat-tshirt'].forEach(id => set(id, t('catTshirt')));['fcat-hoodie', 'sfcat-hoodie'].forEach(id => set(id, t('catHoodie')));['fcat-dress', 'sfcat-dress'].forEach(id => set(id, t('catDress')));['fcat-jacket', 'sfcat-jacket'].forEach(id => set(id, t('catJacket')));['fcat-collab', 'sfcat-collab'].forEach(id => set(id, t('catCollab')));
+      ['home-search', 'shop-search'].forEach(id => { const el = document.getElementById(id); if (el) el.placeholder = t('searchPlaceholder'); });
+      const ds = document.getElementById('designer-search'); if (ds) ds.placeholder = t('designerSearch');
+      set('shop-title', t('shopTitle'), true); set('designers-title', t('designersTitle'), true);
+      set('footer-desc', t('footerDesc')); set('footer-shop-title', t('footerShop')); set('footer-all-products', t('footerAllProducts')); set('footer-new', t('footerNew')); set('footer-designers-link', t('footerDesigners')); set('footer-collab', t('footerCollab'));
+      set('footer-company-title', t('footerCompany')); set('footer-about', t('footerAbout')); set('footer-contact-link', t('footerContact')); set('footer-privacy', t('footerPrivacy')); set('footer-terms', t('footerTerms'));
+      set('footer-account-title', t('footerAccount')); set('footer-login', t('footerLogin')); set('footer-register', t('footerRegister')); set('footer-profile', t('footerProfile')); set('footer-orders', t('footerOrders')); set('footer-copy', t('footerCopy'));
+      set('txt-signin', t('signin')); set('txt-signin-sub', t('signinSub')); set('lbl-login-email', t('lblEmail')); set('lbl-pw', t('pw')); set('txt-forgot', t('forgot')); set('txt-continue', t('continue')); set('txt-or', t('or')); set('txt-no-account', t('noAccount')); set('txt-signup-link', t('signupLink'));
+      // demo buttons removed
+      set('txt-create', t('create')); set('txt-create-sub', t('createSub')); set('lbl-reg-name', t('lblFullName')); set('lbl-reg-email', t('lblEmail')); set('lbl-reg-pw', t('pw')); set('txt-req-role', t('reqRole')); set('txt-role-note', t('roleNote')); set('txt-create-btn', t('createBtn')); set('txt-have-account', t('haveAccount')); set('txt-signin-link', t('signinLink'));
+      set('role-customer', t('roleCustomer')); set('role-designer', t('roleDesigner')); set('role-printer', t('rolePrinter')); set('role-advertiser', t('roleAdvertiser'));
+      set('txt-dashboard-btn', t('dashboardBtn')); set('txt-signout', t('signout'));
+      set('ptab-info', t('ptabInfo')); set('ptab-orders', t('ptabOrders')); set('ptab-wishlist', t('ptabWishlist')); set('ptab-settings', t('ptabSettings')); set('ptab-report', t('ptabReport'));
+      set('lbl-full-name', t('lblFullName')); set('lbl-p-email', t('lblEmail')); set('lbl-new-pw', t('lblNewPw')); set('lbl-phone', t('lblPhone')); set('txt-save-changes', t('saveChanges'));
+      set('th-order', 'Order #'); set('th-date', 'Date'); set('th-items', 'Items'); set('th-total', 'Total'); set('th-status', 'Status');
+      set('txt-no-orders', t('noOrders')); set('txt-empty-wish', t('emptyWish'));
+      set('txt-preferences', t('preferences')); set('lbl-email-notif', t('lblEmailNotif')); set('desc-email-notif', t('descEmailNotif')); set('lbl-language', t('lblLanguage')); set('desc-language', t('descLanguage'));
+      set('txt-danger-zone', t('dangerZone')); set('lbl-delete-acc', t('lblDeleteAcc')); set('desc-delete-acc', t('descDeleteAcc')); set('txt-req-deletion', t('reqDeletion'));
+      set('lbl-bug-desc', t('lblBugDesc')); set('lbl-bug-img', t('lblBugImg')); set('txt-submit-report', t('submitReport'));
+      set('contact-title', t('contactTitle'), true); set('lbl-your-name', t('yourName')); set('lbl-c-email', t('lblEmail')); set('lbl-subject', t('subject')); set('lbl-message', t('message')); set('lbl-attach', t('attach')); set('txt-send-msg', t('sendMsg'));
+      set('csubj-general', t('subjGeneral')); set('csubj-partner', t('subjPartner')); set('csubj-order', t('subjOrder')); set('csubj-design', t('subjDesign')); set('csubj-bug', t('subjBug'));
+      set('about-badge', t('aboutBadge')); set('about-title', t('aboutTitle'), true); set('about-sub', t('aboutSub')); set('about-mission-title', t('aboutMission')); set('about-mission-text', t('aboutMissionText'));
+      set('stat-products', t('statProducts')); set('stat-designers', t('statDesigners')); set('stat-customers', t('statCustomers')); set('stat-partners', t('statPartners'));
+      set('txt-partner-title', t('partnerTitle')); set('txt-partner-sub', t('partnerSub'));
+      set('ptype-designer', t('ptypeDesigner')); set('ptype-printer', t('ptypePrinter')); set('ptype-advertiser', t('ptypeAdvertiser')); set('ptype-brand', t('ptypeBrand'));
+      set('lbl-partner-name', t('partnerName')); set('lbl-partner-email', t('lblEmail')); set('lbl-partner-msg', t('partnerMsg')); set('txt-submit-partner', t('submitPartner'));
+      set('txt-checkout-title', t('checkoutTitle')); set('txt-checkout-sub', t('checkoutSub'));
+      set('lbl-co-orderid', t('coOrderId')); set('lbl-co-name', t('coName')); set('lbl-co-phone', t('coPhone')); set('lbl-co-location', t('coLocation'));
+      set('txt-co-total', t('coTotal')); set('txt-place-order', t('placeOrder'));
+    }
+
+    // ─── LANGUAGE TOGGLE ───
+    function toggleLang() {
+      lang = lang === 'en' ? 'ku' : 'en';
+      localStorage.setItem('naxshin-lang', lang);
+      const html = document.documentElement;
+      if (lang === 'ku') { html.setAttribute('dir', 'rtl'); html.setAttribute('lang', 'ku'); document.getElementById('lang-btn').textContent = 'English'; }
+      else { html.setAttribute('dir', 'ltr'); html.setAttribute('lang', 'en'); document.getElementById('lang-btn').textContent = 'کوردی'; }
+      applyTranslations();
+      const active = document.querySelector('.page.active')?.id?.replace('page-', '');
+      if (active) showPage(active);
+    }
+
+
+    // ═══════════════════════════════
+    // MOBILE APP JS
+    // ═══════════════════════════════
+    function isMobile() { return window.innerWidth <= 767; }
+
+    function openMobDrawer() {
+      document.getElementById('mob-drawer').classList.add('open');
+      document.getElementById('mob-drawer-overlay').style.display = 'block';
+      document.body.classList.add('modal-open');
+    }
+    function closeMobDrawer() {
+      document.getElementById('mob-drawer').classList.remove('open');
+      document.getElementById('mob-drawer-overlay').style.display = 'none';
+      document.body.classList.remove('modal-open');
+    }
+    window.openMobDrawer = openMobDrawer;
+    window.closeMobDrawer = closeMobDrawer;
+
+    function setMobActive(id) {
+      document.querySelectorAll('.mob-drawer-item').forEach(el => el.classList.remove('active'));
+      const el = document.getElementById(id); if (el) el.classList.add('active');
+    }
+    window.setMobActive = setMobActive;
+
+    function setMobBottomActive(id) {
+      document.querySelectorAll('.mob-nav-item').forEach(el => el.classList.remove('active'));
+      const el = document.getElementById(id); if (el) el.classList.add('active');
+    }
+    window.setMobBottomActive = setMobBottomActive;
+
+    // Sync mob cart badge
+    function syncMobCart() {
+      const n = cart.reduce((a, c) => a + c.qty, 0);
+      const mb = document.getElementById('mob-cart-count');
+      if (mb) { mb.textContent = n; n > 0 ? mb.classList.remove('hidden') : mb.classList.add('hidden'); }
+    }
+
+    // Patch saveCart to also sync mob badge
+    const _origSaveCart = saveCart;
+    function saveCartPatched() {
+      _origSaveCart && _origSaveCart();
+      syncMobCart();
+    }
+    window.saveCart = saveCartPatched;
+
+    // Update mob drawer user info
+    function updateMobDrawerUser() {
+      if (!currentUser) {
+        document.getElementById('mob-drawer-user').style.display = 'none';
+        document.getElementById('mob-drawer-footer-auth').classList.remove('hidden');
+        document.getElementById('mob-drawer-footer-user').classList.add('hidden');
+        return;
+      }
+      document.getElementById('mob-drawer-user').style.display = 'block';
+      document.getElementById('mob-drawer-footer-auth').classList.add('hidden');
+      document.getElementById('mob-drawer-footer-user').classList.remove('hidden');
+      document.getElementById('mob-drawer-name').textContent = currentUser.name || 'User';
+      document.getElementById('mob-drawer-role').textContent = currentUser.role || 'Customer';
+      const av = document.getElementById('mob-drawer-avatar');
+      if (currentUser.photoURL) av.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+      else av.textContent = (currentUser.name || 'U')[0].toUpperCase();
+      // sync logo
+      document.querySelectorAll('#mob-drawer-logo').forEach(el => el.src = LOGO);
+      document.querySelectorAll('#mob-brand-sub').forEach(el => el.textContent = lang === 'ku' ? 'چاپ و دیزاین' : 'Print & Design');
+    }
+    window.updateMobDrawerUser = updateMobDrawerUser;
+
+    // Patch updateNavUser to also update mobile drawer
+    const _origNavUser = updateNavUser;
+    function updateNavUserPatched() {
+      _origNavUser && _origNavUser();
+      updateMobDrawerUser();
+    }
+    window.updateNavUser = updateNavUserPatched;
+
+    const _origNavGuest = updateNavGuest;
+    function updateNavGuestPatched() {
+      _origNavGuest && _origNavGuest();
+      updateMobDrawerUser();
+    }
+    window.updateNavGuest = updateNavGuestPatched;
+
+    // Patch showPage to sync bottom nav
+    const _origShowPage = showPage;
+    function showPagePatched(page) {
+      _origShowPage(page);
+      // sync bottom nav
+      const map = { home: 'mn-home', shop: 'mn-shop', designers: 'mn-shop', profile: 'mn-profile', dashboard: 'mn-profile', about: '', contact: '' };
+      if (map[page]) setMobBottomActive(map[page]);
+      // sync drawer
+      const dmap = { home: 'md-home', shop: 'md-shop', designers: 'md-designers', about: 'md-about', contact: 'md-contact' };
+      if (dmap[page]) setMobActive(dmap[page]);
+    }
+    window.showPage = showPagePatched;
+
+    // Mobile translation extras
+    function applyMobTranslations() {
+      const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      const l = lang;
+      s('mob-brand-sub', l === 'ku' ? 'چاپ و دیزاین' : 'Print & Design');
+      s('mob-sub-drawer', l === 'ku' ? 'چاپ و دیزاین' : 'Print & Design');
+      s('mdi-home', l === 'ku' ? 'سەرەکی' : 'Home');
+      s('mdi-shop', l === 'ku' ? 'فرۆشگا' : 'Shop');
+      s('mdi-designers', l === 'ku' ? 'دیزاینەرەکان' : 'Designers');
+      s('mdi-about', l === 'ku' ? 'دەربارەمان' : 'About');
+      s('mdi-contact', l === 'ku' ? 'پەیوەندی' : 'Contact');
+      s('mdi-dashboard', l === 'ku' ? 'داشبۆرد' : 'Dashboard');
+      s('mdi-profile', l === 'ku' ? 'پڕۆفایل' : 'Profile');
+      s('mdi-login', l === 'ku' ? 'چوونەژوورەوە' : 'Login');
+      s('mdi-signup', l === 'ku' ? 'تۆمارکردن' : 'Sign Up');
+      s('mdi-signout', l === 'ku' ? 'دەرچوون' : 'Sign Out');
+      s('md-lang-lbl', l === 'ku' ? 'زمان' : 'Language');
+      s('md-lang-btn', l === 'ku' ? 'English' : 'کوردی');
+      s('mni-home', l === 'ku' ? 'سەرەکی' : 'Home');
+      s('mni-shop', l === 'ku' ? 'کاڵاکان' : 'Collection');
+      s('mni-wish', l === 'ku' ? 'دڵخوازەکان' : 'Favourites');
+      s('mni-profile', l === 'ku' ? 'پڕۆفایل' : 'Profile');
+    }
+    window.applyMobTranslations = applyMobTranslations;
+
+    // Patch toggleLang to also apply mobile translations
+    const _origToggleLang = toggleLang;
+    function toggleLangPatched() {
+      _origToggleLang();
+      applyMobTranslations();
+      document.getElementById('md-lang-btn').textContent = lang === 'ku' ? 'English' : 'کوردی';
+    }
+    window.toggleLang = toggleLangPatched;
+
+    // Set logo on drawer
+    setTimeout(() => {
+      document.querySelectorAll('#mob-drawer-logo').forEach(el => el.src = LOGO);
+      syncMobCart();
+      updateMobDrawerUser();
+      if (lang === 'ku') applyMobTranslations();
+    }, 300);
+
+
+    // ─── ADMIN: SECURITY RULES ───
+    function rAdminRules(m) {
+      const recommended = `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Users: own data + admin access ──
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ── Products: public read, designer/admin write ──
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin','designer'];
+    }
+
+    // ── Orders: user creates/reads own, admin/printer can update ──
+    match /orders/{orderId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin','designer','printer']
+      );
+      allow update: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin','printer'];
+    }
+
+    // ── Contact / Bug / Partner: public create, admin read ──
+    match /contact-messages/{id} {
+      allow create: if true;
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /bug-reports/{id} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /partner-requests/{id} {
+      allow create: if true;
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}`;
+
+      m.innerHTML = `
+        <div class="dash-header"><h2>🛡️ Security Rules</h2><p>Manage Firestore security rules for your database</p></div>
+        <div class="dash-card" style="margin-bottom:16px">
+          <h3>Quick Links</h3>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+            <a href="https://console.firebase.google.com/project/naxshin-e5e25/firestore/databases/-default-/rules" target="_blank" rel="noopener"
+               style="background:var(--forest);color:#fff;padding:9px 18px;border-radius:6px;font-size:.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+              <i class="fas fa-external-link-alt"></i> Open Firebase Console
+            </a>
+            <a href="https://console.firebase.google.com/project/naxshin-e5e25/authentication/users" target="_blank" rel="noopener"
+               style="background:var(--gold-dark);color:#fff;padding:9px 18px;border-radius:6px;font-size:.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+              <i class="fas fa-users"></i> Manage Auth Users
+            </a>
+          </div>
+        </div>
+        <div class="dash-card">
+          <h3>Recommended Firestore Rules</h3>
+          <p style="color:var(--mid-gray);font-size:.8rem;margin-bottom:14px">Copy these rules and paste them in the Firebase Console → Firestore → Rules tab. Click "Open Firebase Console" above.</p>
+          <div style="position:relative">
+            <pre id="rules-code" style="background:#0f0f0f;color:#c9d1d9;padding:18px;border-radius:8px;font-size:.75rem;line-height:1.7;overflow-x:auto;white-space:pre-wrap;border:1px solid rgba(255,255,255,.1)">${recommended.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+            <button onclick="copyRules()" style="position:absolute;top:10px;right:10px;background:var(--gold);color:#1A0A0E;border:none;padding:5px 12px;border-radius:5px;font-size:.72rem;font-weight:700;cursor:pointer">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+          <p style="color:var(--mid-gray);font-size:.74rem;margin-top:10px">⚠️ Current rules are set to <strong>deny all</strong>. You must update them in Firebase Console before real users can read/write data.</p>
+        </div>
+        <div class="dash-card">
+          <h3>Current Rules Status</h3>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--sand-pale);border-radius:8px">
+            <i class="fas fa-exclamation-triangle" style="color:var(--rust);font-size:1.3rem"></i>
+            <div>
+              <div style="font-weight:600;font-size:.85rem;color:var(--rust)">Rules are currently LOCKED (deny all)</div>
+              <div style="font-size:.75rem;color:var(--mid-gray);margin-top:2px">Firebase Auth works, but Firestore reads/writes will fail until rules are updated. Copy rules above and publish them in the Firebase Console.</div>
+            </div>
+          </div>
+        </div>`;
+      window.copyRules = function() {
+        navigator.clipboard.writeText(recommended).then(() => toast('Rules copied to clipboard ✓','success')).catch(() => {
+          const ta = document.createElement('textarea'); ta.value = recommended; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); toast('Rules copied ✓','success');
+        });
+      };
+    }
+
+    // ─── INIT ───
+    if (lang === 'ku') { document.documentElement.setAttribute('dir', 'rtl'); document.documentElement.setAttribute('lang', 'ku'); document.getElementById('lang-btn').textContent = 'English'; applyTranslations(); }
+    saveCart();
+    renderHome();
+    document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) { o.classList.remove('open'); document.body.classList.remove('modal-open'); } }));
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
