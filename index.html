@@ -5003,7 +5003,7 @@
       if (!fbReady || !currentUser) return;
       try {
         const snap = await getDocs(query(collection(db,'products'), where('designerId','==',currentUser.uid)));
-        const P = snap.docs.map(d=>({id:d.id,...d.data()}));
+        const P = snap.docs.map(d=>({id:d.id,...d.data()}));;
         document.getElementById('my-designs-grid').innerHTML = P.length ? P.map(p=>`<div class="product-card">
           <div class="product-img-wrap"><img src="${p.img}" alt="${p.name}" loading="lazy"/>
             <span class="badge-status badge-${p.status==='active'?'approved':'pending'}" style="position:absolute;top:8px;left:8px;font-size:.58rem">${p.status||'pending'}</span>
