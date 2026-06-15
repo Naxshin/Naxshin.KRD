@@ -32,3 +32,13 @@ google-services.json
 
 # Android Profiling
 *.hprof
+# ── Never commit these ──
+.env
+.env.local
+serviceAccountKey.json
+firebase-adminsdk*.json
+
+# ── These are auto-generated ──
+node_modules/
+.DS_Store
+Thumbs.db
