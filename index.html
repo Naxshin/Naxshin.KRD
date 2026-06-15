@@ -759,7 +759,8 @@
 
     .ad-slot {
       position: relative;
-      aspect-ratio: 21/9;
+      aspect-ratio: 21/5;
+      max-height: 180px;
       overflow: hidden;
       background: #1a1a1a;
       cursor: pointer;
@@ -767,7 +768,8 @@
 
     @media(max-width:767px) {
       .ad-slot {
-        aspect-ratio: 16/9;
+        aspect-ratio: 16/7;
+        max-height: 120px;
       }
     }
 
@@ -813,31 +815,31 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 14px;
+      gap: 8px;
       color: rgba(255, 255, 255, .25);
-      padding: 30px;
+      padding: 12px;
       text-align: center;
     }
 
     .ad-slot-placeholder i {
-      font-size: 3rem;
+      font-size: 1.6rem;
     }
 
     .ad-slot-placeholder p {
-      font-size: .9rem;
-      line-height: 1.6;
+      font-size: .78rem;
+      line-height: 1.4;
     }
 
     .ad-slot-placeholder .ad-cta {
       background: var(--gold);
       color: var(--charcoal);
       border: none;
-      padding: 10px 28px;
+      padding: 6px 18px;
       border-radius: 4px;
-      font-size: .82rem;
+      font-size: .74rem;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 6px;
+      margin-top: 2px;
     }
 
     .ad-slot-placeholder .ad-cta:hover {
@@ -2923,7 +2925,7 @@
         font-size: .72rem !important;
       }
 
-      #ads-big-slot {
+      .ad-slot {
         border-radius: 10px !important;
         margin: 8px 12px 12px !important;
       }
@@ -4836,26 +4838,26 @@
       toast('Ad published to homepage ✓','success');
     }
     function updateBigAdSlot(advertiser, text, mediaURL, isVideo) {
-      if (!mediaURL) return;
+      const slot = document.getElementById('main-ad-slot');
+      if (!slot) return;
+      if (!mediaURL) {
+        // No media — show advertiser name as a text-only ad banner
+        if (!advertiser) return;
+        slot.innerHTML = `<div class="ad-slot-placeholder">
+          <i class="fas fa-bullhorn"></i>
+          <p>${advertiser}${text ? ' — ' + text : ''}</p>
+          <button class="ad-cta" onclick="openModal('partner-modal')">Advertise Here</button>
+        </div>`;
+        return;
+      }
       // Auto-detect video by extension
       const isVid = isVideo || /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(mediaURL);
-      // Convert Imgur gallery links to direct image
-      let finalURL = mediaURL;
-      if (/imgur\.com\/a\//i.test(mediaURL)) {
-        // Gallery link — can't embed directly; show as image link
-        finalURL = mediaURL; // will fail gracefully with onerror
-      }
-      const mediaDiv = document.getElementById('ads-big-media');
-      if (mediaDiv) {
-        mediaDiv.style.position = 'relative';
-        mediaDiv.innerHTML = isVid
-          ? `<video src="${finalURL}" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=padding:20px;color:#aaa;text-align:center>Video unavailable — use a direct .mp4 URL</div>'"></video>`
-          : `<img src="${finalURL}" alt="${advertiser}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.parentElement.querySelector('.ad-fallback-text')&&(this.parentElement.querySelector('.ad-fallback-text').style.display='flex')"/><div class='ad-fallback-text' style='display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;color:#C9A96E;font-size:.85rem;gap:8px'><i class='fas fa-ad' style='font-size:2rem'></i><span>${advertiser}</span><span style='opacity:.6;font-size:.75rem'>${text}</span></div>`;
-      }
-      const ov = document.getElementById('ads-big-overlay');
-      if (ov) ov.style.display = 'block';
-      const nm = document.getElementById('ads-big-name'); if (nm) nm.textContent = advertiser;
-      const tg = document.getElementById('ads-big-tag');  if (tg) tg.textContent = text;
+      const safeAdv = (advertiser||'').replace(/'/g,"\\'");
+      const safeTxt = (text||'').replace(/'/g,"\\'");
+      slot.innerHTML = (isVid
+        ? `<video src="${mediaURL}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover" onerror="this.closest('.ad-slot').innerHTML='<div class=\\'ad-slot-placeholder\\'><i class=\\'fas fa-bullhorn\\'></i><p>${safeAdv}${safeTxt?' — '+safeTxt:''} (video unavailable)</p></div>'"></video>`
+        : `<img src="${mediaURL}" alt="${advertiser}" style="width:100%;height:100%;object-fit:cover" onerror="this.closest('.ad-slot').innerHTML='<div class=\\'ad-slot-placeholder\\'><i class=\\'fas fa-bullhorn\\'></i><p>${safeAdv}${safeTxt?' — '+safeTxt:''} (image unavailable)</p></div>'"/>`
+      ) + `<div class="ad-slot-overlay"><div class="ad-slot-name">${advertiser}</div>${text?`<div class="ad-slot-tag">${text}</div>`:''}</div>`;
     }
     async function loadAdsFromFirestore() {
       if (!fbReady) return;
@@ -4865,9 +4867,9 @@
         if (snap.empty) return;
         const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
           .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-        // Show the most recent ad in the big slot
-        const ad = docs[0];
-        if (ad) updateBigAdSlot(ad.advertiser||'', ad.text||'', ad.mediaURL||'', ad.isVideo||false);
+        // Prefer the most recent ad that has media; fall back to most recent overall
+        const ad = docs.find(a => a.mediaURL) || docs[0];
+        if (ad) updateBigAdSlot(ad.advertiser||'Sponsor', ad.text||'', ad.mediaURL||'', ad.isVideo||false);
         // Add all ads to ticker
         const track = document.getElementById('ads-ticker-track');
         if (track) {
@@ -5179,7 +5181,7 @@
         <div class="dash-card"><h3>Active Ads (${activeAds.length})</h3>
           <div class="table-wrap" style="margin-bottom:20px"><table><thead><tr><th>Advertiser</th><th>Text</th><th>Media</th><th>Status</th><th>Action</th></tr></thead>
           <tbody id="ads-admin-table">${activeAds.map(a=>`<tr>
-            <td>${a.advertiser}</td><td>${a.text||'—'}</td>
+            <td>${a.advertiser||'(unnamed)'}</td><td>${a.text||'—'}</td>
             <td>${a.mediaURL?`<img src="${a.mediaURL}" style="width:60px;height:40px;object-fit:cover;border-radius:4px"/>`:'Text only'}</td>
             <td><span class="badge-status badge-approved">Active</span></td>
             <td><button class="action-btn cancel" onclick="removeAd(this,'${a.advertiser}')">Remove</button></td>
