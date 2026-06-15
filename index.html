@@ -1155,7 +1155,13 @@ if(!ads.length){
       tickerTxt.textContent=ads.map(a=>`📢 ${a.title}`).join('   ·   ');
       tickerBar.style.display='block';
     }
-  }catch(e){console.error('ads error:',e);}
+  } catch (e) {
+  if (e.code === 'failed-precondition' && e.message.includes('building')) {
+    console.warn('Ads index is still building. Please wait a few minutes.');
+    // Optionally: Show a "Loading..." or "Temporary unavailable" message to the user
+  } else {
+    console.error('ads error:', e);
+  }
 }
 
 window.openAdModal=function(){
