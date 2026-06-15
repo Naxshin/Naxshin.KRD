@@ -1127,7 +1127,11 @@ async function loadAds(){
     const tickerBar=$('ads-ticker-bar');
     const tickerTxt=$('ads-ticker-text');
     if(!grid)return;
-    if(!ads.length){grid.innerHTML='';if(tickerBar)tickerBar.style.display='none';return;}
+if(!ads.length){
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--muted);border:1px dashed var(--border);border-radius:.75rem;margin-bottom:1rem">📢 No ads yet</div>';
+  if(tickerBar)tickerBar.style.display='none';
+  return;
+}
 
     grid.innerHTML=ads.map(ad=>{
       let media='<div style="font-size:3rem;margin-bottom:.5rem">📢</div>';
