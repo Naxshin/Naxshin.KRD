@@ -3260,7 +3260,9 @@
     if (l) { l.style.opacity='0'; l.style.transition='opacity .5s'; setTimeout(function(){l.remove();},500); }
     // Also try to render home with no Firebase
     if (typeof renderHome === 'function' && !window._homeRendered) renderHome();
-  }, 6000);
+    window._loaderHidden = true; // mark as hidden for guard
+    var hp = document.getElementById('page-home'); if (hp && !hp.classList.contains('active')) hp.classList.add('active');
+  }, 4000); // shorter safety timeout
 </script>
 <div class="page-loader" id="page-loader">
     <div style="animation:pulse 1.4s ease infinite"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="64" height="64" style="display:block">
@@ -4314,43 +4316,62 @@
     if (fbReady) {
       try {
         onAuthStateChanged(auth, async user => {
-          if (user) {
-            try {
-              const snap = await getDoc(doc(db, 'users', user.uid));
-              if (snap.exists()) {
-                currentUser = { uid: user.uid, ...snap.data() };
-                if (user.email === ADMIN_EMAIL && currentUser.role !== 'admin') {
-                  await updateDoc(doc(db, 'users', user.uid), { role: 'admin', status: 'active' });
-                  currentUser.role = 'admin';
+          try {
+            if (user) {
+              try {
+                const snap = await getDoc(doc(db, 'users', user.uid));
+                if (snap.exists()) {
+                  currentUser = { uid: user.uid, ...snap.data() };
+                  // Auto-promote admin email
+                  if (user.email === ADMIN_EMAIL && currentUser.role !== 'admin') {
+                    try { await updateDoc(doc(db,'users',user.uid),{role:'admin',status:'active'}); } catch(_){}
+                    currentUser.role = 'admin';
+                  }
+                } else {
+                  // New user — create their doc
+                  const isAdminAcc = user.email === ADMIN_EMAIL;
+                  currentUser = {
+                    uid: user.uid, email: user.email,
+                    name: user.displayName || (isAdminAcc ? 'Admin Naxshin' : 'User'),
+                    role: isAdminAcc ? 'admin' : 'customer',
+                    status: 'active', photoURL: user.photoURL || '', phone: ''
+                  };
+                  try { await setDoc(doc(db,'users',user.uid), currentUser); } catch(_){}
                 }
-              } else {
+              } catch (firestoreErr) {
+                // Firestore rules may be blocking — still log user in with basic profile
+                console.warn('Firestore user load failed (check security rules):', firestoreErr.message);
                 const isAdminAcc = user.email === ADMIN_EMAIL;
                 currentUser = {
                   uid: user.uid, email: user.email,
                   name: user.displayName || (isAdminAcc ? 'Admin Naxshin' : 'User'),
                   role: isAdminAcc ? 'admin' : 'customer',
-                  status: 'active', photoURL: '', phone: ''
+                  status: 'active', photoURL: user.photoURL || '', phone: ''
                 };
-                await setDoc(doc(db, 'users', user.uid), currentUser);
               }
               currentRole = currentUser.role || 'customer';
+              // 2FA check
               if (currentUser.twofa && !_pendingUser2FA) {
                 _pendingUser2FA = currentUser;
                 currentUser = null; currentRole = 'guest';
-                document.getElementById('twofa-login-input').value = '';
+                const inp = document.getElementById('twofa-login-input');
+                if (inp) inp.value = '';
                 openModal('twofa-verify-modal');
               } else {
                 updateNavUser();
-                loadAdsFromFirestore();
+                // Note: loadAdsFromFirestore() called in finally block
               }
-            } catch (e) {
-              console.error('User load err:', e);
-              hideLoader(); updateNavGuest(); return;
+            } else {
+              currentUser = null; currentRole = 'guest'; updateNavGuest();
             }
-          } else {
-            currentUser = null; currentRole = 'guest'; updateNavGuest();
+          } catch (e) {
+            console.error('Auth state error:', e.message);
+            updateNavGuest();
+          } finally {
+            // ALWAYS hide loader — no matter what happened above
+            hideLoader();
+            loadAdsFromFirestore();
           }
-          hideLoader();
         });
       } catch (fbInitErr) {
         console.error('Auth init error:', fbInitErr);
@@ -4361,7 +4382,14 @@
     }
 
     function hideLoader() {
+      if (window._loaderHidden) return; // prevent double-call
+      window._loaderHidden = true;
       clearTimeout(window._loaderSafetyTimer);
+      // Make sure home page is visible
+      if (!document.querySelector('.page.active')) {
+        const home = document.getElementById('page-home');
+        if (home) home.classList.add('active');
+      }
       setTimeout(() => {
         const l = document.getElementById('page-loader');
         if (l) { l.style.opacity='0'; l.style.transition='opacity .4s'; setTimeout(()=>l.remove(),440); }
