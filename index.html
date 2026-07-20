@@ -846,6 +846,38 @@
       background: var(--sand-light);
     }
 
+    .ad-slot-track {
+      width: 100%;
+      height: 100%;
+    }
+
+    .ad-slot-dots {
+      position: absolute;
+      bottom: 8px;
+      right: 12px;
+      display: flex;
+      gap: 6px;
+      z-index: 2;
+    }
+
+    .ad-slot-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.4);
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+
+    .ad-slot-dot:hover {
+      background: rgba(255,255,255,.7);
+    }
+
+    .ad-slot-dot.active {
+      background: var(--gold);
+      transform: scale(1.2);
+    }
+
     /* ══ SECTIONS ══ */
     .section {
       padding: 48px 20px;
@@ -1713,12 +1745,117 @@
       border-radius: var(--radius);
       overflow: hidden;
       min-width: 0;
+      position: relative;
     }
 
     .product-detail-img img {
       width: 100%;
       aspect-ratio: 3/4;
       object-fit: cover;
+    }
+
+    .view-toggle {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 3;
+      display: flex;
+      background: rgba(255,255,255,.9);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 2px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+
+    .view-toggle-btn {
+      border: none;
+      background: transparent;
+      padding: 5px 14px;
+      border-radius: 16px;
+      font-size: .72rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--mid-gray);
+      transition: all .2s;
+    }
+
+    .view-toggle-btn.active {
+      background: var(--forest);
+      color: #fff;
+    }
+
+    .product-3d-stage {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: radial-gradient(ellipse at center, var(--sand-pale) 0%, var(--sand) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      overflow: hidden;
+      user-select: none;
+      touch-action: pan-y;
+    }
+
+    .product-3d-stage.grabbing {
+      cursor: grabbing;
+    }
+
+    .product-3d-stage img {
+      width: 78%;
+      aspect-ratio: auto;
+      object-fit: contain;
+      transition: transform .05s linear;
+      filter: drop-shadow(0 12px 20px rgba(0,0,0,.2));
+      pointer-events: none;
+    }
+
+    .product-3d-hint {
+      text-align: center;
+      font-size: .68rem;
+      color: var(--mid-gray);
+      padding: 6px 0 0;
+    }
+
+    .color-grid {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .color-swatch-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid var(--sand);
+      cursor: pointer;
+      transition: box-shadow .15s, transform .15s;
+      padding: 0;
+    }
+
+    .color-swatch-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .color-swatch-btn.selected {
+      box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--forest);
+    }
+
+    .rate-picker {
+      display: inline-flex;
+      gap: 6px;
+      font-size: 1.5rem;
+    }
+
+    .rate-picker i {
+      color: var(--gold);
+      cursor: pointer;
+      transition: transform .1s;
+    }
+
+    .rate-picker i:hover {
+      transform: scale(1.15);
     }
 
     .product-detail-info {
@@ -3265,20 +3402,7 @@
   }, 4000); // shorter safety timeout
 </script>
 <div class="page-loader" id="page-loader">
-    <div style="animation:pulse 1.4s ease infinite"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="64" height="64" style="display:block">
-  <g transform="translate(50,50) rotate(45)">
-    <rect x="-32" y="-32" width="64" height="64" fill="#C9A96E" rx="2"/>
-    <rect x="-24" y="-24" width="48" height="48" fill="#2D4A3E" rx="2"/>
-    <rect x="-18" y="-18" width="36" height="36" fill="#8B2E0F" rx="1"/>
-    <rect x="-11" y="-11" width="22" height="22" fill="white" rx="1"/>
-    <rect x="-6"  y="-6"  width="12" height="12" fill="#2D4A3E"/>
-    <rect x="-2"  y="-2"  width="4"  height="4"  fill="#C9A96E"/>
-  </g>
-  <circle cx="50" cy="4"  r="2.5" fill="#C9A96E" opacity=".6"/>
-  <circle cx="50" cy="96" r="2.5" fill="#C9A96E" opacity=".6"/>
-  <circle cx="4"  cy="50" r="2.5" fill="#C9A96E" opacity=".6"/>
-  <circle cx="96" cy="50" r="2.5" fill="#C9A96E" opacity=".6"/>
-</svg></div>
+    <div style="animation:pulse 1.4s ease infinite"><img src="" class="loader-logo" id="loader-logo" alt="Naxshin" style="width:64px;height:64px;object-fit:contain;display:block"/></div>
     <div class="loader-brand">NAXSHIN</div>
     <div class="loader-bar">
       <div class="loader-bar-fill"></div>
@@ -3391,16 +3515,7 @@
   <!-- NAV -->
   <nav id="main-nav">
     <a class="nav-brand" href="#" onclick="showPage('home');return false;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="40" height="40" style="display:block;flex-shrink:0">
-  <g transform="translate(50,50) rotate(45)">
-    <rect x="-32" y="-32" width="64" height="64" fill="#C9A96E" rx="2"/>
-    <rect x="-24" y="-24" width="48" height="48" fill="#2D4A3E" rx="2"/>
-    <rect x="-18" y="-18" width="36" height="36" fill="#8B2E0F" rx="1"/>
-    <rect x="-11" y="-11" width="22" height="22" fill="white" rx="1"/>
-    <rect x="-6"  y="-6"  width="12" height="12" fill="#2D4A3E"/>
-    <rect x="-2"  y="-2"  width="4"  height="4"  fill="#C9A96E"/>
-  </g>
-</svg>
+      <img src="" class="nav-logo" id="nav-logo" alt="Naxshin" style="width:40px;height:40px;object-fit:contain;display:block;flex-shrink:0"/>
       <div class="nav-brand-text">
         <span class="nav-brand-name">NAXSHIN</span>
         <span class="nav-brand-sub" id="nav-brand-sub">Print & Design</span>
@@ -4057,17 +4172,7 @@
     let lang = localStorage.getItem('naxshin-lang') || 'en';
 
     // ─── LOGO ───
-    const LOGO = 'data:image/svg+xml;base64,' + btoa(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <g transform="translate(50,50) rotate(45)">
-    <rect x="-32" y="-32" width="64" height="64" fill="#C9A96E" rx="2"/>
-    <rect x="-24" y="-24" width="48" height="48" fill="#2D4A3E" rx="2"/>
-    <rect x="-18" y="-18" width="36" height="36" fill="#8B2E0F" rx="1"/>
-    <rect x="-11" y="-11" width="22" height="22" fill="white" rx="1"/>
-    <rect x="-6"  y="-6"  width="12" height="12" fill="#2D4A3E"/>
-    <rect x="-2"  y="-2"  width="4"  height="4"  fill="#C9A96E"/>
-  </g>
-</svg>`);
+    const LOGO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGQAZADASIAAhEBAxEB/8QAHQABAQACAwEBAQAAAAAAAAAAAAEHCAMFBgIECf/EAFkQAAEDAwIEAgcCCAgJBw0BAAEAAgMEBREGIQcSMUETUQgUIjJCYYFxkRUjJDNSYqHBFjdDU3Kxs9IXY3OSlaK00fA0ZHSCo9PhJSc1NkZUZnaTlKSywuL/xAAaAQEAAgMBAAAAAAAAAAAAAAAAAQQCAwUG/8QAMhEAAgIBAwMDAwIFBAMAAAAAAAECAxEEEjETIUEFIlEUYYHR8BVxkaHBIzKx4SRC8f/aAAwDAQACEQMRAD8A3KTuiIAiIgCIiAiv1REATzRPkgCIiAIiIAiiqAd0REARFEBUUVQDuiIgCIhQBERAEREAREQBERAE+qIgCd8IiAIiICKlEQBERAEREARQqoAnVEPyQBERARVE7oAiIgCIiAJ32REARRVARXZB8kQBERAERRAVERACiKIC5REQBERAEREBFUUQFREQBERAERO6AiqKICoiIAiiqAIiICKoiAIoqgCIiAIiFAEREAREQBEUQFREQBERAEToiAIiIAiIgCIiAIgRAERcFRV0tM+JlRPHE6Z3JGHuxzuxnAz3RvAPw6qvEdisVTcntDzG3EbM++87NH3/ALMrk03dYr1ZKW5QjlbMzJb+i4bOH0OV5fjPDNJpSKWMnw4qprpfsIIH7SF+jhBDNFoyJ0wIbLNI+P8Ao5A/rBVRXS+p6fjBY6cehv8AOT2KLhpaqmqvENNPHMI3ljyxwIa4dQcd9wuZW08lcIiIAoqiAKKogCIiAIiICKoiAIiIAoqiAIURAEREARRUIAiIgCInyKAIiIAiIgCIiAKKogIqURAFFUQDsiIgCJ5IgIqiIAvLcTrJLe9MvZTNL6ineJ42Dq7GcgfPBP1C9SvDcS71e9P1tvuFueHUj+aKaJ7csLhuM9wSM7jyWjUuKqe/g3UKTsW3k6HS+oJ7xoy+2W5OMz6Whe+KR+5LMEYOe7Tjfr9yuvL/AFNFYbTp62PdE6aiifK6LZxaWgNYMee+cfId1+6uNtvulbhqKyMZRV7aeRlawD840t9tjwOuRuHeYHzX2H27TmnqPUN2ijrrxNCwUoIxyDkHKxv6IaOruuSfNc7E9m3d2x/u+2S3mO7O3zx9z0XDu0S2bS9PTVDeSpkJmmb+i53b6DAXo14nhld7zfnV9yuT8QBzYoI2N5WAjJdjueoGSvbLpadxda28FO5SVj3cgoiLcagiKICoiIAiioQBFFe6AIiIAiIgCIiAIiiAKoiAIiIAiIgCIiAZREQBERAEREARTsqgCIiAIoqgCIiAKIqgCIiALxurNRWNtym0zqCnkZBPG1zZzuzfodt2kEdfkvZLyPEbSh1BRx1NGWtuFMCI+Y4EjT8JPbfcH/etGp39N7O7/wCTbTs3+/g87NYZtJWq7Pp5n19tuNI6PxWD2onYPI5wGxac45h02X3+A5NWUdura6Z1utVDSMiD37PlwBzvGdmt2wCeuMrg01UXOi0ffrDd45aeaGklkpWTDBLOU8wb5gHB2801fU3C7WOzads8UtTI6lilq2wjPL7I5GvPRo6nfyC5vs2cdsf7fvngve/dz3zz9scnptJaistRcWaesFLIaamic4zYwwAEdM7nJPUr1y8pw70qNO0MktQ5slfU4Mzm7hgHRg/ee5Xqwunp9/TW/ko3bN72cBERbjUFFUQBREQFREQBERARFUQBERAEREAO6IiAKKogCiqIAiIEARRVAEREARRVAEPREQBERARVEQBEUQFREQHR651XZNF6dnvt+qxT0sOwAHM+Vx6MY3q5x7D9y4/4Z6YOiv4ZC7034CEHjmr5vZ5fLHXmz7PL1ztjK816QunNIX/h1WSavrWWyChaZ6e4Yy+mlxgFo+Pm90s+LOOuCNJND2rVesqum0PYJayop6iq9ZdTl7m08TgOUzyDcNw3v17DJwsW8GEpNM/onY7rb73aKW7Wqrjq6KqjEsM0Zy1zT/xuOoOy/atKOF+utV8DdeVelNV0dQ6zOm/Kace14eelTAfiBG5A94eTgtzLNcqC8Wumulrq4aujqYxJDNE7ma9p6EFSnkmMsn60TqV5rXOrKTTlHy5bLXStPgQ5/wBZ3k3+tY2WRrjuk+xshBze2PJ1vFm42ensZo6xvjVsozTNacOjPTnz2Hb59Fy8K7nZ6qwspKGJsFTCM1MZPtPd08TPcH9nRYHfqeK+anudLU1bnXOCTMzZNi8EAhzfNoBxgdF9UOqo7PquhoqGrc26vDnsazfkaGknn+RAxjv+1cb6yXX37e2Pzj5Op9NDo7d3fP4z8G1CLzuiNVUeo6HILYq2IDx4c9P1m+bT+zovRLs1zjZFSi+xy5RcHtlyF1WqtQWjS9iqb3fK2OjoKZvNJK7f7AAN3OJ2AG5K+9T321aasVVe71WR0dDSsL5ZXnoPIDqSTsANydlpnrLUusPSA4iU1msNLLDbYXF1LTPJEdPH0NRO4ZHNj7cZ5W5JOcm8GuUsG3d81xpiz6LOsKu6wOs5hEsU8Tufxub3WsA95x6Aeflgr9+lL/adUWGlvlkq2VVDVM5o5G/tBHZwOxB3BC/njqq26i07dW6N1VPXUENvqy/wXc0kUPOQHTxMzhwLRkEdemxJW+PBvT+ltO6At9Lo+ojrLZOwVArGu5jVPcBzSuPmcdNsYxgYUJ5IjJtnsVFUWRmEREAREQECoUCICooqgCIiAIiIAiKICooqgCIhQBERAEREAREQBERARVEQECqKdkBUUCqAIiIDodd6TsmtdN1Nhv8ASCopJtxg4fG8e69h+FwPQ/1gkLTO8WzXPo98TYaykm8eimJEM3KRBcIAcmN4HuvHcdWnDhkLepdHrjStl1lpypsN+pRPSTjqNnxvHuvY74XDsf3EhQ0YyjnujTKyWrW3pDcTJq2tnNPRwkCoqGtJgt8GctijB9553wOpOXHZboaL0zaNIaapLBY6X1eipW4a0nLnEnLnuPdxJJJ8yvjQ2lLLo3TlLYLDSiCkgHU7vkefee8/E49z9OgAX59c6rpdN0Bzyy1soPgQZ/1neTR+3osJSjXFykzKutyeF3Y13qum05Q+zyzV0rT4MOf9Z3k3+votd6rVkF41ZX0FwqybswtcRJt4wLQ72PsBxy9sKXHV9JcNX1VBc6xwukgZIDLs2bmGQG+RHTl+5YU4sPkZxCrpGvdG5nguYWuwWkRtwQexXIlKWsscZdljKOk3HSVqUe7zhnxxEqqim4j3GqpppIJ4Z2ujkYcFpDG7rn4XVVRUcRKWonkfLLKJnSvcclxMbtyu34U8P9R8XdXySSvkioI3MNyuRYPZAAHK3s6QgdO3U/P44n6D1Jwh1aB40j6WcSC3XJjMCVhBBaf0ZADuPqNul90t1bfOMHMVv+r1PGcmWbNqynturoaG3Vh/CkbHyu8PcRgYy1/259378LYXQ+qaXUlBzgCGriA8eEnp+sPNp/8ABaJcGS5+uhI5xJNLMTk5JJwsw2HWcVPrAUNlrD6/Sxulkkj3YzBALD5k53H71QjOWjs2rusZZ1Ft1de+XZ5wv0NjOIej7LrnS9RYL5AZKeUh7HsOHwyD3ZGHs4Z+u4OxWm0jtd+j1xMIAbNSTA4JBFNcqcH/AFXtz9rSe4O+5WidT0moreHtLYqyMDx4M7tPmPNp8/ovniJoqwa603LY7/TGWB55o5YyGywP7PY7s4fcRschdiMo2RUonMsrcXh9mjUDQuldXcf+IVTqC+1ksVsikDayqDcMhYN200AO2cH6ZLnZJ33P0xYrVpqxUtkstHFR0FKzkiijGw7kk9yTkknckkqaWsFp0xYqWx2Oijo6ClZyRRMH3knqSTuSdyV2iySwYxjgIp5KqTIIiICKoogKgREAREQEVREAREQBERAE6oiAd0TsiAKKogCiqIAEREATsoqgCIiAIiiAqiqx9xLv9b69Dpqhf6i6q5Wy1cp5G8rtsNd5eZ+i1XWqqO5myut2S2o91R1dLWxGWkqI54w4sLo3AgOBwQudYlqm1nDm+0vqlYK+krGDxaYnleSNiQ0dP1T9CsrU8njU8cvI9nO0O5Xtw5uR0I7FYUXdTMZLDXJlbVsw08pnIiLzut9U0emqDnfiarkBEEAO7v1j5NHn9FunOMI7pPsa4xc3tjyNbaqo9N0OXES1koIhhz1/WPk0ft6Ba53vWdLV63ltl0qX/hKoYyVkshwyXmzhg/RIxsPuXHqTXNK/Wxob3UPbV1kTZY6iQ4jJJIDP1cY27fvxLxrLhrYjl5fySL/+lxpSlq7Nsu0cZR0G46WvdHu84f6HBxi5ma9qCXbiGEgeR5V2vCjh9qLi3qtzpqmZlDByC4XJ7c8jQAAxvZ0hA2H1Pz+OE/DzUfFfU4jdUTNoKdrGV1ylHN4TAPZYM+9IR0H1O3XO3E3XVj4aaabw44eNjpKiBhjqamNwJpife9r4p3dS74ftwBfW2itOfgqUaezXXuNa5ef/AKXihryzcONPR8OuHUcdPNTsMVTUxOyabPvAO+KZ3UuPu/bjH3w31vYuKGnH8O+IUbJ6uVgbTVLzymoIHskO+GdvUEe994OuT5mvPM6UOcTkkvySfMqx1AicHRTBj2kFpa/BaR0IPYrm/XWdTf4+D2n8C0/03R8/PnP6fb/J2HFTQGpeFeqJYDPKaGqY9lDcYhyieI+80/oSAY5h9RsV8cDTjVtQBjHqT9v+sxZ+4da1sXFLS7uHPEER1FbMzlp6kuDXVDm+65rvhnb1B+Lf5g4A4p6B1Lwr1JPQT1Epoq2NzKSviHK2phyCWn9F4wOZv3ZBXRko6ipuHk8XdRZob0rFx++xlrSutaVmrpKay1TnVlFGZHzMOYx7QaWfrdd+316bGaK1RR6kt/Ozliq4wPHgzktPmPNp8/otH+BRP8Irh7I5RRZz5DnasoaL1xSy6rnZYqh5mt8Ye6ob+beS7BYP0m+Z6eXmqEJy0lrjHvHyXO2qqUpdpPg2xKdl0GjNT0epLf4sWI6mMATwE7sPmPNp7Fd+u1CcZxUo8HOlFxeGRfnrq+joGMkramKBskgjaZHYBcegX3XTiko5qkxSS+Ewv5I28znYHQDuViihp6viNca2rrK9lFDSsLaenaeYx56Ejy23Pfpthab73XiMVmTNlVW/Lk8JGXUWO+Feoq2eeXT9cTWmlBEdXGedvK04w53cfonv0WRFnTarYbkY21uuW1kVRFtNYRFEBVO6qiAqIiAgVREARRVAB0+aIiAKJ5qoAiIgIqoqgCIiAIiIAgREARRVARdPqzT1DqO2mjrG4e3eGUD2o3eY8x5juu5RYzgprbLgmMnF5R4bReiX0Nb+Fb5MKytiPJTgvL2xtbs12/fHTy+1e5CfNdDrPUtJpu3ePLiWok2ggB3efM+QHcrVGNenh8I2OU7p/LPnWup6TTduMrwJaqQEQQA7vPmfJo7la26w11CzV0UGoJy2WuiEjKh3uNPMWhhHwt22PTz801zryOl1VTnUEziLhG54qPhiIdgNLezN+o6d/NYv464dqC2yh4LX0OWkHII53bg+S5kpy1dijLtF5wXHjS1uUXmSxk4eN/N/C2nzgA0TMfP2nrk4S8P9ScU9SxUfjTtttGxrKy4yjmFPEPdY3PvPIzyt7dTsF88JuHmoeKOoIqCGolit1ExrKqukHM2liySGNz1ccnlb9TgBbA8SNa2ThZpiPh5w/jZDWRM5aioYQ40xI3c53xTu6k/D9wV2Kjp6lv8ABVp09mv1DVa5PjiXrWy8L9MR8POHMccFVCwsqahh5jTE+8S74p3dST7v3AYL0xf63T+oqe+0nhTTxOJeyoYJGTA+814PUHz6536r8VvqIYrpHVVtI2vhEnPNDLI5vjDPtAuB5gT59c+a2e0Hw54Oa1sEN4tFoldGfZlidXSh8MgG7Hjm2I/aNwqC6mrnlPDXCPYOOn9Jo2Sg2pcvt/fv/Q9lw2vmkdc6dju1ttlCx4PJU0z6ePnp5MbtO247g9CPqF8cTr/pLQmnX3SutVvlqH5bSUjYGB87/IbbNHd3YfPAX7NIcNdJaTuZuVgoaijqHRmN+KuVzXtPZzS4g77jyXxq3hlo/VV3N1v1DU1lV4YjaTWStaxo7NaHAAd9huV1NtnT8bjyynpvqMty6f8Af+XP9zTS/wB9r71f5r7VujjqpXh7RAwRtiA91rAOgHbv36rO/DvWFi4saXk4fcRY45a+RuKaoJDXVDgPZe0/DO35e8M/MLtuIugODmh7C+63Wyyuc48lNTNr5vEqJMbNaOb7z0AWs1ZUNdcXVdHCKJol54o4Xu/E4OWhriebbbfOe65WbNJZlvOeUepUNP6tp9sYuKXDaX6/1PritoLUnDHUFRa6iWU26tYW01bFlrKuIEHlPk4bczPruCv1cCH4vF2c4tDW0jHOcTgAB+5PyWedAavsHFzSz+H3ECNklxcz8nqMhrp3NGz2O+GZvX9YZ+YWvXFTQeo+Gd+qbRWyyPt9aPyariBbHWRNOQD5OBxzM7HfcYK6E1HUVPY+Tx9tNmg1GLFwZc0JryGbUdU6wSu5qBjT4/wS8xILcd27de/bzWyOjdSUeo7YJ4sRVDABPATksP7wexWkPAtzIqu91MsjY446eNz3vdgNAc7JJ7LJfDzXZq79V1dikexlvLGiR3uzh3Nkcv6Ps99z122VGFktJa0lmCxkt4WqrjKTxJ5wbX9V4LWOg31lxNxsUwo5qk+HVt5y1rmu95237R3+1ej0hqOj1HbRVU/4uZmBNCT7Ubv3g9iu6BXUnCvUQWe6KUZTpl27M6rS1godPW1tFQx9d5ZCPakd5n/d2XbKKrbGKisLg1yk5PLCm6FOiyIKiiICoiIAiIgIiqIB2wp81fsUQFRECAIiFAERRAVRVEAREQBRVEAREQBQqogCIum1bqGh07bTVVbuaR20MIPtSu8h8vM9ljOagt0uCYxcnhHzrDUdFpy2moqD4kz8iCEHeR37gO5WtHEHXppNR0tRqB73RV4f+ObuIOUtwOX9DftuOu+65OJOvnUt5o6++CSWOse9jnR/yAaAQGt7t337991jTjnNDWMsVZTTMmp5YpnRyMdlrhlm4K487JaqxJr2PODo4Wmqk4v3rBw8cpGS3GzzxyNkikpHujc12WuBeMEFfl4TcP8AUHE+/wANppZJYbdRNHrVbIC6OkjJzytz1cd8N+0nAyuLhPoHUPEu/Q2W3vfDQUntVdXIC6OkjccnA7udjZo6nc7AlbFcQ9Y2LhFpaLh/oCNjbmxn4+o2c6AuG8kh+KZ3XHbbtgK7BR09S3Pgp1UWa/UYrXJ88QtY2HhRpdnDrh8xkVwiZieoHtOpy4bve74p3df1dvkFr7RTwm6xVFzgfXQeLz1ERmcx0wJ9r2xuCeufPrlfVJU0zrxFVXaGorqd0vNVMZOWSygn2iHnPtd8nO/VbJaT4N8K9UWOC8WasvFRSzjY+ujmY4dWOHLs4dwue+prJZTXbwezitN6PSoST78tLz/Xt9jk0bwo4R6v09BdrNHcZaeT2XNNe8PieOrHjs4f+I2K91obhlpnRVyfX2D8IwPkj8ORj6x745B25mnYkdj2+q+OHvDCwaFr56yxVl3b6wzlmhnqg+KTHQlvKNx2PXdezrRUGjm9UMQqPDd4RlBLA/G3MBuRnGcbrq00Rik3FJ/Y8tqtbZOTjGyTg/lmPuOXFW1cNrFznw6u+VTD6hQ83vdvEfjdsYPfqTsO+OfgtxOtHEjT3rMBZS3ana0V9CXZMTj8Tf0mHfB+h3C0n4uQavp9fXJuuvFdfHP5pXuOWPZ8Ji7eHj3cdOnXK5+C1PrWo4i2waEc9l2a/mMn8kyL4zN/isdQeuwG+Ft3dzlb3k3Y1rwt0trG6fhK/NuNRM1gYwNrXsZG0dmtGwydz5rwWveGPCLRWnZrvdqa4hrfZhhbcH+JPJjZjR5nz6AblZyp/FFPH45YZQ0c/ICG83fGd8ZXh9e8LNPa2urLhfau7yOjZyRRRVQZHEO/K3l2J7nqfoFpuoi03GKb+51tJrbISjGdklBfDNMJZ2tr3VNDG6ib4vPCxkrnOhwctAedyRtuth9C6s0/xg0tJw+16xrrmWZp6kYa6ZzRtJGfhmb1I6OGe2Qv0634R8KdH2Ce9XmqvUcEIwxja0F8zz0Y0cu7j/4nZa4uqmx176y3MmomiXnpwJi6SEA5b7exLhtvtuuWupo55fnweoktP6xS4xTWOG15/wA/c4+K2htQcNr9NYbg+SShqvbpqqMFsVZG07HHZzc7tPQ79CCu24HzxUtPfaqokZDBE2F0kj3Ya0e31KzpobVWnuMWlH6B10xhu/h81PUABrpXNG0sZ+GVvcdHDPUEga5cUtC6i4cXyWxXR7n0dQ7xaapjyIatjejsdnDO7Tu0nyIJ6E4x1FXtfZnjbKrdBqMTXdGY+Guu31V0q7nZC+KOjmbEDJ/LtIyeZvZpxsOvfYrZTSeoaLUNsFVTHkkbtNCT7UbvL5jyPdaUcFqqlt2nb3XVc7IYYp4zI95wB7B/b8lkbhbrqWpq6m9WlskEdPUeAGyH8+zlBPOOwOdh1HXqqNdr0tkkl7EW9sdTXFt+95Nqe6q6jS1/odQ21tZRvwR7MsTj7UbvI/uPdduuzGSksrg50ouLwwoqosiCqIqgCiqIAiIgIqiIAiKFAVERAEREAREQBERAEREAREQE+xVF5LWWsaS0Q1FNSytdc4Xx/iJI3AOaSCd8YI5c7grXZZGtbpMyhCU3iKPWosf2viXbau8PZVEUVAKcOjfIC5z5MjIHLnbHTzwvVagv1BZbOblWPcGEDw2AYfI4jIaAe/8AV3WMNRXOLkn2RnKmcWk1yNUX6h0/bXVla/JPsxRNPtSO8h+89lrXxU18+lr6O7XeJ88dVO6AiP8AkGBuRyjuB37nqufipruWIsv90hfNE6obAIY3fmWOz7oPUjG/TKxtxlrqS66StFfQ1LJ6eSrdyuYf8Wdj5H5Fcqy6WqsisewuqC01cmn70jg43VNNXWixVtJURzU8r5TG+M5B9lv7fkuh4V6C1BxIv0VitjpI6KnPiVVW8ExUjHdXY7udjZo6keQJHHws0JqDiJqBlgtLnx00ZE1VUyAmGlYdi8ju44wG9XY8gSNk9aan0/wX0lFoPQ0bXXcszUVLsOdE5w3llPxSns3oBjsADehGOmq9z7IqV1WeoajEF3f7/oTXGq9P8HNKR6A0ExguwZmeodh7onOG8sh+KZ3YdAMbAAA6+0k9LNeYp702rqqeSbmqjFMGzPBPtEOcD7Xffqvugmoqi9Ry3+SunpZZuaqkgkHjkE+04FwILs779fkth7DwE0DfLXT3a16lvNVSVDA+KRj4sEf5mxB2IPQrny6usllePB7GC03pFShPOZctL94+w0xwM4baitEF4s99vdTRztyxzaiPY92kcmQ4HYg9F7/hvwwtWg62onst3vD46gYmpqiVjonkdHYDRhw8wemxyvnhlwzotAVFS60327T09VvLS1LozGXDo8ANBDu2R1HXsvzcceKtp4bWIF/h1d7qmH1Gh5sc3bxH492MH6k7DuR1KaIRSk4pM8xrdfZNygrHKH3HHLiraeG1iBdyVd7qmn1GiDuvbxH/AKMYP1J2HcjqvR+4x0XES2/g25eDR6jpWZngacMqGD+ViB7eberfmMFaU6nv131Lfau93utkrK6qfzSyP/Y1o6NaBsANgFzaLivkmpaKTTk01Pc4JBLBPG7l8Ej4yewHfzzjfOFtlNR7vg5MZSlLCN4fSC0PpfV+jpHXuRtFW0gJoK1jcyRyH4MfG13dv12IyubgJovTGkNGQssEjayeqAdXVrm4kmkHYj4Wt6BvbruSScb3q/3i++ry3epZNNFE1hETOSPmwOZzW5OMnf8AYlmv16sUVU6y1cdPPPE5gMsfiRh+DyuLcjJB3/YuZ/E49Xj2nW/hz2Z/9j13pCcZqLh5Qm1WkwVupahnNHC72mUrD0klA/1W7E9dgu64IcU7TxJsHjR8lJeaVoFdQl2Sw9OdmfejJ6Ht0O/XRXV0N5j1FWu1BJNNc5ZDLUTSu5jMT8fN3B7fdtjCmlr/AHfTF+pb5Yq19HX0r+aORu4I7tcOjmkbEHqumpp91wclycZYZvfxD4U2jXV3juF7vN6DYmckFNDMxsMXmWgsO57knPbovA6v4J8NNK2Oa8Xm932GlgHQTxl0jj0Y0cm7j2H7l7rgjxTs/Emw88RZSXqla316h5slhO3OzPvRk9D26HfrycR+F9v15c4aq7368RRU7eWClgdGIo8+87BaSXHuSfktN1EJJyUU2djReoWRcYSscYL4NOX1TYLo+stIqKNkc3PTF0vNLFg5aecAe0PMAbrYbRupdOcaNJP0LrpkYvTWc8E7QGulc0bTRH4ZB8TehGdiCQGp+BXD7TtkqLvdtS3umpKdvM9xdESfJoHJu4nYAdVr5NUwUt5dV2V1ZTRRTc9I+WQeOzB9lxc0AB3fbouXF2aSeX58HpbI6b1ipxhnK4bX7ydfxS0Nf+HmoZNP3bxH0r3GelqWZENU0bB4HZwGxB3b9hBPp+D9woLVpC61tdUNhgjrBzPcds+GMAeZ+QWbdJah07xt0dJofWrWR31kfPDOwBrnuaNpovJ4+JnQjPYkDWnifonUHD/UEmn7y17qfmM1JUMz4NS3p4jfJ2MAjqOnTBPRnCOpr9r7M8bKFnp97U13RnHhPr2qnM16tkDqeBlSYPDlP56MBp9oDp128lslpu90V+trK2ifkHZ7Cfajd3af+N1pXwkuVFatB1ldcqlsFPHWv3PUnkZs0dz8gslcKNdT+AL/AG2B0cMkz4nwSO/Osace1jYHuMdPnuqNVz01klj2ZLsoLUVxefe1k2cRdbZ73QXWzC6UshfCGkvaBlzCBktIG+R5fcvI3HiTQ0935aRor7e6m5g+MFrmy5O2/YjH2Lqz1FcEpN8lGNM5tpLgyAqvKaO1hRXimpKeoqY/wrNzl8ETHHkwT8thjG5K9Ws67I2LdFmE4Sg8SCIizMQor3RAREVQBERAEREAQqKoAnZEQBEUQFREQBETugIehWu/pCUN5uEtXaW3Snmr5YW+DJHzQeA3myAS3JzjPc5z81sSup1BYqK8W6ejmY2Px3NL5WMHPsQevnthVtVTK2Pt5RuosUJe7hmpvB2yXfTzZG3V5j5pI3RFr3TGna0nOW9B2dt1WduJmnbpWUNPeorhJco4YAJWhgGB18RrR2Pfv3XtbTpa1Wq8OuVvhNO59P4D4m+4QCCHfbtv5rvCBjGBhV46JyjLqPn4N31Kg49Ndl8mlXGmN0ukImRsfI91dEGMYMlxIdgADqsb6h0vdLDpulq7jP4bquox6oDkR4YTl3bm7bdB3W4fE7Q4pXPvVop2mnBMk8LW/mj3e35bnIHT7Fr1xuglqrPaaenifLLJWlsbGDLnEsOwHdVaZWUWKh/PJt1FcL4SvXOODIXoh8QNPGxHh7Uww2e8SOe+nqosA1xOdyTn8c0dAdiAMDYhY/4taIvujNSzRXaSWtpquR0tNcHZPrOTklx7Sb7j6jZY/wBR6YrtL2+119TUGOunlc7kjdgwcoaW+0Piyeo6Y2WxfB3iXZOLGnHcO+IIY67uZimqThpq+UbPYfhnb1x8W5HcK7bXHVV+1/yHpfqE/T7sTXZ4yYCDTzBoBcXEBoAyST2W3Po5aKvmk9NTT3utmjkuBbK23Z9in/Wd5SEYyBsMAHJWvuudKai4W6thLZzkPMluuDIwRIB3AIIa8Z3HbqNsFcTOK/EVgJfrC4n/ADP7q52nnHTzbsTyj1mvpt9QoSoktj75/aNtq206kl1/RXan1D4Vihpnxz27wgfEkPR2fuOeo5cD3isKelRwbrb1UT6800J6qrbGPwhQ8xe6RjRgSRA9wBuwdRuN8g5B4GWzXjrd+HdcaguE76lmaW3y8o8Nh+OQBoPMezew679Mo7Ywu1X7o5xjJ4nVQ2z6baeO2V++/wDM/l3nPQ5CyJwe1HbLXNJaq+KKB9VIDHV9C53Zjz2HkemTv5rMHpOcDc+t630XREvOZblboW+93dNE0d+7mjr1G+QcTcBeE9x4l3sySGSl09SvHrla0bvPXwo87F5HU9Gg5O+Add1Kti4Mq0zlTYpIy3v1II+1UA9t89lkfXXDyKgoI6zTsBbT00TWSUoJcQ1owHNJ3JwN+56ponh1BX22ao1HA58FVC6OOl5ixwa4YLnEYIODt5dVw/ober08fk9B9ZX09/8AY1T4wajtl2qYbbb4opjSPPPV43z3Yw92+Z8xt5rHpIAOTt5lZH468K7pw0veXufV2OqefUa0t6d/CkxsHgfRwGR3Ayt6MnAzx/VNb60oiGjE1ttszevds0rT97WH7T2C7lNKqioI8/bOV1jlI/f6KXB2utVXT8QNResUdQYj+DqIOLHcjxgySj5g7MP2nfAGcbVaNSU+vLpdqzUXrNkqII2Utu8IDwXjqc/fuN3c2/uhemOMYWJuPNu4gUtIdQ6K1DcYooW5rLfFyn2QPzkeWk7d2/UdwtljUI7sZwWtJXvn000s9sv99j83pMaHv2qLLTXOy1U9R+DQ50ltB2kB6yMHeQDbB6jpv11SA+hXsn8V+Izj7OsLjjzHh/3VzcPtH37ijqucmVzGc4luNxdGA1meuwABkd2H1Oy4l8o6iadaeWe30Ndnp9DjqJLavP7R8cHtEXzWeqIha557fDQyMlqLizI9XwcjkPeQ9h9Tt19/6X+vtNvsY0DBTwXe7xPZJPVSYJoHDyIx+NcOo6AE5G4C/dxl4mWXhTpxvDzQIYy8NjxNO3DvU+Ybvefind136dT2C1xsWlbhqa0XC60c5mroanD4pTkz8zeYuDj8ec9evnldGquOlr9z55PI+p6+fqF2ILsuD6s2lbpfNIyXG3Smb1Woe31Mndw5WkuZ25uxHfAx5LJnB2N0ehYeZrmFtTOHNcMEEO3Bz0X4+CUb4dNV8Msb2SR17mva8EFpDG5BB6LYbhhokP5L3d4GiNx8Sngc33z/ADjx/UD16nsqVsrNRN0rjPJOnrhRCNz5a4OXhzpu6W+01V4luctqbUQZYwsDgGjfxHtd8ug67rAnF+w3vUJjNolc/wAEyOkBldC6oy4Yw3p2J36LcorpLppa03O6yXCug8d7qcQNa7o0b7j9bfr2VyWjcFHpvj5NP1Km5dTz8GGPR+obtRS0VudcaeC4w0uKl0mZ/HAdkgE4Oeh6jHzwtgl1enrHSWe20tHGxsrqZpDJnsHOckknP1XarfpaXVDEuWar7FOXbhBERWTSERRAXooeiqg8kBUUVQD5IiiAqIiAKKogCInZAERRAVEUQBVT5oUA6qoiAhAcMEZCxBxP0K2jl/DVqp2mlYS6SJrd6cnq5vk09/L7OmYFHNDmlrgCDsQehWjUaeN8drNtN0qpZRozxspKqvFjpKOF808k0oZGwZLjytXitTadq9IxWmolqi24zF0uYXYEDmFvLyuG/MCc5Hfp5rbjiXoRlsmderZCDR7mSMDJp89cfqHb7Ps6a78a6KsuVysNHRU8k8sgmDGMGSd2b/IfM9FzKZ2U2Rpl2Sz+S1qaoWwlfHu3j8cGWuEHEey8X9NP4e6/bH+GuT8nqBhhqi0bSMPwzN6kdHDJG2QMZ660nfuGOr4Gyua8sf41vrvBDo5Q07HDgQHjbLT0OCNsFY/1XYKzRs1rcK13r0jDOZYHFvgva4cvI7rkdebz6LZDhHxBsPGLSp0Hr5sX4dazMEwww1RaNpYz8MzR1aNiMkDBIFu2qOpipR58M2em+pT0NjqtWYvlGNxxi4lAuP8ACupwN94If7i2F4HU+v66gbqHWl9q3x1Mf5LbnxRsIaf5STDQQT2b2G58hrfrrSl+4b6wjZUMjkbHJ41BWOhD4pwOh5XZHMNstOcHzGCuybxr4m8v/rIAfP1OH+6qVN7qm+q3leD0ms0K1dK+kjFJ+cf8djc44Ox6L81voaG2Uop7fSU9JThzn+FDGGMBcS5xwNskkk/MrG/A08RrrQDUOtLzL6rOz8koDSxxuc0/yryGggH4W/U9gsm1UEVTTyU88bZYpWFkjHDIc0jBB+RC7Nc98d2MHjb6ejY4ZTx8Gq3pM8cjXOqdGaMq/wAi3iuNxhd+e7GGJw+Hs5w69Btknl9Gjjoad9NozW1YBB7MVtuUzvd7Nhlce3QNeenQ9ivHekZwXqNB1b7/AGCJ82l5n7t3c6gcTsxx7xk7Nd26HsTy+jhwUm1vVR6j1LA+LTETsxRn2XXBwO7R5RDu7v0Hch3yVMy3G5Vzt1uu1Iaa5UVPWU5c15injD2FzSHNODtkEAhfqAwviCKOCBkMTGxxxtDWNaMBoAwAPksUcd5uJNhpnaj0hepXW2Nn5XRClikfCB/KtJaSW+Y6jr0zhZPZHdjJc09HXsVaaWfk+uO0XEW1UcmotGXyq9WiZ+V0DIY3mNo6yx5aSR+k36juFgIcYeJYBxquocMdfAh/uL9B418Tg3fUgz5+pw/3V1fDzR984karljpmRwwuk8WvrGwhkUAccnDW4HMd8NGPPYLjXXu2a6LeX4PY6TRR0tL+rjFpecd/z2OThzo69cStUTRx8sURk8W4VoiDY4g45OGtAbznfDR9p2WUuMXEex8IdMM0BoCOP8MBn42UEPNHzDeSQ/FM7qAemxO2AeTi7xCsPB3SbNB6DbEL4Y8ySbPNLzDeWQ/FK7qAemxOwAOtWltOVusBd6oVjn3GIslBmdn1hzy7m5nHfmJGc/ertVUNNDdJ9/LPN+pepWa+zp1rEVwv35PrTmmq3V9FdbhDVOkuMErXFszsmpLw4uJefiyOp653Xu+CNPNS2u70tVE+KWKsa17HjDmHk6EFcHBOlnoHX2irIXwVMU0QkjeMFvsuWwvDLQgr523y6wgUpIdFERg1BHRzv1R28/s61Lp2XWSpj3Xb8GvTVQphG99n3/Jz8MND+sPberrA1tO4h8MJbgzHs9/mNhgHrjyWWgMDAQAAYAxjoi6dFEaY7YlW66VsssqIi3moIphPqgKEUTugKiIgCipUQBVEQBFFUAREQBERAAoqiAIiIAp3yiqAInZEAUVRAETsvyXi52+z22e5XSsgoqOnZzyzTvDGMHmSUB+mRjZGFj2hzXDBBGQQsN8StEizSuu1sh5qF2RI0DJp8npnryE4+z7l6Lhrxh0lr/UVysljNcJ6IeIx80Bayoi2BkaewycYdgnrjrjIMsbJY3RyMa9jhhzXDIIPUKvqNPG+OGbaL3VLcjRLjJba+6ajs1Fb6d9RLJTyYa3sOcZJPYDzK8hq+wTaPuts8C4SOrfBFSZoSWeFIHnHIeu2Bv1yttOI+iTY5nXO2Rc1vfs/bLoMnPKT15M9PLv2WvHFay3G+60t1Hbad0j/AFLLydmsb4jvacew/wCAudTZOqaqn2STLOpphZB3Q7ttGZ+E/ECw8atKyaD11HGy+xs5oZhhhqeUbTRH4ZW/E3oRkjYkDE+udKXzhzrCOCqhhmET/GoqmSESQVDWnY8p2JG2WnofMYXhdY2mXR97oYbfcZhVxwMqfWIzyOZLzOwWY3GMDHdbK8Lte6f406UOh9beFHqOOPmilYAwzlo/PReUg+JnQjJGxIFq2qOpgpx58M3emepT0Njqt7xfKPBf4c+JXLgXmkyOp9Qi/wByznwLquI96ofw/rO5MZQzs/I6MUccb5Af5V5AyB5Dv1O2FrbrDSd84dauZDcaeCo8J/jUk8kXPBUtB2dynY42y09D5jGfQnjvxH6NuVvAH/MGKnTqHVN9aT7eD0Os0EdTUvpIRw/P6djby4UdLX0c1DW08VTSzsMcsMjQ5j2EYLSDsQQrR01PR0sVJSQxwU8LBHFFG0NaxoGA0AdAB2WNuBtfxEv1t/D2sKyCOinZ+RUrKNsb5Wn+Vceob5Dv16Yz+TjtdeJGmKU6g0rWU89qY0CrgfRNkfTf4wHq5h7/AKP2dOr1l0+ph4PKrRt39Dcs/wA+2fjOCceLhxJ05Tfwg0lco5LVEz8spjRxyPgx/KAkZczz7t69OmE/8OXEnkLX3mkJP/MIv9y5Dx24jchZJcLc8OGMG3swV5/QmjL1xG1TJBb4YaSEv8WtqGRcsNK0ns0bZO/KwfsAXKuvds10ZPv4PV6PQw01L+rhHC8/r2LoDR974iaskgpII6aBz/FrqpkIZBTNJzs0bZPwsH7AFlzizxBsHBbScehdCxROvr48vecP9W5hvNKfild1a0/InYAH74rcQdP8F9Js0PopsUmoHRZc52Hmn5h+fm/SkPVrfsJw0AHWrRljm1pcrua65TGvMXrIqJjzmSVz9zIepznr1H7FbqqjpYOUufJ531L1KzXWKuvtFcI+NJafqtY1V3lmuL/X2sFQJJ3F3jSOcebnd1yfPzXsOCtDW225X2hrqZ9NPGIeZrxv1fuPMfMLj4P2ivs+przSXKmfDMymjwDuHDnOHNPQj5hbEcN9EOvEzLrdYeWgbjwmEYM+D0/oZ+/71VusndY6Y908fg06emFUI3S7NZ/J98NdDC6TNvF2pw2kGPCYRg1GOmf1B+37OuYmNaxoa0BoAwAB0RjWxsaxoDWgYAA2AWOeInGbSOhdWUOnr4a1stQwSTTxwEx0zDkNc49XAkfBnHddKjTxojhFa+92y3SMkIvy2q4UV1t8Nwt1XBV0lQznhmheHskb5gjqv1KwagoqiAiqdkQBERAEREAUVRAERRAXuid0QBERARVFEAVREARFEBURRAVEUQFREQBYQ418J7hrP1m66p4mvt9mow6aOlbQNZTUrB8bsye04D4nb+WOizevB8WuG8HEekp7fc9RXegtsLud9JRGNrJ3g7OeXNJdjsOmd8ZUMhrKNLdManvGmNVy27h9rKroqKsnbEKyr8OljmxsJZWu5msaNyM7gfM4W9mgLiavTVDDValtmoLjFA31qsoSwMlf3cGtJwP+MDOFh0+ijosnJ1FqL/Oh/wC7XZ6V9HCxaWvkN70/rDU1BXwuy2WN0HtDu1w8PDmnuDsVCTRhFSRm6eKOaJ8UrGyRvBa5rhkOB6ghYV4j6NlsVS64UDC+2SEA+cB7NPm3fY/T7c1sBawBzuYgbnGMqTwxVEL4Zo2yRvaWua4ZDgeoK0anTRvjh8lui+VMso0M4mWO4X/X9NR26nc8iiYZZTtHEOd+7j2+zqey8tq+1O0bqukjtlwqBUU0MNQypaeR7Zck8zce7gjZbYcRNGzWCpdXULHSWyVw7ZMJ7Nd5jyP0+3XniJpu5aj4i+r0UBbG2kh8aocMMjHtdT5+QG5XPotnVZ0rOyijfqaITg7a+7kzNvDPXen+OGkpNE6ybHT6jhj545GYaZuUfn4fJ4+JnTGfhO2I9WaXvPDjV0cF1pKWq8J/i0sksRfT1TAdncud+2Wk7HrkdfB6oon6N1eyKz11Qyoo2QzRVIdyyNk5c8wx036D+tbM8M9a6f456QfpDWkcVPqSnZzxyMAaZS0fn4fJw+JnT/qna1dTHUwUo8+Dd6Z6nPRTdVvePlf5R4scf+IQwGvs4A7eo/8A+lJOP3ECSNzXOszmuBDmuocgg9veXjuIOj7zozUEtqu0Ps7upqhgPh1EfZzf3jqD9Cfrhvoq7651CLVbW+HEwB9VVObllOzzPmT2b3+zJXN62o3bMvJ636T09VdbbHbzk/RoTSF14jaslpbdSwUUBf4tXNFGWwUjCewz335WZ+4DbL/FPX2n+COkY9FaJjimv8kfM5zsPMHMN55v0pD8Lfs6NAB5OJ2utPcEdHR6O0cyKbUMsfNl4DjEXD8/P5vPwt+zo0b6x6Qtp1nqqsZd6+pdV1UUtQ+pc7me6XIPM7Pvddx92F0qqo6aDnLnyeS9S9TnrbFVX2j4X+WfWkLO/W2oLj+EblOKyWB9Sal553Pl5m7vzu7OTler4S2W4WPWN0o7jSujkFGORw3Y8eIPaae4/wCCvjhjp+52DXtVS3CmIzRP8KZu8co52btP7uoWxPDnRs16nbcriwstsZ9lvQznyH6vme/QKpdbO2x1Q7po06amFdatn2aZ9cOdGS3mdlzucZZbmbMYRvOc9P6GevmsyxMZGwMY1rWNADWgYAHkFIo2RRtjjY1jGgNa1owAB0ACTtdJC9rJDG4tIa8AHlPY4PVdLTaeNEcLkr33yullnnOIty9U0xXQUeqbXpy5yQH1WsrnM5I3diWuIyNiM7464OMLRe9aiuertW0tt4iayq6ijpqh8Jr6cR1UcGdjIwN5Q5hwMlu+N8HGFsxqL0adP6jvM15vusNTXC4Tu5pJ5nQFx8gPxeGgdABgBfhHopaLbnGo9RA+fND/AN2tzTZVkpM73gzwpumiKiGu0/xJkuNjqg2V9E6ga6nnaRkPYRJ7LiPib17grM68Twm4fQ8O7TLaKDUF2uVvc7nip64xuFO4n2uQtaCAepb0zuMZK9spRmlgIiKSSKoiAiqIgCnZEQFREQERNlUAREQBRVEAREQBERAEREAREQBAiIAiIgCKKoAiiqAIoqgOOeGKohfDPG2SN7S1zXDIIPUELCvELRs1iqH19JzSW2R2xO5hJ+F3y8j9Cs3LiqoIamnkp6iNksUjS17HDIcD1BVbU6aN8cPk30XypllcGh2s9K3PUvEaqbStEdMyKETVLx7DPY6D9J3yH1wvK6qp5NJ61Mdlq6mmloHRSU9Q2TErX8jTz5HQ5J+XbotseIWjn6dlNZRtfJbXu9k9TCT8Lvl5H6Hfrr1qjSFx1JxFr5Yh4FC3whNUubsPxbdmj4nfLoO659N06p7LeyijdqKIzhvq7uTM48Ota6b46aNfpHVYipdSU8fO18YDTIQPz8PzHxM/cdvvidrvTvBHSDNIaPjhn1DLGHEvw4xFw/Pz+bj8LPs6NG+rmoo5NJ67lNkqqimkt87H0s7ZPxjHBrTzZ88k/LfHRcmkqY6s1zy3ypqKl9eZpKid0mZHSFhdz5PU5x8u3RdDfBR6uPHP2KnVucfp89s8eM8H1pCjdq/WUrL3W1U89ayaaWoc/mkdLjIeSeu/b6bL1WgNM3LTfEMRVrA+J9LN4NQwHkkHs/cfkf2q6O0jcdN8Rqc1LfFpHQzCCpYPZf7PQ/ou+R+mVsJw70W/UEzbhcGPjtrHdOhnI7D9XzP0C591s7Z9OvupIuaeiFcOpZ2cWcnDnRs17nZca8OjtjHbDoZz5D9XzP0CzPDGyKJkUTGsYwBrWtGAAOgAUgiighZDDG2ONjQ1rWjAaB0AC5F0NNpo0RwuSvffK6WWFFUVk0hFEQFRFO6AqIiAIoqgCIiAIiIAiIgIqoqgIqiIAiIgCIogCKogCiIgKiKICooqgIhVRAERRAVFFUAURVAROyqiA46qnhqqeSnqImyxSNLXscMhwPZYU4iaPmsE5qqRrn2t59l3Uwk/C75eR/f1zeuOrp4KumkpqmJksMjS17HDIcD2KranTRvjh8m+i+VMsrg0TrtEVeoeIl0qqrngtTZ288o96QhjfZZ+89B8yvuxaMq9NcR6GoZzVFqf4oimxuwmN2Gv8j5Hof2LaRvDGAai53T5tDfbbFk+ITn82T+j8+uNvmkfDGnGoy98/NZ/fEXMfEJz+bz+j8+uNvmuf09U1tx24/7LP/i53Z75z/0ed4eaMkv8ra+va5lrYdh0M5HYfq+Z+gWaIIooIWQwxtjjY0NY1owGgdAAlPDFTwMghjbHFG0NYxowGgdAAuRdDTaaNEcLkrX3yull8BFFVZNBFURAEREAREQBRVRACiKoAoVVEBUU7qoAiIgCIiAJ0QogCDqiICKqKoAiiqAIoqgIqiIAiIgIEVRAEREAUVRAEUVQEVREAREQGNuPXECr0Lp2I22ikluFcXRwTvjzDBgbucehd5N77k7BcnAnX9RrvTMk9fQyQV1E4RVErWEQzOx7zT2Pm3tkdiF7TUdltmobNUWm7UrKmkqG8r2O/YQexHUEdFdP2e22G0U9qtNJHS0dO3ljjYNh5k+ZJ3JO5K07LOruz7fgudbT/TdPZ788/b9/qdgiiq3FMIiIAiIgIqh+SIAindVARVRVARVEQBERAEURAOyoRRAVFFUAREQBEQoB3U+SqIAimyIDhr5pqejlmgpJKuVjcthjc1rnnyBcQB9SFiih9IDSL9cM0hdrTfbFcDUCmkdcYI2RxSH3Q4tecA5GHbjcHODlZe67LV70muHVdrfX94qLDFzXG16fpKr1drRmraZqhr2j9cNaOXzxjuEIZtADnoqtfvRQ4tt1LbWaIv8AVl17oIfyWaR3tVkDR0OesjB17kb9Q5bAoSY51ZxVi01qyg0zXaN1HNXXN7mW80zYJI6nB35XeIMY6kOxgbnZe/oJpp6OKaopZKSV4y6F72ucz5EtJB+hK8LrqON/F7h09zQXMkuRaSOh9VWQUARTKqA/JebjSWi01d1r5RFSUcD5534zysaC5x+ewXneFOvbRxG0sb/Zop4YW1MtO6KfAkYWHbmA6ZaWux+suu4xsffKG36Cp53Qy6jmdFVPZ70VFGOeoePmRyRj5yBYG9Eu81WjuLd/4b3Y+Gal8jGg7D1qAnp/TjyfnyhSRk22VRRQSHktYXNbzEAkNB6rDusvSAsmjr4+zak0jqigq2s5280UDmSt6czHCTDhnuPrhZjWPuPHDil4j6Klt7fDhu1Nma21Lh+blx7pP6DgMH6HsgO94earj1ppqn1BS2mut9FVND6b1sx88rMkc2GOdgbd8Fd9WyywUks0FM+qkY0lsLHNaXnyBcQB9StWvRJ4h1VgvlRwr1W99PI2oey3tmOHQTgnxKc/acub88juFsZrrUcWmdPvuAp31tXK9tPQUcZw+rqX7RxN+09T2aHE7BCEzw2n+NtFftY1mkrZonVUt4oXuZVxOiga2n5Tgl7zLytGehzv2ysrMcSwOc3lJAyCei8nww0g3StnqJax8VVfbrUOrrxWMbjx6h+5De4jbnlaOwHmSvXdUJC67UV7tOnbPUXe918FBQ07eaWeZ3K1o/eT0AG57LsVrJ6Ul4irONWgtKXqbw9PRT09ZVtecRyF8/Jl3mA1uPkHOQMy7btd32/UjLjpnQV0qbbIOaGpuFTFQ+O3s5kbsv5T1Bc1uV01042WzTNfHQa+0xf9LSSn8VPLCypppcdeWWEnP2Yz8llVgGMNGANtl0uudL2fWGmavT96pmzUtS3Gce1E/wCGRh7Oadwf3KSDl0fqK2as03R6gs0kktBWNc6B8kZYXNDi3PKdxu09V268ZwT0/cNK8MbPp66BvrdA2WF5b0fiZ/K4fJzSD9V7MKCTwvFPiTScOqSO4XjT94qbbI9sfrlGInsa85w1wLw5ucbHGD5r44UcS6TiPSSXCzaevNLbY5HRGsrBExjntxlrQHlzsZ3OMfNdD6XbGv4DXwloJEtKR8j47FPRDa1vAmz8oAzPVE48/HepI8mXF4DipxOo+HMUNXe9PXmot0zxEyspBE+PxCCeVwLw5p2OMjBwV7/ssK+mewP4JznHS40hB/6+P3qAz2fCziJT8Q7YbtadP3ejtnM5jKqtETGyOacENa15cQDkZxjIK9usZei0xrOAmlgwYBglJ+ZM8iyYhJ4XipxKo+HVNDXXmwXipt0rxEKyjET2Nec4a4F4cM42OMHzX1wt4jU3ESjfcrTp68Ulsa90bays8JjZHt6ta1ry446ZxjPdeY9MJoPAu55GcVVKR/8AWav3eikxjOAmm+VuOZs7j8z48iEeTKJzg4GSsRa049WLRmoBZNT6X1Lb6ggPbIYYXxvjJxzsc2Q8zRv032xjKy8FhH0ndGHXd00jp2CdlLVVDq809Q5uQ17Kfna13flLmgHH29lKDMy2yupLnb6e4UFRHU0lTG2WGaN2WvY4ZDgfIhfpWo/ow8SavQ+pZeFusnSUtP6y6GlM5/5FUk7xE/oPJyD0BI7O224BGMqCUzwHEvibT6BqKRt10vfquCtnbTUlRQsikbLM4bR4Lw4OPYEb4OF7KzVlVXUEdTV2yotsr9zTzvY57ftLHObn7CV4zjQyN7dHeIwPA1ZbyAR0PM/de/HQICqKogCKFVAEREARFEAVREBEVRAF4ShdnjxeWY/9mqE//k1K932XhLeP/P3enf8Aw1Q/7TUoDBHpQ8NavRl9bxT0WJKRgqGz1ogGDSVGdp2jsxxPtDoCfJxxmzgLxNouJGkGVbvCgvNIGx3Klafcf2e0foOwSPI5HZe/uFJTXCinoq2COopp43RyxSNDmvY4YLSD1BBwtL9e2G/ejzxWpNRadEs1jqnOFNzuJZJGd30kp8wN2u8gHdQVPJHBsxrj+Nvh5/lLl/sq9+sQ0+q7VrbWXDDUdknElJUm5czHe/C8Uo5o3js5p2P39CFl5QAh2CLzPFC/VOntFV1bbmCa6yhtLbYcj8bVSuEcLd/13An5AoSdRofl1DrrUOr3ZfTUzzY7YexjhdmokH9KbLc+UIWA/S2tNdo3i1YeItlZ4Zqnske5uw9ZgI2P9OPA+fK5Zy0jV6m01pm3WKk4cXR8VFTti8Q3OizI4e88/jOrnEuPzJXlOP8ARap1xwzuFsfw8uVPUU5FZTTOuNI/w3x5J9lshccs5xgb7qSGZi03d6O/6foL1QPD6Wup2VERB+FzQQPtGcfRdh2K169CLVxuehKzSlVLmos83iU4J3NPKS4f5r+YfULYT7FBKCqKdN0BrR6X/DKd7RxK0xC6OvpOQ3MQ7PLW45KhuPiZgAnywfhXpfR11Q/ifUDU2o6ynku9hgbRQ0MYIEbns/GVhH6cuOUY2aGuA94r2WrZHa21MdEUkh/A9CWTajlaceID7UdED5v2dJ5R4HxrW7WVru/o88aoL/ZIJqiwV7nOiZzYbLASDLTE/pM2LT/RPmpMTdJF12m7zbtRWGivdpqW1NDWxNlhkb3afPyI3BHYghdioMiBYT9KThFXcRLbR3ewOj/DduY6MQSO5W1UJOSzmOwcDuM7HJBx1WbV+WK4UU10qLaypY6sp445ZYfiYx5cGO+wljvuKA040Xx54g8NpotLavs09yhpQIxDX80FZGwbANeQQ8DtkH+ktg+HfHLQGspYaOG5Otdylw1tHcAInOd5MdkscfkDn5L3Oo9O2LUdCaK/WiiuVOdgypha8D7M7g/MYWtvHD0bLbR2et1FoV9Qw0sbpprTM8yNexoy7wnH2gQBnlJOcbEKSO6Npsg9FVg70O9c3LVmgqy23eaSpqbLOyCOokdl0kL280fMT1Iw4Z7gDKzioJMT+lt/EPfO34ym/t2LzHoxa0sdj4NWm31kd5fOyWpLjT2eqnZvM87PjjLT17HZem9LjbgPfcfzlN/bsXx6IbccB7Lufz9Uf+3epI8nqxxI02RnwNRY+enq7/ulib0rdYWi/cIqiht8d3ZL6/TPzU2mpp2YD9/bkja36Z3WxP3/AHrDHpmkt4J1OCf/AEjSj/tEDO99F3+IXSuP/d5P7aRZLWM/Rc/iE0of+byf20iyYoJRh/0wv4irp/0ql/tmrsPRU24BaY/yc/8AbyLr/TB/iKun/SqX+2aux9Fb+IPTH+Tm/t5FPgjyZPXhNcZPFTh8P8dcP9lK92vCa3/jU4ff5W4f7KVCJMd+lbwjGprY/WVgpea90MX5XDG32qyBo7Y6yMHTuRkdQFzeilxcOsLMNLX+oDr5QRZgme7etgGwd83t2DvMYd5rPJC1C9Jzh1c+H+qqfiXofno6R1U2WfwB/wAhqSdngdPDeSQR0BJHRwUkPsZ+4zHbR3/zZb//ANnr3w6LA1FxIt/EXRui7lGI4LnBqu3Q3Gkac+DKS/cfqOwS0/aOoKzy3oFAKiiqEhERARVEQBECICIqiAiqKICrFto1Ja5/SXvlljq4TUs05SM5Q8ZMjJ5XuYPNwbKwkdcFZPnijnhfDMwPjkaWvaehB2IXmI+HOgY52zx6MsLJmnmEraGMPDvPmxnPzQHqtl0WvNK2nWelqzT16p/FpalmOYe/E8e7Iw9nNO4+7oSu8AAAA6BVAadcDdJX/QXpM0OlL1LIWRx1dTTluRDUNMLmtnaOmS0YPcEYPQLcVfhqrTbKq60d1qaGnlrqEPFLUOYDJCHjDw09QCOoX7kISCxLWapsurvSAtWkqeuhmj03Sz3KVrXgtlrSBExg8zGyR7jjoXDu0rKlbTU9bSS0lXCyaCVhZJG8Za5p6gjyXnKbh1oKmnZUU+jLBDNG7mjkjoI2uafMEDIKEnqfkocFu+6q+Jo45onxStD43tLXNPQg9QgNKbRdqThF6VFxjhq4xYfXX0tVyOy2KnnDX4OP5txbn5MK3Vp5oqmCOeCVksUjQ5j2ODmuB6EEbEfNeW/wacPC4k6H06S45JNuiJJ8zsu9sVltFhovUrLbaW3UvNzCGmiEbAfMNGw6IQjsFjXj1xSt3DrS8xinp5b/AFLCy30j3D3jt4sg6iNvUnvjA6rJK8xWcPNCVtXLV1mjrFU1Mri6SWahje95PckjJQk5eHFgpdOaTo6KnqjXSyj1mqrnEOfW1EntSTuI6lzjnyAwBsAvycWtDW7iFoqs09XkRvePEpagDLqece48f1EdwSF39js9rslCKGz2+moKVpy2GnjDGNPyA2C/RX0dNX0ctHWwR1FPM3kkikblr2+RHcIDT30XOJv8BdUVOgdS1cUdonqnsjqHSgx0lUHFrva6eG8jr0Bwe5W47HNewOaQ5pGQR0IXlG8MuHYJxobTgz1/8mxf3V6Gz2u22ehZQWqhp6KkjJ5IYGBjG564A2CEI/WtauOeuLtw49Iq16kjoqmazTWeKlrwIyGTR+LISGu93nbkOAz8uhWyq+KmCGphdBURRzRPGHMe0Oa4fMHYoSdXpHU1j1XZYbvp+5U9fRyjPPE7Jaf0XDq1w7g7ro+L2trRozSdVUVk7X3CpifDbqFntTVczmkNYxg9o7kZIGwUn4U8PZK59dHpWgo6qT35aLmpXO+0xObldhpzQekNPVrq+0WCjgrXbOq3NMs5Hl4jyX4+qA8N6K3D646D4fPN8i8K73WYVNRD3haGhsbD+sBknyLsdll5RVAYe9MGtpqfghc6aWdkc1XUU8cDCcGRwla4geeGtJP2Lj9DmvpqzglQU8MzHy0lXUxTsB3Y4ylwz5Za4FZHvujtKX6sbW3rTlquVQ1vK2WrpWSuA8gXA4VsWj9K2GrNXZNOWq2TlvK6SkpWROI8iWgZQjyd6sG+mtXU1PwfbSSysFRV3OnbDGXe0/lJc4gdwAN/tCzkugvmi9JXyu9evOmbTcqrlDfGqqRkrwB2y4dEDPE+ifXU1XwK0/DDPHJJSCaCdrTkxvEzzg+RwQfsKyqujsOkNLWCpfU2PT1rtk0jeV76SmbEXDyPKN13iEowv6ZVbT03BWrppJWNmqq2mZCwnd5bIHOx54DSV+30RrlSV/AuywU0rHSUT54J2A5LHeM9wB8shwP1Xvb9o7Sl/qxV3vTlquVQ1vIJKulZK4DyBcDgK2HSGlbBUuqbHp212yZzeVz6SlbEXDyPKBlT4I8nerF3EnUFot/GXhxQ1lbDDPJNXey54Bbz0/IzPlzOOB5lZRK8vW8PNCV1XJV12jrFVVEri+SWahje9x65JIyVBJ6cHzX5rrb6K622ottxpoqqjqY3RTQyDLXsIwQVyUVLT0VJFSUkLIYImhkcbBhrQOgC5UBpg/hxdOGvpI6Wt7H1ElguF4gkoZy44la1+fDk7F7CfqCHDqVueOg+xfiulptt0dSOuNFDVGjqGVVMZG5MUrc8r2+RGTv81+5CEgoqiEhERARVEygCIiAIiIAiJ2QDui4quoZS0z55BIWMGSI4y930ABJXXfwgoMfmbj/o+b+6sXOK5Zkot8I7ZF1B1Db/AOZuP+j5/wC4g1Db/wCauX+j5/7ijqQ+Sdkvg7dF1P8ACCg/mrj/APYTf3V2FJOyqp2TxiQMeMgPYWO+oIBClTjLhmLi1yjlVOOyHoVj2svFRm9zHVhoqijq5WU9I5sTg8NALRykcxydtisLbVXjJlCtz4MhBRcFvlmnt1NLUR+HNJEx0jP0XEAkfevAzX2qZSXGcaoc24wVczKeg8ON/iBryGM5Q3m3G2cqLLlBJvyTCpybSMjKL4gc98MbpW8jy0FzfI43C6jSFbUV1LXPqpDIY7hURMJAGGNdgDbyWbmspfJht7N/B3WVfqvJalu9wt2qqYxPL7fFRunq4Q3J5PEDS8d8tyDjyBXY2W4TVeorzB44kpoBTugAxgB8ZcSD3zsVirk5bTJ1tLJ3igXRayjrmWmquNFdqmidS00knJGxha8gZGeYE9uy59NU9YyjZU1d1qa4zxMeBK1gDCRk45QPPv5Kd737cDb7d2TtlUXS61uE9t0zWVdJKyOoa0CIuwSXEgYaD1djOB3OFlKSjFyfgxitzwd0i6HS9TGadjvw665RVeX0vjta2UBo9sHGM4PUYyOi75IS3LIksPATsuOdxbBI4HBDSQfovD2+o1BDo6LUz75LUyCm9ZlpZ4Y/Dc0buaC0Ag46HKxnZseMGUYblye8UXHSTNqaWGoZnlkY14z5EZ/evC2G6yVtWW1Oqq+Of1ySMUzKVpZgSENbzcncAd1E7VHH3Ea3JN/B75Oi+J3PbC90TQ57WktBOATjYLxWl7lU1FZTCs1FUxXF7vym3VlMI298tjGAduxBOVM7VBpfIjByTZ7kqL8V9mkp7JXVET+WSKmkex3kQ0kFLBNLU2KhqJnc0stNG9zvMloJKy3e7aY47ZP3IvHvrau5SXOsmvr7NQUVU6liMYZ7Tm4Be8uB6k4A2XobBO6ptEE0lZT1shbh09OMMeQcEgdlhC1SeEZSrcVln7lRuvJXO81tv1nIJZc2mOmh8dhA/FGRzgJM9cAgA/I57LtNN1s9ZUXhk0hkFPcHwx5AHK0NacfeSkboyltJdbSydyopI8Rxue4HDQScDJ2+Q6rqv4Q0HXwrj/o+b+6s3KMeWYKLfB26LqP4Q0H81cf9Hz/3E/hDb/5m4/6Pn/uKOrD5MunL4O3RdR/CCg/mbj/o+b+6v30NXFWQCaFsrW5IxLE6N23ycAVKnGXZMhxa5RzqoiyMQiIgCIiAKKogIqoVUBFURAEREAREQBRVRAF1FmskNFUV1RMynmlqax9Qx/hDmYHYw3J32wu4RYuKbTZKbXAXmX6YcLTUQQ1Mcdaa2Ssp6kR7xvLy4Z7kYJB8wV6ZRROuM+SYzceD5jD/AA2+IW8+BzcvTPfC6+wW11sgqY3Stk8arlqAWjGA92cLs1FO1ZyRl4wdbLbDJqFtyc9hjFG6mdGW5Jy8Oz9m2ML8Wk9Omw1VxLKozU9Q9ngMI9qJjQQGZ7gZwPkF6BRY9OO7d5J3yxg/HfKN1ws1bQMeI3VED4g4jIBc0jP7VzUEJpqGCnLg4xRNYSBjOABlc6LPas5Iy8YC6rUdrkucNM6nnbDU0lQ2ogc9nMzmAIw4dxgn5hdqiiUVJYYTaeUeWsunK6j1C+9T1FEXzhwmghhc1jCce0zJPtHlHMT1XqFUUQrUFhEyk5PLPmVvPG5mcczSF5Gn0zeX2WKxV13phbWMEb209OWyysHwlxccZ7kBewUUTrjPkRm48HzGxscbWMaA1oAAHYDoF5q2WfUNsjNNR3C2imdUSSkSUzy7D3lxGQ4Dv5L06qmValj7BSaOOZhkgfEJHRlzSA9vVue4+a84+x3qrnoY7ndKWelopmTNeynLZpXN93mJOB88DdenRJVqXIjJx4PzXSmNbbKqkDwwzQvj5iM45mkZ/alrpnUdrpaNzg8wQsjLgMZ5WgZ/Yv0ostqzkjLxg81PZLtSVdZLZK+jihrZPGlhqqcyBkhAy5uCOuOh7rtNPWwWi0w0AndUOYXOfI5oHM5zi5xwOgyTsuwVWEaoxeUZObawzqZLO2e811XUOZLT1dIymdCW9QC7OT5EOXFpGyPsVHU076s1Xi1DpWvcPa5eVrQD5kBo3XdqIq4p7iN8sYKiIthiEREARRVARVEQBPtREAREQBRVEAREQBEUQFREQBERAEREBFURAFFVOyAqIiAIiIAoqogKoqiAKFVEAQIFEBUREA7oiiAqiqIAid1O6AqIiAIiIAoqiAIiICKoiAIoUQBXsiIAoqp1QFREQBERARVEQBRVEAREQBERACoiBAFURAEREARE7oAiIgCJjKIAiJ2QBERAEREAUVRAEREAREQBERAFFUQEVREARFEBUREAUVTKA//Z';
     // all logos are inline SVG
 
     // ─── TRANSLATIONS ───
@@ -4082,7 +4187,7 @@
         haveAccount: 'Already have an account?', signinLink: ' Sign in',
         reqRole: 'Request Role', roleNote: '⏳ Designer, Printer, Advertiser require admin approval.',
         shopNow: 'Shop Now', partner: 'Become a Partner →',
-        heroBadge: 'Living Culture · Modern Fashion',
+        heroBadge: 'Kurdish Heritage · Modern Expression',
         heroH1: 'Fashion Crafted <span>for Every Story</span>',
         heroP: 'Discover unique print-on-demand fashion from local designers. Wear your culture, express your identity.',
         trending: '🔥 <span>Trending</span> Now', newArrivals: '✨ New <span>Arrivals</span>',
@@ -4177,17 +4282,17 @@
         overviewTitle: 'Overview'
       },
       ku: {
-        pageTitle: 'نەخشین — چاپ و دیزاین', navBrandSub: 'چاپ و دیزاین',
+        pageTitle: 'ناکشین — چاپ و دیزاین', navBrandSub: 'چاپ و دیزاین',
         home: 'سەرەکی', shop: 'فرۆشگا', designers: 'دیزاینەرەکان', about: 'دەربارەمان', contact: 'پەیوەندی',
         navLogin: 'چوونەژوورەوە', navSignup: 'تۆمارکردن', cart: 'سەبەتەی کڕین', total: 'کۆی گشتی', checkout: 'پارەدان',
-        signin: 'چوونەژوورەوە', signinSub: 'بەخێربێیتەوە بۆ نەخشین', forgot: 'وشەی نهێنیت بیرچووتەوە؟', continue: 'بەردەوامبوون',
+        signin: 'چوونەژوورەوە', signinSub: 'بەخێربێیتەوە بۆ ناکشین', forgot: 'وشەی نهێنیت بیرچووتەوە؟', continue: 'بەردەوامبوون',
         or: 'یان',
         or2: 'یان', noAccount: 'هەژمارت نییە؟', signupLink: ' تۆمارکردن',
-        create: 'دروستکردنی هەژمار', createSub: 'بەشداری کۆمەڵگەی نەخشین بکە', createBtn: 'دروستکردنی هەژمار',
+        create: 'دروستکردنی هەژمار', createSub: 'بەشداری کۆمەڵگەی ناکشین بکە', createBtn: 'دروستکردنی هەژمار',
         haveAccount: 'پێشتر هەژماری تۆمارکراوت هەیە؟', signinLink: ' چوونەژوورەوە',
         reqRole: 'داواکردنی ڕۆڵ', roleNote: '⏳ دیزاینەر، چاپخانە، ڕیکلامکار پێویستیان بە پەسەندکردنی ئەدمین.',
         shopNow: 'کڕینی ئێستا', partner: 'هاوبەش بوون →',
-        heroBadge: 'کلتوری زیندوو · مۆدەی نوێ',
+        heroBadge: 'میراتی کوردی · دیزاینی مۆدێرن',
         heroH1: 'جلوبەرگ بۆ هەموو چیرۆکێک <span>دروستکراوە</span>',
         heroP: 'دیزاینی ناوخۆی کوردی بدۆزەرەوە. کەلتووری خۆت لەبەر بکە، ناسنامەکەت دەربخە.',
         trending: '🔥 <span>ترێندەکان</span> ئێستا', newArrivals: '✨ <span>دەستپێشخەرە</span> نوێیەکان',
@@ -4201,7 +4306,7 @@
         footerPrivacy: 'سیاسەتی تایبەتمەندی', footerTerms: 'مەرجەکانی خزمەتگوزاری',
         footerAccount: 'هەژمار', footerLogin: 'چوونەژوورەوە', footerRegister: 'تۆمارکردن',
         footerProfile: 'پڕۆفایلم', footerOrders: 'داواکارییەکانم',
-        footerCopy: '© ٢٠٢٥ نەخشین چاپ و دیزاین — دروستکراو بە ❤️ لە کوردستان',
+        footerCopy: '© ٢٠٢٥ ناکشین چاپ و دیزاین — دروستکراو بە ❤️ لە کوردستان',
         dashboardBtn: 'داشبۆرد', signout: 'دەرچوون',
         ptabInfo: 'زانیاری پڕۆفایل', ptabOrders: 'داواکارییەکانم', ptabWishlist: 'لیستی داواکانم', ptabSettings: 'ڕێکخستنەکان', ptabReport: 'ڕاپۆرتکردنی کێشە',
         lblFullName: 'ناوی تەواو', lblEmail: 'ئیمەیل', lblNewPw: 'وشەی نهێنی نوێ', lblPhone: 'تەلەفۆن',
@@ -4212,18 +4317,18 @@
         lblBugDesc: 'وەسفکردنی کێشەکە', lblBugImg: 'وێنەی سکرینشۆت', submitReport: 'ناردنی ڕاپۆرت',
         yourName: 'ناوت', subject: 'بابەت', message: 'پەیام', attach: 'پاوەنت کردنی وێنە', sendMsg: 'ناردنی پەیام',
         subjGeneral: 'پرسیاری گشتی', subjPartner: 'هاوبەشی', subjOrder: 'کێشەی داواکاری', subjDesign: 'ناردنی دیزاین', subjBug: 'ڕاپۆرتکردنی کێشە',
-        partnerTitle: 'هاوبەش بە نەخشین', partnerSub: 'جۆری هاوکاریت هەڵبژێرە.',
+        partnerTitle: 'هاوبەش بە ناکشین', partnerSub: 'جۆری هاوکاریت هەڵبژێرە.',
         ptypeDesigner: 'دیزاینەر', ptypePrinter: 'هاوبەشی چاپ', ptypeAdvertiser: 'ڕیکلامکار', ptypeBrand: 'هاوکاری براند',
         partnerName: 'ناو / کۆمپانیا', partnerMsg: 'پەیام', submitPartner: 'ناردنی داواکاری →',
         aboutBadge: 'چیرۆکەکەمان', aboutSub: 'پلاتفۆرمی فاشنی کوردی کە دیزاینەرانی ناوخۆ، چاپخانەکان و کڕیارەکان پێکەوە دەبەستینەوە.',
         aboutMission: 'ئامانجەکەمان',
-        aboutMissionText: 'تێکەڵکردنی کەلەپووری دەوڵەمەندی کوردی لەگەڵ مۆدێل و دیزاینی هاوچەرخ، ڕەخساندنی دەرفەت بۆ دیزاینەرانی ناوخۆیی، و پێشکەشکردنی بەرهەمی ناوازە و باڵا بۆ هەر کەسێک کە دەیەوێت جیاواز دەربکەوێت.',
+        aboutMissionText: 'ناکشین لە داخوازیەکی سروشتی بوو: پیرۆزکردنی ناسنامەی کوردی بە ئامۆژگاری جلوبەرگی. ناکشین بە کوردی مانایەکی جوانی هەیە: دیکۆراسیۆن، زیوکراوی. ئەمەش مەبەستی ئێمەیە.',
         statProducts: 'کاڵاکان', statDesigners: 'دیزاینەرەکان', statCustomers: 'کڕیارەکان', statPartners: 'هاوبەشەکان',
         contactTitle: 'پەیوەندی پێوە',
         searchPlaceholder: 'گەڕان بۆ کاڵا، دیزاینەر...', designerSearch: 'گەڕان بۆ دیزاینەر...',
         catAll: 'هەمووی', catTshirt: 'تی‌شێرت', catHoodie: 'هودی', catDress: 'کراس', catJacket: 'جاکێت', catCollab: 'هاوکاری',
         shopTitle: 'هەموو <span>کاڵاکان</span>', designersTitle: '<span>دیزاینەرەکان</span>مان',
-        aboutTitle: 'دەربارەی <span style="color:var(--sand)">نەخشین</span>',
+        aboutTitle: 'دەربارەی <span style="color:var(--sand)">ناکشین</span>',
         demoCustomer: 'کڕیار', demoDesigner: 'دیزاینەر', demoPrinter: 'چاپخانە', demoAdmin: 'ئەدمین',
         roleCustomer: 'کڕیار', roleDesigner: 'دیزاینەر', rolePrinter: 'چاپخانە', roleAdvertiser: 'ڕیکلامکار',
         pw: 'وشەی نهێنی',
@@ -4612,18 +4717,73 @@
 
     async function openProductModal(id) {
       const p = (window._P || []).find(x => x.id === id); if (!p) return;
+      const colors = Array.isArray(p.colors) ? p.colors : [];
+      const mainImg = p.img;
       document.getElementById('product-detail-content').innerHTML = `<div class="product-detail">
-    <div class="product-detail-img"><img src="${p.img}" alt="${p.name}"/></div>
+    <div class="product-detail-img">
+      <div class="view-toggle">
+        <button class="view-toggle-btn active" id="view-toggle-2d" onclick="setProductView('2d')">2D</button>
+        <button class="view-toggle-btn" id="view-toggle-3d" onclick="setProductView('3d')">3D</button>
+      </div>
+      <div id="product-view-2d"><img id="product-detail-main-img" src="${mainImg}" alt="${p.name}"/></div>
+      <div id="product-view-3d" style="display:none">
+        <div class="product-3d-stage" id="product-3d-stage">
+          <img id="product-3d-img" src="${mainImg}" alt="${p.name}"/>
+        </div>
+        <p class="product-3d-hint"><i class="fas fa-arrows-left-right"></i> Drag to rotate</p>
+      </div>
+    </div>
     <div class="product-detail-info">
-      <h2>${p.name}</h2><div class="designer">By ${p.designer}</div><div class="price">$${p.price}</div>
+      <h2>${p.name}</h2><div class="designer">By ${p.designerName||p.designer||'Naxshin'}</div><div class="price">$${p.price}</div>
       <p style="font-size:.82rem;color:var(--mid-gray);margin-bottom:14px;line-height:1.8">${p.description || 'Premium quality garment.'}</p>
+      ${colors.length ? `<div style="font-size:.77rem;font-weight:600;margin-bottom:7px">Color</div>
+      <div class="color-grid" id="pd-color-grid">${colors.map((c,i)=>`<button class="color-swatch-btn${i===0?' selected':''}" style="background:${c.hex}" title="${c.name}" onclick="selectProductColor(this,'${(c.img||mainImg).replace(/'/g,"\\'")}','${c.name.replace(/'/g,"\\'")}')"></button>`).join('')}</div>
+      <div id="pd-color-name" style="font-size:.7rem;color:var(--mid-gray);margin-bottom:12px">${colors[0]?.name||''}</div>` : ''}
       <div style="font-size:.77rem;font-weight:600;margin-bottom:7px">Size</div>
       <div class="size-grid">${['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(s => `<button class="size-btn" onclick="this.closest('.size-grid').querySelectorAll('.size-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')">${s}</button>`).join('')}</div>
       <button class="btn-block btn-forest" style="margin-top:14px" onclick="addToCart(null,'${p.id}');closeModal('product-modal')"><i class="fas fa-shopping-bag"></i> Add to Cart</button>
       <button class="btn-block" style="margin-top:8px;background:var(--sand-pale);border:1.5px solid var(--sand);color:var(--charcoal)" onclick="toggleWishlist(null,'${p.id}')"><i class="${wishlist.includes(p.id) ? 'fas' : 'far'} fa-heart"></i> ${wishlist.includes(p.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}</button>
     </div></div>`;
       openModal('product-modal');
+      initProduct3D();
     }
+    function selectProductColor(btn, imgUrl, colorName) {
+      document.querySelectorAll('#pd-color-grid .color-swatch-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      const nameEl = document.getElementById('pd-color-name'); if (nameEl) nameEl.textContent = colorName;
+      const img2d = document.getElementById('product-detail-main-img'); if (img2d) img2d.src = imgUrl;
+      const img3d = document.getElementById('product-3d-img'); if (img3d) img3d.src = imgUrl;
+    }
+    function setProductView(mode) {
+      const v2 = document.getElementById('product-view-2d'), v3 = document.getElementById('product-view-3d');
+      const b2 = document.getElementById('view-toggle-2d'), b3 = document.getElementById('view-toggle-3d');
+      if (!v2 || !v3) return;
+      v2.style.display = mode==='2d' ? 'block' : 'none';
+      v3.style.display = mode==='3d' ? 'block' : 'none';
+      b2.classList.toggle('active', mode==='2d');
+      b3.classList.toggle('active', mode==='3d');
+    }
+    // Simulated 3D: drag horizontally to "rotate" the product mockup (tilt + shine, using the same image)
+    function initProduct3D() {
+      const stage = document.getElementById('product-3d-stage');
+      const img = document.getElementById('product-3d-img');
+      if (!stage || !img) return;
+      let dragging = false, startX = 0, rotY = 0;
+      const clamp = v => Math.max(-35, Math.min(35, v));
+      const apply = () => { img.style.transform = `perspective(800px) rotateY(${rotY}deg) scale(1.02)`; };
+      const start = x => { dragging = true; startX = x; stage.classList.add('grabbing'); };
+      const move = x => { if (!dragging) return; rotY = clamp((x - startX) / 3); apply(); };
+      const end = () => { dragging = false; stage.classList.remove('grabbing'); rotY = 0; apply(); };
+      stage.onmousedown = e => start(e.clientX);
+      window.addEventListener('mousemove', e => move(e.clientX));
+      window.addEventListener('mouseup', end);
+      stage.ontouchstart = e => start(e.touches[0].clientX);
+      stage.ontouchmove = e => move(e.touches[0].clientX);
+      stage.ontouchend = end;
+      apply();
+    }
+    window.selectProductColor = selectProductColor;
+    window.setProductView = setProductView;
 
     // ─── CART ───
     function addToCart(e, id) { if (e) e.stopPropagation(); const p = (window._P || []).find(x => x.id === id); if (!p) return; const ex = cart.find(c => c.id === id); if (ex) ex.qty++; else cart.push({ id, name: p.name, price: p.price, img: p.img, qty: 1 }); saveCart(); toast(`${p.name} added to cart 🛍️`, 'success'); }
@@ -4820,87 +4980,144 @@
     function previewAdMedia(event) {
       const file = event.target.files[0]; if (!file) return;
       const preview = document.getElementById('ad-media-preview');
-      const url = URL.createObjectURL(file);
-      if (file.type.startsWith('video/')) preview.innerHTML = `<video src="${url}" style="max-width:100%;max-height:110px;border-radius:6px" controls muted></video>`;
-      else preview.innerHTML = `<img src="${url}" style="max-width:100%;max-height:110px;border-radius:6px;object-fit:cover"/>`;
-      preview._url = url; preview._isVideo = file.type.startsWith('video/');
+      if (file.type.startsWith('video/')) {
+        // Videos aren't compressed (too large for Firestore) — keep as local preview only, URL still needed for video ads
+        const url = URL.createObjectURL(file);
+        preview.innerHTML = `<video src="${url}" style="max-width:100%;max-height:110px;border-radius:6px" controls muted></video><p style="font-size:.68rem;color:var(--rust);margin-top:4px">Video files need a hosted URL above — local preview only</p>`;
+        preview._url = ''; preview._isVideo = true;
+        return;
+      }
+      compressImageFile(file, 900, 0.82).then(base64 => {
+        preview.innerHTML = `<img src="${base64}" style="max-width:100%;max-height:110px;border-radius:6px;object-fit:cover"/>`;
+        preview._url = base64; preview._isVideo = false;
+      }).catch(()=>toast('Could not read image','error'));
     }
     function previewDesignImages(event) {
       const preview = document.getElementById('d-preview'); if (!preview) return;
-      preview.innerHTML = '';
-      Array.from(event.target.files).forEach(file => { const url = URL.createObjectURL(file); preview.innerHTML += `<img src="${url}" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:2px solid var(--sand)"/>`; });
+      const input = event.target;
+      const file = input.files[0]; if (!file) return;
+      preview.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+      compressImageFile(file, 900, 0.82).then(base64 => {
+        input._base64 = base64;
+        preview.innerHTML = `<img src="${base64}" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:2px solid var(--sand)"/>`;
+      }).catch(()=>{ preview.innerHTML=''; toast('Could not read image','error'); });
     }
     async function adminAddAd() {
       const advertiser = document.getElementById('ad-advertiser').value.trim();
       const text       = document.getElementById('ad-text').value.trim();
-      const mediaURL   = document.getElementById('ad-media-url')?.value.trim() || '';
+      const linkURL    = document.getElementById('ad-link-url')?.value.trim() || '';
+      const mediaURLField = document.getElementById('ad-media-url')?.value.trim() || '';
       const mp         = document.getElementById('ad-media-preview');
-      const objectURL  = mp?._url || '';
+      const uploadedMedia = mp?._url || '';
       const isVideo    = mp?._isVideo || false;
       if (!advertiser) { toast('Enter advertiser name','error'); return; }
 
-      // Use URL field if provided, otherwise use object URL (local only)
-      const finalURL = mediaURL || objectURL;
+      // Prefer the uploaded (compressed) image; fall back to a pasted URL (needed for videos)
+      const finalURL = uploadedMedia || mediaURLField;
+      if (!finalURL) { toast('Upload an image or paste a media URL','error'); return; }
 
       // Save to Firestore
       if (fbReady) {
         try {
           await addDoc(collection(db,'ads'), {
-            advertiser, text, mediaURL: mediaURL, isVideo,
+            advertiser, text, link: linkURL, mediaURL: finalURL, isVideo,
             active: true, createdAt: serverTimestamp()
           });
         } catch(e) { console.log('Ad save:', e.message); }
       }
-      // Also update DOM immediately
-      updateBigAdSlot(advertiser, text, finalURL, isVideo);
-      // Update ticker
-      if (text) {
-        const track = document.getElementById('ads-ticker-track');
-        if (track) { const sp = document.createElement('span'); sp.innerHTML = `<i class="fas fa-star"></i>${advertiser} — ${text}`; track.appendChild(sp.cloneNode(true)); track.appendChild(sp); }
-      }
+      // Refresh full carousel + ticker
+      await loadAdsFromFirestore();
       const tb = document.getElementById('ads-admin-table');
       if (tb) tb.innerHTML = `<tr><td>${advertiser}</td><td>${finalURL?'Media':'Text'}</td><td>${text||'—'}</td><td><span class="badge-status badge-approved">Active</span></td><td><button class="action-btn cancel" onclick="removeAd(this,'${advertiser}')">Remove</button></td></tr>` + tb.innerHTML;
       document.getElementById('ad-advertiser').value = ''; document.getElementById('ad-text').value = '';
+      const linkInput = document.getElementById('ad-link-url'); if (linkInput) linkInput.value='';
       const urlInput = document.getElementById('ad-media-url'); if(urlInput) urlInput.value='';
-      if (mp) { mp.innerHTML=''; delete mp._url; }
+      if (mp) { mp.innerHTML=''; delete mp._url; delete mp._isVideo; }
       toast('Ad published to homepage ✓','success');
     }
-    function updateBigAdSlot(advertiser, text, mediaURL, isVideo) {
+    // ═══ AD CAROUSEL — rotates every 6s, dots, click-to-expand ═══
+    window._adsCarousel = { ads: [], index: 0, timer: null };
+    function renderAdCarousel() {
       const slot = document.getElementById('main-ad-slot');
       if (!slot) return;
-      if (!mediaURL) {
-        // No media — show advertiser name as a text-only ad banner
-        if (!advertiser) return;
+      const state = window._adsCarousel;
+      const ads = state.ads;
+      if (!ads.length) {
         slot.innerHTML = `<div class="ad-slot-placeholder">
           <i class="fas fa-bullhorn"></i>
-          <p>${advertiser}${text ? ' — ' + text : ''}</p>
+          <p>Your Ad Here — Image or Video</p>
           <button class="ad-cta" onclick="openModal('partner-modal')">Advertise Here</button>
         </div>`;
         return;
       }
-      // Auto-detect video by extension
-      const isVid = isVideo || /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(mediaURL);
-      const safeAdv = (advertiser||'').replace(/'/g,"\\'");
-      const safeTxt = (text||'').replace(/'/g,"\\'");
-      slot.innerHTML = (isVid
-        ? `<video src="${mediaURL}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover" onerror="this.closest('.ad-slot').innerHTML='<div class=\\'ad-slot-placeholder\\'><i class=\\'fas fa-bullhorn\\'></i><p>${safeAdv}${safeTxt?' — '+safeTxt:''} (video unavailable)</p></div>'"></video>`
-        : `<img src="${mediaURL}" alt="${advertiser}" style="width:100%;height:100%;object-fit:cover" onerror="this.closest('.ad-slot').innerHTML='<div class=\\'ad-slot-placeholder\\'><i class=\\'fas fa-bullhorn\\'></i><p>${safeAdv}${safeTxt?' — '+safeTxt:''} (image unavailable)</p></div>'"/>`
-      ) + `<div class="ad-slot-overlay"><div class="ad-slot-name">${advertiser}</div>${text?`<div class="ad-slot-tag">${text}</div>`:''}</div>`;
+      const dotsHtml = ads.length > 1 ? `<div class="ad-slot-dots">${ads.map((_,i)=>`<span class="ad-slot-dot${i===state.index?' active':''}" onclick="event.stopPropagation();goToAd(${i})"></span>`).join('')}</div>` : '';
+      slot.innerHTML = `<div class="ad-slot-track" id="ad-slot-track"></div>${dotsHtml}`;
+      renderCurrentAdFrame();
+      // Restart auto-rotation timer — any visitor moving it manually also resets the clock
+      if (state.timer) clearInterval(state.timer);
+      if (ads.length > 1) state.timer = setInterval(()=>goToAd((state.index+1)%ads.length), 6000);
     }
+    function renderCurrentAdFrame() {
+      const state = window._adsCarousel;
+      const ad = state.ads[state.index];
+      const track = document.getElementById('ad-slot-track');
+      if (!track || !ad) return;
+      const isVid = ad.isVideo || /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(ad.mediaURL||'');
+      const safeAdv = (ad.advertiser||'').replace(/'/g,"\\'");
+      const safeTxt = (ad.text||'').replace(/'/g,"\\'");
+      track.innerHTML = (isVid
+        ? `<video src="${ad.mediaURL}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover" onerror="this.closest('.ad-slot-track').innerHTML='<div class=\\'ad-slot-placeholder\\'><i class=\\'fas fa-bullhorn\\'></i><p>${safeAdv}${safeTxt?' — '+safeTxt:''} (video unavailable)</p></div>'"></video>`
+        : `<img src="${ad.mediaURL}" alt="${ad.advertiser}" style="width:100%;height:100%;object-fit:cover" onerror="this.closest('.ad-slot-track').innerHTML='<div class=\\'ad-slot-placeholder\\'><i class=\\'fas fa-bullhorn\\'></i><p>${safeAdv}${safeTxt?' — '+safeTxt:''} (image unavailable)</p></div>'"/>`
+      ) + `<div class="ad-slot-overlay"><div class="ad-slot-name">${ad.advertiser}</div>${ad.text?`<div class="ad-slot-tag">${ad.text}</div>`:''}</div>`;
+      track.onclick = () => openAdDetail(state.index);
+      track.style.cursor = 'pointer';
+    }
+    function goToAd(i) {
+      const state = window._adsCarousel;
+      if (!state.ads.length) return;
+      state.index = ((i % state.ads.length) + state.ads.length) % state.ads.length;
+      renderCurrentAdFrame();
+      document.querySelectorAll('.ad-slot-dot').forEach((d,idx)=>d.classList.toggle('active', idx===state.index));
+      // Anyone moving the ad manually resets the 6s auto-advance clock
+      if (state.timer) clearInterval(state.timer);
+      if (state.ads.length > 1) state.timer = setInterval(()=>goToAd((state.index+1)%state.ads.length), 6000);
+    }
+    function openAdDetail(i) {
+      const ad = window._adsCarousel.ads[i]; if (!ad) return;
+      const existing = document.getElementById('ad-detail-modal'); if (existing) existing.remove();
+      const modal = document.createElement('div');
+      modal.id = 'ad-detail-modal';
+      modal.className = 'modal-overlay open';
+      modal.style.zIndex = '520';
+      const isVid = ad.isVideo || /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(ad.mediaURL||'');
+      modal.innerHTML = `<div class="modal-box" style="max-width:460px">
+        <button class="modal-close" onclick="document.getElementById('ad-detail-modal').remove();document.body.classList.remove('modal-open')"><i class="fas fa-times"></i></button>
+        <div style="border-radius:10px;overflow:hidden;margin-bottom:14px;aspect-ratio:16/9;background:var(--sand-pale)">
+          ${isVid?`<video src="${ad.mediaURL}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover"></video>`:`<img src="${ad.mediaURL}" style="width:100%;height:100%;object-fit:cover"/>`}
+        </div>
+        <div class="modal-title">${ad.advertiser||'Sponsor'}</div>
+        <p style="font-size:.85rem;color:var(--mid-gray);line-height:1.7;margin:10px 0 18px">${ad.text||'No description provided.'}</p>
+        ${ad.link?`<a href="${ad.link}" target="_blank" rel="noopener" class="btn-block btn-forest" style="text-decoration:none;display:block;text-align:center"><i class="fas fa-arrow-up-right-from-square"></i> Visit</a>`:''}
+      </div>`;
+      document.body.appendChild(modal);
+      document.body.classList.add('modal-open');
+      modal.addEventListener('click', e=>{if(e.target===modal){modal.remove();document.body.classList.remove('modal-open');}});
+    }
+    window.goToAd = goToAd; window.openAdDetail = openAdDetail;
     async function loadAdsFromFirestore() {
-      if (!fbReady) return;
+      if (!fbReady) { renderAdCarousel(); return; }
       try {
-        // No orderBy to avoid needing Firestore index — sort client-side
         const snap = await getDocs(query(collection(db,'ads'),where('active','==',true)));
-        if (snap.empty) return;
         const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
-          .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-        // Prefer the most recent ad that has media; fall back to most recent overall
-        const ad = docs.find(a => a.mediaURL) || docs[0];
-        if (ad) updateBigAdSlot(ad.advertiser||'Sponsor', ad.text||'', ad.mediaURL||'', ad.isVideo||false);
-        // Add all ads to ticker
+          .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0))
+          .filter(a=>a.mediaURL);
+        window._adsCarousel.ads = docs;
+        window._adsCarousel.index = 0;
+        renderAdCarousel();
+        // Update ticker
         const track = document.getElementById('ads-ticker-track');
         if (track) {
+          track.innerHTML = '';
           docs.forEach(a => {
             const sp = document.createElement('span');
             sp.innerHTML = `<i class="fas fa-star"></i>${a.advertiser}${a.text?' — '+a.text:''}`;
@@ -4908,7 +5125,7 @@
             track.appendChild(sp);
           });
         }
-      } catch(e) { console.log('Load ads error:', e.message); }
+      } catch(e) { console.log('Load ads error:', e.message); renderAdCarousel(); }
     }
     async function removeAd(btn, advertiser) {
       if (!fbReady) return;
@@ -4917,6 +5134,7 @@
         const snap=await getDocs(q);
         snap.docs.forEach(d=>deleteDoc(doc(db,'ads',d.id)));
         btn.closest('tr').remove();
+        await loadAdsFromFirestore();
         toast('Ad removed ✓','success');
       } catch(e) { toast(e.message,'error'); }
     }
@@ -5029,7 +5247,6 @@
     // ══════════════════════════════════════════════════════
     // ADMIN USERS — live Firestore + set role
     // ══════════════════════════════════════════════════════
-
     async function rAdminUsers(m) {
       m.innerHTML = `<div class="dash-header"><h2>Users</h2><p>Loading…</p></div><div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Set Role</th></tr></thead><tbody id="admin-users-tbody"><tr><td colspan="5" style="text-align:center;padding:20px"><i class="fas fa-spinner fa-spin"></i></td></tr></tbody></table></div></div>`;
       try {
@@ -5206,7 +5423,7 @@
           activeAds = snap.docs.map(d=>({id:d.id,...d.data()}));
         } catch(e){}
       }
-      m.innerHTML = `<div class="dash-header"><h2>Ads Manager</h2><p>Ads with media URLs appear live on the homepage</p></div>
+      m.innerHTML = `<div class="dash-header"><h2>Ads Manager</h2><p>Ads rotate automatically every 6 seconds on the homepage — anyone can also click through them manually</p></div>
         <div class="dash-card"><h3>Active Ads (${activeAds.length})</h3>
           <div class="table-wrap" style="margin-bottom:20px"><table><thead><tr><th>Advertiser</th><th>Text</th><th>Media</th><th>Status</th><th>Action</th></tr></thead>
           <tbody id="ads-admin-table">${activeAds.map(a=>`<tr>
@@ -5217,15 +5434,17 @@
           </tr>`).join('')||'<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--mid-gray)">No ads yet</td></tr>'}
           </tbody></table></div>
           <h3>Publish New Ad</h3>
-          <div class="form-group"><label class="form-label">Advertiser / Brand Name</label><input class="form-control" type="text" id="ad-advertiser" placeholder="e.g. Kurdish Artisan Co."/></div>
-          <div class="form-group"><label class="form-label">Ticker Text</label><input class="form-control" type="text" id="ad-text" placeholder="Scrolling text in banner"/></div>
-          <div class="form-group"><label class="form-label">Image / Video URL <span style="color:var(--mid-gray);font-size:.75rem">(Use Cloudinary, Imgur, or any direct URL)</span></label>
-            <input class="form-control" type="url" id="ad-media-url" placeholder="https://res.cloudinary.com/... or https://i.imgur.com/..."/>
-            <p style="font-size:.72rem;color:var(--mid-gray);margin-top:4px">💡 Free image hosting: <a href="https://imgur.com" target="_blank" style="color:var(--forest)">Imgur.com</a> | <a href="https://imgbb.com" target="_blank" style="color:var(--forest)">ImgBB.com</a> | <a href="https://cloudinary.com" target="_blank" style="color:var(--forest)">Cloudinary.com</a></p>
+          <div class="form-group"><label class="form-label">Advertiser / Brand Name *</label><input class="form-control" type="text" id="ad-advertiser" placeholder="e.g. Kurdish Artisan Co."/></div>
+          <div class="form-group"><label class="form-label">Description <span style="color:var(--mid-gray);font-size:.72rem">(shown when someone clicks the ad)</span></label><textarea class="form-control" rows="3" id="ad-text" placeholder="What is this ad about?"></textarea></div>
+          <div class="form-group"><label class="form-label">Visit Link <span style="color:var(--mid-gray);font-size:.72rem">(optional — adds a "Visit" button)</span></label>
+            <input class="form-control" type="url" id="ad-link-url" placeholder="https://example.com"/>
           </div>
-          <div class="form-group"><label class="form-label">Or Upload (preview only — paste URL above for permanent)</label>
-            <div class="upload-zone" onclick="document.getElementById('ad-media').click()"><i class="fas fa-photo-video"></i><p>Upload image to preview<br/><span style="font-size:.7rem">Paste the URL above for it to persist</span></p><div id="ad-media-preview" style="margin-top:8px"></div></div>
+          <div class="form-group"><label class="form-label">Ad Image / Video *</label>
+            <div class="upload-zone" onclick="document.getElementById('ad-media').click()"><i class="fas fa-photo-video"></i><p>Click to upload — compressed automatically<br/><span style="font-size:.7rem">Videos need a hosted URL below instead</span></p><div id="ad-media-preview" style="margin-top:8px"></div></div>
             <input type="file" id="ad-media" accept="image/*,video/*" style="display:none" onchange="previewAdMedia(event)"/>
+            <details style="margin-top:8px"><summary style="font-size:.72rem;color:var(--mid-gray);cursor:pointer">Or paste a media URL instead (required for video ads)</summary>
+              <input class="form-control" type="url" id="ad-media-url" placeholder="https://res.cloudinary.com/... or a video URL" style="margin-top:6px"/>
+            </details>
           </div>
           <button class="btn-block btn-forest" onclick="adminAddAd()">Publish Ad to Homepage</button>
         </div>`;
@@ -5386,6 +5605,88 @@
     // ══════════════════════════════════════════════════════
     // DESIGNER/ADMIN: UPLOAD DESIGN — saves to Firestore + Cloudinary hint
     // ══════════════════════════════════════════════════════
+    const NAXSHIN_COLORS = [
+      {name:'Black', hex:'#1A1A1A'}, {name:'White', hex:'#F5F5F0'}, {name:'Forest Green', hex:'#2D4A3E'},
+      {name:'Rust', hex:'#8B2E0F'}, {name:'Gold', hex:'#C9A96E'}, {name:'Burgundy', hex:'#5C1A2B'},
+      {name:'Navy', hex:'#1B2A4A'}, {name:'Sand', hex:'#D8C4A0'}, {name:'Charcoal Gray', hex:'#4A4A4A'}
+    ];
+    function colorSwatchPicker(idPrefix) {
+      return `<div class="form-group"><label class="form-label">Available Colors <span style="color:var(--mid-gray);font-size:.72rem">(select all that apply)</span></label>
+        <div id="${idPrefix}-colors" style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 0">
+          ${NAXSHIN_COLORS.map(c=>`
+            <label style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;width:56px">
+              <span style="position:relative;display:block">
+                <input type="checkbox" class="${idPrefix}-color-check" value="${c.name}" data-hex="${c.hex}" style="position:absolute;opacity:0;width:32px;height:32px;cursor:pointer;top:0;left:0;margin:0"
+                  onchange="toggleColorImageSlot('${idPrefix}','${c.name}',this.checked)"/>
+                <span class="color-swatch-dot" style="display:block;width:32px;height:32px;border-radius:50%;background:${c.hex};border:2px solid var(--sand);box-shadow:0 0 0 2px transparent;transition:box-shadow .15s"></span>
+              </span>
+              <span style="font-size:.62rem;text-align:center;line-height:1.1;color:var(--mid-gray)">${c.name}</span>
+            </label>`).join('')}
+        </div>
+        <div id="${idPrefix}-color-images" style="display:flex;flex-direction:column;gap:8px;margin-top:6px"></div>
+        <style>
+          #${idPrefix}-colors input:checked + .color-swatch-dot { box-shadow:0 0 0 2px var(--forest); }
+        </style>
+      </div>`;
+    }
+    function toggleColorImageSlot(idPrefix, colorName, checked) {
+      const wrap = document.getElementById(`${idPrefix}-color-images`);
+      if (!wrap) return;
+      const slotId = `${idPrefix}-cimg-${colorName.replace(/\s+/g,'')}`;
+      if (checked) {
+        if (document.getElementById(slotId)) return;
+        const row = document.createElement('div');
+        row.id = slotId;
+        row.style.cssText = 'display:flex;align-items:center;gap:8px;font-size:.75rem;background:var(--sand-pale);padding:6px 10px;border-radius:6px';
+        row.innerHTML = `<span style="min-width:90px;font-weight:600">${colorName}</span>
+          <label style="cursor:pointer;color:var(--forest);text-decoration:underline">Upload image (optional)
+            <input type="file" accept="image/*" style="display:none" onchange="previewColorImage(event,'${idPrefix}','${colorName}')"/>
+          </label>
+          <img id="${slotId}-thumb" style="width:34px;height:34px;object-fit:cover;border-radius:5px;display:none"/>`;
+        wrap.appendChild(row);
+      } else {
+        document.getElementById(slotId)?.remove();
+      }
+    }
+    function previewColorImage(event, idPrefix, colorName) {
+      const file = event.target.files[0]; if (!file) return;
+      compressImageFile(file, 500, 0.8).then(base64 => {
+        const slotId = `${idPrefix}-cimg-${colorName.replace(/\s+/g,'')}`;
+        const row = document.getElementById(slotId);
+        if (row) { row._base64 = base64; const th = document.getElementById(slotId+'-thumb'); if (th) { th.src = base64; th.style.display='block'; } }
+      });
+    }
+    function collectColorData(idPrefix) {
+      const checks = document.querySelectorAll(`.${idPrefix}-color-check:checked`);
+      return Array.from(checks).map(c => {
+        const slotId = `${idPrefix}-cimg-${c.value.replace(/\s+/g,'')}`;
+        const row = document.getElementById(slotId);
+        return { name: c.value, hex: c.dataset.hex, img: row?._base64 || '' };
+      });
+    }
+    // Compress any image file to base64 via canvas — no external hosting needed
+    function compressImageFile(file, maxDim, quality) {
+      return new Promise((resolve, reject) => {
+        if (!file.type.startsWith('image/')) { reject(new Error('Not an image')); return; }
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = new Image();
+          img.onload = () => {
+            let w = img.width, h = img.height;
+            if (w > h) { if (w > maxDim) { h = Math.round(h*maxDim/w); w = maxDim; } }
+            else { if (h > maxDim) { w = Math.round(w*maxDim/h); h = maxDim; } }
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img,0,0,w,h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
     function rDesUp(m) {
       m.innerHTML = `<div class="dash-header"><h2>Upload Design</h2><p>Share your creation with the world</p></div>
         <div class="dash-card">
@@ -5393,6 +5694,13 @@
           <div class="form-group"><label class="form-label">Description</label><textarea class="form-control" rows="3" id="d-desc" placeholder="Describe your design…"></textarea></div>
           <div class="form-group"><label class="form-label">Category</label>
             <select class="form-control" id="d-cat"><option value="tshirt">T-Shirt</option><option value="hoodie">Hoodie</option><option value="dress">Dress</option><option value="jacket">Jacket</option><option value="pants">Pants</option><option value="accessory">Accessory</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Garment Type <span style="color:var(--mid-gray);font-size:.72rem">(what can this design be printed on?)</span></label>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;padding:8px 0">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" class="d-garment" value="tshirt" checked style="accent-color:var(--forest)"/>T-Shirt</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" class="d-garment" value="hoodie" style="accent-color:var(--forest)"/>Hoodie</label>
+            </div>
+            <p style="font-size:.7rem;color:var(--mid-gray);margin-top:2px">Select both if this design works on both garments.</p>
           </div>
           <div class="form-group"><label class="form-label">Price ($) *</label><input class="form-control" type="number" id="d-price" min="1" placeholder="25"/></div>
           <div class="form-group"><label class="form-label">Available Stock <span style="color:var(--mid-gray);font-size:.72rem">(0 = unlimited)</span></label><input class="form-control" type="number" id="d-stock" min="0" value="0"/></div>
@@ -5406,17 +5714,13 @@
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="d-size" value="XXL" checked style="accent-color:var(--forest)"/>XXL</label>
             </div>
           </div>
-          <div class="form-group"><label class="form-label">Image URL * <span style="color:var(--mid-gray);font-size:.73rem">(Use Imgur, ImgBB, or Cloudinary — free)</span></label>
-            <input class="form-control" type="url" id="d-image-url" placeholder="https://i.imgur.com/..."/>
-            <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
-              <a href="https://imgur.com/upload" target="_blank" style="font-size:.72rem;color:var(--forest);text-decoration:underline"><i class="fas fa-external-link-alt"></i> Imgur (free)</a>
-              <a href="https://imgbb.com" target="_blank" style="font-size:.72rem;color:var(--forest);text-decoration:underline"><i class="fas fa-external-link-alt"></i> ImgBB (free)</a>
-              <a href="https://cloudinary.com" target="_blank" style="font-size:.72rem;color:var(--forest);text-decoration:underline"><i class="fas fa-external-link-alt"></i> Cloudinary (25GB free)</a>
-            </div>
-          </div>
-          <div class="form-group"><label class="form-label">Preview <span style="color:var(--mid-gray);font-size:.72rem">(optional – preview from URL)</span></label>
-            <div class="upload-zone" onclick="document.getElementById('d-images').click()"><i class="fas fa-cloud-upload-alt"></i><p>Or upload local preview<br/><span style="font-size:.7rem">For permanent storage use URL above</span></p><div id="d-preview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"></div></div>
-            <input type="file" id="d-images" accept="image/*" multiple style="display:none" onchange="previewDesignImages(event)"/>
+          ${colorSwatchPicker('d')}
+          <div class="form-group"><label class="form-label">Design Image * <span style="color:var(--mid-gray);font-size:.72rem">(uploaded directly — no URL needed)</span></label>
+            <div class="upload-zone" onclick="document.getElementById('d-images').click()"><i class="fas fa-cloud-upload-alt"></i><p>Click to upload your design image<br/><span style="font-size:.7rem">JPG or PNG — compressed automatically</span></p><div id="d-preview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"></div></div>
+            <input type="file" id="d-images" accept="image/*" style="display:none" onchange="previewDesignImages(event)"/>
+            <details style="margin-top:8px"><summary style="font-size:.72rem;color:var(--mid-gray);cursor:pointer">Or paste an image URL instead</summary>
+              <input class="form-control" type="url" id="d-image-url" placeholder="https://i.imgur.com/..." style="margin-top:6px"/>
+            </details>
           </div>
           ${currentRole==='admin'?'<div class="form-group"><label class="form-label">Publish Status</label><select class="form-control" id="d-status"><option value="active">Active (visible immediately)</option><option value="pending">Pending (review first)</option></select></div>':''}
           <button class="btn-block btn-forest" onclick="submitDesign()">Submit Design</button>
@@ -5427,17 +5731,23 @@
       const desc     = document.getElementById('d-desc')?.value.trim();
       const cat      = document.getElementById('d-cat')?.value;
       const price    = parseFloat(document.getElementById('d-price')?.value);
-      const imageURL = document.getElementById('d-image-url')?.value.trim();
       const status   = document.getElementById('d-status')?.value || (currentRole==='admin'?'active':'pending');
       const stock    = parseInt(document.getElementById('d-stock')?.value)||0;
       const sizeChecks = document.querySelectorAll('.d-size:checked');
       const sizes    = sizeChecks.length ? Array.from(sizeChecks).map(s=>s.value) : ['XS','S','M','L','XL','XXL'];
+      const garmentChecks = document.querySelectorAll('.d-garment:checked');
+      const garmentTypes = garmentChecks.length ? Array.from(garmentChecks).map(g=>g.value) : ['tshirt'];
+      const colors = collectColorData('d');
+      const urlInput = document.getElementById('d-image-url')?.value.trim();
+      const uploadedImg = document.getElementById('d-images')?._base64 || '';
+      const imageURL = uploadedImg || urlInput;
       if (!name || !price) { toast('Fill in name and price','error'); return; }
-      if (!imageURL) { toast('Enter an image URL (use Imgur or ImgBB — free)','error'); return; }
+      if (!imageURL) { toast('Upload a design image (or paste a URL)','error'); return; }
       try {
         await addDoc(collection(db,'products'),{
           name, description:desc, category:cat, price,
           img:imageURL, imageURL, stock, sizes,
+          garmentTypes, colors,
           designerId: currentUser.uid,
           designerName: currentUser.name,
           status, createdAt: serverTimestamp(),
@@ -5448,6 +5758,8 @@
       } catch(e){ toast(e.message,'error'); }
     }
     window.submitDesign = submitDesign;
+    window.toggleColorImageSlot = toggleColorImageSlot;
+    window.previewColorImage = previewColorImage;
 
     // ══════════════════════════════════════════════════════
     // ADMIN REQUESTS — live Firestore
@@ -5481,14 +5793,75 @@
     // ══════════════════════════════════════════════════════
     // DESIGNER PROFILE PAGE — public, searchable
     // ══════════════════════════════════════════════════════
+    // ══════════════════════════════════════════════════════
+    // DESIGNER STAR RATINGS — Google-Maps-style, 1 rating per user per designer
+    // ══════════════════════════════════════════════════════
+    function starsDisplay(avg, count, size) {
+      const s = size || '.85rem';
+      const full = Math.round((avg||0)*2)/2; // nearest half star
+      let html = '<span style="display:inline-flex;align-items:center;gap:2px;font-size:'+s+'">';
+      for (let i=1;i<=5;i++){
+        html += `<i class="${i<=full?'fas':(i-0.5===full?'fas fa-star-half-alt':'far')} fa-star" style="color:var(--gold)"></i>`;
+      }
+      html += `</span> <span style="font-size:.72rem;color:var(--mid-gray);margin-left:4px">${avg?avg.toFixed(1):'New'} ${count?`(${count})`:''}</span>`;
+      return html;
+    }
+    async function getDesignerRatingSummary(designerId) {
+      if (!fbReady) return {avg:0,count:0,mine:0};
+      try {
+        const snap = await getDocs(query(collection(db,'ratings'),where('designerId','==',designerId)));
+        const ratings = snap.docs.map(d=>d.data());
+        const count = ratings.length;
+        const avg = count ? ratings.reduce((a,r)=>a+r.stars,0)/count : 0;
+        const mineDoc = currentUser ? ratings.find(r=>r.raterId===currentUser.uid) : null;
+        return { avg, count, mine: mineDoc?mineDoc.stars:0 };
+      } catch(e) { return {avg:0,count:0,mine:0}; }
+    }
+    function ratingStarPicker(designerId, currentStars) {
+      return `<div class="rate-picker" id="rate-picker-${designerId}">
+        ${[1,2,3,4,5].map(i=>`<i class="${i<=currentStars?'fas':'far'} fa-star" data-i="${i}" onclick="submitDesignerRating('${designerId}',${i})" onmouseover="previewRatingHover('${designerId}',${i})" onmouseout="resetRatingHover('${designerId}',${currentStars})"></i>`).join('')}
+      </div>`;
+    }
+    function previewRatingHover(designerId, i) {
+      const picker = document.getElementById(`rate-picker-${designerId}`); if (!picker) return;
+      picker.querySelectorAll('i').forEach(el=>{ el.className = (+el.dataset.i<=i?'fas':'far')+' fa-star'; });
+    }
+    function resetRatingHover(designerId, currentStars) {
+      const picker = document.getElementById(`rate-picker-${designerId}`); if (!picker) return;
+      picker.querySelectorAll('i').forEach(el=>{ el.className = (+el.dataset.i<=currentStars?'fas':'far')+' fa-star'; });
+    }
+    async function submitDesignerRating(designerId, stars) {
+      if (!currentUser) { toast('Sign in to rate designers','error'); openModal('login-modal'); return; }
+      if (currentUser.uid === designerId) { toast("You can't rate your own profile",'error'); return; }
+      if (!fbReady) { toast('Ratings unavailable offline','error'); return; }
+      try {
+        const q = query(collection(db,'ratings'),where('designerId','==',designerId),where('raterId','==',currentUser.uid));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          await updateDoc(doc(db,'ratings',snap.docs[0].id), { stars, updatedAt: serverTimestamp() });
+        } else {
+          await addDoc(collection(db,'ratings'), { designerId, raterId: currentUser.uid, raterName: currentUser.name||'Anonymous', stars, createdAt: serverTimestamp() });
+        }
+        toast('Rating submitted ✓','success');
+        const summary = await getDesignerRatingSummary(designerId);
+        const summaryEl = document.getElementById(`rating-summary-${designerId}`);
+        if (summaryEl) summaryEl.innerHTML = starsDisplay(summary.avg, summary.count);
+        resetRatingHover(designerId, stars);
+      } catch(e) { toast(e.message,'error'); }
+    }
+    window.submitDesignerRating = submitDesignerRating;
+    window.previewRatingHover = previewRatingHover;
+    window.resetRatingHover = resetRatingHover;
+
     async function showDesignerProfile(designerId) {
       showPage('designer-profile');
       const content = document.getElementById('designer-profile-content');
       content.innerHTML = `<div style="text-align:center;padding:40px"><i class="fas fa-spinner fa-spin" style="font-size:2rem;color:var(--sand)"></i></div>`;
       try {
-        const [userDoc, productsSnap] = await Promise.all([
+        const [userDoc, productsSnap, ratingSummary] = await Promise.all([
           getDoc(doc(db,'users',designerId)),
-          getDocs(query(collection(db,'products'),where('designerId','==',designerId),where('status','==','active')))
+          getDocs(query(collection(db,'products'),where('designerId','==',designerId),where('status','==','active'))),
+          getDesignerRatingSummary(designerId)
         ]);
         const designer = userDoc.exists() ? {id:designerId,...userDoc.data()} : null;
         const products = productsSnap.docs.map(d=>({id:d.id,...d.data()}));
@@ -5502,10 +5875,15 @@
               <div>
                 <h2 style="font-family:var(--font-h);font-size:1.6rem;margin-bottom:4px">${designer.name||'Designer'}</h2>
                 ${roleBadge('designer')}
+                <div id="rating-summary-${designerId}" style="margin-top:8px">${starsDisplay(ratingSummary.avg, ratingSummary.count)}</div>
                 <p style="opacity:.75;font-size:.85rem;margin-top:6px">${designer.bio||'No bio yet.'}</p>
               </div>
             </div>
           </div>
+          ${currentUser && currentUser.uid !== designerId ? `<div class="dash-card" style="margin-bottom:24px">
+            <h3 style="margin-bottom:10px">Rate this designer</h3>
+            ${ratingStarPicker(designerId, ratingSummary.mine)}
+          </div>` : ''}
           <div class="section-header" style="margin-bottom:16px">
             <h2 class="section-title">${products.length} <span>Design${products.length!==1?'s':''}</span></h2>
           </div>
@@ -5526,11 +5904,18 @@
           const snap = await getDocs(query(collection(db,'users'),where('role','==','designer'),where('status','==','active')));
           snap.docs.forEach(d=>{
             const u={id:d.id,...d.data()};
-            designers[u.id]={id:u.id,name:u.name,photoURL:u.photoURL,bio:u.bio,count:0,img:u.photoURL||''};
+            designers[u.id]={id:u.id,name:u.name,photoURL:u.photoURL,bio:u.bio,count:0,img:u.photoURL||'',avg:0,ratingCount:0};
           });
           // count products
           const prod = await getDocs(query(collection(db,'products'),where('status','==','active')));
           prod.docs.forEach(d=>{const p=d.data();if(designers[p.designerId])designers[p.designerId].count++;designers[p.designerId]&&(designers[p.designerId].img=designers[p.designerId].img||p.img);});
+          // fetch all ratings once, aggregate client-side (avoids one query per designer)
+          try {
+            const ratingsSnap = await getDocs(collection(db,'ratings'));
+            const sums = {}, counts = {};
+            ratingsSnap.docs.forEach(d=>{ const r=d.data(); sums[r.designerId]=(sums[r.designerId]||0)+r.stars; counts[r.designerId]=(counts[r.designerId]||0)+1; });
+            Object.keys(designers).forEach(id=>{ if(counts[id]){ designers[id].avg = sums[id]/counts[id]; designers[id].ratingCount = counts[id]; } });
+          } catch(e){ /* ratings collection may not exist yet — fine */ }
         }
         window._D = Object.values(designers);
         if (el) el.innerHTML = window._D.length
@@ -5541,6 +5926,7 @@
               </div>
               <div class="product-info">
                 <div class="product-name">${d.name}</div>
+                <div style="margin:3px 0">${starsDisplay(d.avg, d.ratingCount)}</div>
                 <div class="product-designer">${d.count} active design${d.count!==1?'s':''}</div>
                 <div style="font-size:.72rem;color:var(--mid-gray);margin-top:4px">${(d.bio||'').slice(0,60)||'Tap to view profile'}</div>
               </div>
@@ -5959,6 +6345,7 @@ window.updateRoleBadgeEl = updateRoleBadgeEl;
     // Set logo on drawer
     setTimeout(() => {
       document.querySelectorAll('#mob-drawer-logo').forEach(el => el.src = LOGO);
+      document.querySelectorAll('#nav-logo, #loader-logo').forEach(el => el.src = LOGO);
       syncMobCart();
       updateMobDrawerUser();
       if (lang === 'ku') applyMobTranslations();
@@ -6010,6 +6397,22 @@ service cloud.firestore {
     match /partner-requests/{id} {
       allow create: if true;
       allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ── Ads: public read, admin write ──
+    match /ads/{adId} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ── Designer ratings: public read, signed-in users can rate (one doc per rater, enforced by app logic) ──
+    match /ratings/{ratingId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.raterId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.raterId == request.auth.uid;
+      allow delete: if request.auth != null &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
   }
