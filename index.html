@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title id="page-title">Naxshin — Print & Design</title>
+  <link rel="icon" id="favicon-link" type="image/jpeg" href=""/>
   <meta name="description" content="Naxshin — Kurdish heritage meets modern fashion. Discover unique print-on-demand designs from local Kurdish designers."/>
   <meta name="keywords" content="Naxshin, Kurdish fashion, print design, Kurdish clothes, نەکشین"/>
   <meta property="og:title" content="Naxshin — Print & Design"/>
@@ -4412,7 +4413,7 @@
       toast, setActiveNav, toggleMobileMenu, toggleLang, switchProfileTab,
       showDashSection, adminAction, designerAction, printerAction, showDesignerProfile,
       adminSetRole, adminAddAd, previewAdMedia, previewDesignImages,
-      updateBigAdSlot, removeAd
+      loadAdsFromFirestore, removeAd
     });
 
     window.filterByDesigner = filterByDesigner;
@@ -6346,6 +6347,7 @@ window.updateRoleBadgeEl = updateRoleBadgeEl;
     setTimeout(() => {
       document.querySelectorAll('#mob-drawer-logo').forEach(el => el.src = LOGO);
       document.querySelectorAll('#nav-logo, #loader-logo').forEach(el => el.src = LOGO);
+      const favicon = document.getElementById('favicon-link'); if (favicon) favicon.href = LOGO;
       syncMobCart();
       updateMobDrawerUser();
       if (lang === 'ku') applyMobTranslations();
