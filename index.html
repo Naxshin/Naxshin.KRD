@@ -1890,6 +1890,43 @@
       box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--forest);
     }
 
+    .pay-method-btn {
+      flex: 1;
+      min-width: 90px;
+      padding: 10px 8px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--sand);
+      background: var(--white);
+      color: var(--charcoal);
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all .15s;
+    }
+
+    .pay-method-btn i {
+      font-size: .95rem;
+      color: var(--mid-gray);
+    }
+
+    .pay-method-btn:hover {
+      border-color: var(--forest);
+    }
+
+    .pay-method-btn.selected {
+      border-color: var(--forest);
+      background: var(--sand-pale);
+      color: var(--forest);
+    }
+
+    .pay-method-btn.selected i {
+      color: var(--forest);
+    }
+
     .rate-picker {
       display: inline-flex;
       gap: 6px;
@@ -3548,7 +3585,7 @@
     </div>
     <div class="cart-items" id="cart-items-list"></div>
     <div class="cart-footer">
-      <div class="cart-total"><span id="txt-total">Total</span><span id="cart-total-val">$0.00</span></div>
+      <div class="cart-total"><span id="txt-total">Total</span><span id="cart-total-val">0 IQD</span></div>
       <button class="btn-block btn-forest" onclick="checkout()" id="txt-checkout">Checkout</button>
     </div>
   </div>
@@ -4090,16 +4127,24 @@
         <label class="form-label" id="lbl-co-location">Delivery Location</label>
         <input class="form-control" type="text" id="co-location" placeholder="City, District, Street..." />
       </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-co-payment">Payment Method</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="co-pay-methods">
+          <button type="button" class="pay-method-btn selected" data-method="Cash" onclick="selectPayMethod(this)"><i class="fas fa-money-bill-wave"></i> Cash</button>
+          <button type="button" class="pay-method-btn" data-method="FIB" onclick="selectPayMethod(this)"><i class="fas fa-university"></i> FIB</button>
+          <button type="button" class="pay-method-btn" data-method="FastPay" onclick="selectPayMethod(this)"><i class="fas fa-bolt"></i> FastPay</button>
+        </div>
+      </div>
       <div style="background:var(--sand-pale);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px">
         <div id="co-order-summary" style="font-size:.77rem;color:var(--mid-gray);line-height:1.9"></div>
         <div
           style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--light-gray)">
           <span style="font-weight:700;font-size:.88rem" id="txt-co-total">Total</span>
           <span id="co-total-display"
-            style="color:var(--forest);font-family:var(--font-h);font-size:1.25rem;font-weight:700">$0.00</span>
+            style="color:var(--forest);font-family:var(--font-h);font-size:1.25rem;font-weight:700">0 IQD</span>
         </div>
       </div>
-      <button class="btn-block btn-forest" onclick="placeOrder()" id="txt-place-order">Place Order →</button>
+      <button class="btn-block btn-forest" onclick="placeOrder()" id="txt-place-order"><i class="fab fa-whatsapp"></i> Place Order →</button>
     </div>
   </div>
 
@@ -4156,7 +4201,7 @@
 <!-- Designer Profile Page -->
 <div class="page" id="page-designer-profile">
   <div class="section" style="max-width:900px;margin:0 auto">
-    <button onclick="history.back()||showPage('designers')" style="background:none;border:none;color:var(--forest);cursor:pointer;font-size:.82rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:6px"><i class="fas fa-arrow-left"></i> Back</button>
+    <button onclick="goBackInApp()" style="background:none;border:none;color:var(--forest);cursor:pointer;font-size:.82rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:6px"><i class="fas fa-arrow-left"></i> Back</button>
     <div id="designer-profile-content"></div>
   </div>
 </div>
@@ -4188,11 +4233,11 @@
     // Project: naxshin-e5e25  |  naxshinkrd@gmail.com
     // ════════════════════════════════════════════════
     const firebaseConfig = {
-      apiKey:            "AIzaSyAj8HjDS80m2POVmbBwNNG1uHlCqJ0DmMQ",
-      authDomain:        "naxshin-e5e25.firebaseapp.com",
-      projectId:         "naxshin-e5e25",
-      messagingSenderId: "666973865382",
-      appId:             "1:666973865382:web:5e284dc80a7f1798f7bb67",
+      apiKey:            "YOUR_API_KEY",
+      authDomain:        "YOUR_AUTH_DOMAIN",
+      projectId:         "YOUR_PROJECT_ID",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId:             "YOUR_APP_ID",
       databaseURL:       "https://naxshin-e5e25-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
     const ADMIN_EMAIL = "naxshinkrd@gmail.com";
@@ -4208,6 +4253,15 @@
 
     // ─── STATE ───
     let currentUser = null, currentRole = 'guest';
+    // ─── CURRENCY: prices are stored in USD internally, displayed in IQD ───
+    // Update IQD_RATE if the exchange rate changes materially (approx market rate as of mid-2026)
+    const IQD_RATE = 1310;
+    function formatIQD(usd) {
+      const iqd = Math.round(((usd||0) * IQD_RATE) / 250) * 250; // round to nearest 250 IQD — cleaner cash amounts
+      return iqd.toLocaleString('en-US') + ' IQD';
+    }
+    window.formatIQD = formatIQD;
+
     let cart = JSON.parse(localStorage.getItem('naxshin-cart') || '[]');
     let wishlist = JSON.parse(localStorage.getItem('naxshin-wishlist') || '[]');
     let currentCategory = 'all', shopCategory = 'all';
@@ -4677,7 +4731,7 @@
         <td style="font-weight:700;color:var(--forest)">${o.orderId||'#'+(o.id||'???').slice(-6).toUpperCase()}</td>
         <td>${o.createdAt?.toDate?.().toLocaleDateString()||new Date(o.createdAt||Date.now()).toLocaleDateString()}</td>
         <td style="font-size:.75rem">${(o.items||[]).map(i=>i.name+'×'+i.qty).join(', ')}</td>
-        <td>$${(o.total||0).toFixed(2)}</td>
+        <td>${formatIQD(o.total||0)}</td>
         <td>${o.city||'—'}</td>
         <td><span class="badge-status badge-${o.status==='confirmed'?'approved':o.status==='cancelled'?'rejected':o.status||'pending'}">${o.status||'pending'}</span></td>
       </tr>`).join('') || `<tr><td colspan="6" style="text-align:center;padding:22px;color:var(--mid-gray)">${t('noOrders')}</td></tr>`;
@@ -4686,7 +4740,7 @@
         const q = query(collection(db,'orders'),where('userId','==',currentUser.uid));
         const snap = await getDocs(q);
         if (snap.empty) { tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--mid-gray)">${t('noOrders')}</td></tr>`; return; }
-        tb.innerHTML = snap.docs.map(d => { const o = d.data(); return `<tr><td>#${d.id.slice(-6).toUpperCase()}</td><td>${o.createdAt?.toDate?.().toLocaleDateString() || '—'}</td><td>${o.items?.length || 0}</td><td>$${o.total?.toFixed(2) || '0.00'}</td><td><span class="badge-status badge-${o.status}">${o.status}</span></td></tr>`; }).join('');
+        tb.innerHTML = snap.docs.map(d => { const o = d.data(); return `<tr><td>#${d.id.slice(-6).toUpperCase()}</td><td>${o.createdAt?.toDate?.().toLocaleDateString() || '—'}</td><td>${o.items?.length || 0}</td><td>${formatIQD(o.total||0)}</td><td><span class="badge-status badge-${o.status}">${o.status}</span></td></tr>`; }).join('');
       } catch (e) { console.error(e); }
     }
     async function submitBugReport() {
@@ -4733,7 +4787,7 @@
           <div class="product-designer">${designerName}</div>
           <div class="product-name">${p.name||'—'}</div>
           <div class="product-footer">
-            <span class="product-price">$${p.price||0}</span>
+            <span class="product-price">${formatIQD(p.price||0)}</span>
             <button class="product-add" onclick="addToCart(event,'${p.id}')"><i class="fas fa-plus"></i></button>
           </div>
         </div>
@@ -4777,14 +4831,14 @@
       </div>
     </div>
     <div class="product-detail-info">
-      <h2>${p.name}</h2><div class="designer">By ${p.designerName||p.designer||'Naxshin'}</div><div class="price">$${p.price}</div>
+      <h2>${p.name}</h2><div class="designer">By ${p.designerName||p.designer||'Naxshin'}</div><div class="price">${formatIQD(p.price)}</div>
       <p style="font-size:.82rem;color:var(--mid-gray);margin-bottom:14px;line-height:1.8">${p.description || 'Premium quality garment.'}</p>
       ${colors.length ? `<div style="font-size:.77rem;font-weight:600;margin-bottom:7px">Color</div>
       <div class="color-grid" id="pd-color-grid">${colors.map((c,i)=>`<button class="color-swatch-btn${i===0?' selected':''}" style="background:${c.hex}" title="${c.name}" onclick="selectProductColor(this,'${(c.img||mainImg).replace(/'/g,"\\'")}','${c.name.replace(/'/g,"\\'")}')"></button>`).join('')}</div>
       <div id="pd-color-name" style="font-size:.7rem;color:var(--mid-gray);margin-bottom:12px">${colors[0]?.name||''}</div>` : ''}
       <div style="font-size:.77rem;font-weight:600;margin-bottom:7px">Size</div>
       <div class="size-grid">${['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(s => `<button class="size-btn" onclick="this.closest('.size-grid').querySelectorAll('.size-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')">${s}</button>`).join('')}</div>
-      <button class="btn-block btn-forest" style="margin-top:14px" onclick="addToCart(null,'${p.id}');closeModal('product-modal')"><i class="fas fa-shopping-bag"></i> Add to Cart</button>
+      <button class="btn-block btn-forest" style="margin-top:14px" onclick="addToCartFromModal('${p.id}')"><i class="fas fa-shopping-bag"></i> Add to Cart</button>
       <button class="btn-block" style="margin-top:8px;background:var(--sand-pale);border:1.5px solid var(--sand);color:var(--charcoal)" onclick="toggleWishlist(null,'${p.id}')"><i class="${wishlist.includes(p.id) ? 'fas' : 'far'} fa-heart"></i> ${wishlist.includes(p.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}</button>
     </div></div>`;
       openModal('product-modal');
@@ -4825,19 +4879,37 @@
       stage.ontouchend = end;
       apply();
     }
+    function addToCartFromModal(id) {
+      const selSize = document.querySelector('#product-modal .size-btn.selected')?.textContent.trim() || '';
+      const selColor = document.getElementById('pd-color-name')?.textContent.trim() || '';
+      addToCart(null, id, selSize, selColor);
+      closeModal('product-modal');
+    }
+    window.addToCartFromModal = addToCartFromModal;
     window.selectProductColor = selectProductColor;
     window.setProductView = setProductView;
 
     // ─── CART ───
-    function addToCart(e, id) { if (e) e.stopPropagation(); const p = (window._P || []).find(x => x.id === id); if (!p) return; const ex = cart.find(c => c.id === id); if (ex) ex.qty++; else cart.push({ id, name: p.name, price: p.price, img: p.img, qty: 1 }); saveCart(); toast(`${p.name} added to cart 🛍️`, 'success'); }
+    function addToCart(e, id, size, colorName) {
+      if (e) e.stopPropagation();
+      const p = (window._P || []).find(x => x.id === id); if (!p) return;
+      size = size || '';
+      colorName = colorName || '';
+      const ex = cart.find(c => c.id === id && (c.size||'') === size && (c.colorName||'') === colorName);
+      if (ex) ex.qty++;
+      else cart.push({ id, name: p.name, price: p.price, img: p.img, qty: 1, size, colorName });
+      saveCart();
+      const opts = [size, colorName].filter(Boolean).join(' / ');
+      toast(`${p.name}${opts?` (${opts})`:''} added to cart 🛍️`, 'success');
+    }
     function removeFromCart(id) { cart = cart.filter(c => c.id !== id); saveCart(); renderCart(); }
     function changeQty(id, d) { const item = cart.find(c => c.id === id); if (!item) return; item.qty += d; if (item.qty <= 0) cart = cart.filter(c => c.id !== id); saveCart(); renderCart(); }
     function saveCart() { localStorage.setItem('naxshin-cart', JSON.stringify(cart)); const n = cart.reduce((a, c) => a + c.qty, 0); const b = document.getElementById('cart-count'); b.textContent = n; n > 0 ? b.classList.remove('hidden') : b.classList.add('hidden'); renderCart(); }
     function renderCart() {
       const list = document.getElementById('cart-items-list');
       if (!cart.length) { list.innerHTML = `<p style="text-align:center;color:var(--mid-gray);padding:38px 0;font-size:.82rem">Your cart is empty</p>`; }
-      else list.innerHTML = cart.map(item => `<div class="cart-item"><img src="${item.img}" alt="${item.name}"/><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-sub">$${item.price} each</div><div class="cart-qty"><button onclick="changeQty('${item.id}',-1)">−</button><span>${item.qty}</span><button onclick="changeQty('${item.id}',1)">+</button><button onclick="removeFromCart('${item.id}')" style="background:var(--sand-pale);margin-left:6px"><i class="fas fa-trash" style="color:var(--rust);font-size:.66rem"></i></button></div></div><div class="cart-item-price">$${(item.price * item.qty).toFixed(2)}</div></div>`).join('');
-      document.getElementById('cart-total-val').textContent = '$' + cart.reduce((a, c) => a + (c.price * c.qty), 0).toFixed(2);
+      else list.innerHTML = cart.map(item => `<div class="cart-item"><img src="${item.img}" alt="${item.name}"/><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-sub">${formatIQD(item.price)} each</div><div class="cart-qty"><button onclick="changeQty('${item.id}',-1)">−</button><span>${item.qty}</span><button onclick="changeQty('${item.id}',1)">+</button><button onclick="removeFromCart('${item.id}')" style="background:var(--sand-pale);margin-left:6px"><i class="fas fa-trash" style="color:var(--rust);font-size:.66rem"></i></button></div></div><div class="cart-item-price">${formatIQD(item.price * item.qty)}</div></div>`).join('');
+      document.getElementById('cart-total-val').textContent = formatIQD(cart.reduce((a, c) => a + (c.price * c.qty), 0));
     }
     function toggleCart() { const d = document.getElementById('cart-drawer'); const o = document.getElementById('cart-overlay'); const open = d.classList.contains('open'); d.classList.toggle('open', !open); o.style.display = open ? 'none' : 'block'; }
     function generateOrderId() {
@@ -4855,16 +4927,28 @@
       document.getElementById('co-phone').value = currentUser.phone || '';
       document.getElementById('co-location').value = '';
       const total = cart.reduce((a, c) => a + (c.price * c.qty), 0);
-      document.getElementById('co-total-display').textContent = '$' + total.toFixed(2);
-      document.getElementById('co-order-summary').innerHTML = cart.map(c => `<span style="display:block">• ${c.name} ×${c.qty} — $${(c.price * c.qty).toFixed(2)}</span>`).join('');
+      document.getElementById('co-total-display').textContent = formatIQD(total);
+      document.getElementById('co-order-summary').innerHTML = cart.map(c => {
+        const opts = [c.size, c.colorName].filter(Boolean).join(' / ');
+        return `<span style="display:block">• ${c.name}${opts?` (${opts})`:''} ×${c.qty} — ${formatIQD(c.price * c.qty)}</span>`;
+      }).join('');
+      // Reset payment method selection to Cash by default
+      document.querySelectorAll('.pay-method-btn').forEach(b=>b.classList.remove('selected'));
+      document.querySelector('.pay-method-btn[data-method="Cash"]')?.classList.add('selected');
       toggleCart();
       openModal('checkout-modal');
     }
+    function selectPayMethod(el) {
+      document.querySelectorAll('.pay-method-btn').forEach(b=>b.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+    window.selectPayMethod = selectPayMethod;
     async function submitCheckoutForm() {
       const name = document.getElementById('co-name').value.trim();
       const phone = document.getElementById('co-phone').value.trim();
       const location = document.getElementById('co-location').value.trim();
       const orderId = document.getElementById('co-order-id').value;
+      const paymentMethod = document.querySelector('.pay-method-btn.selected')?.dataset.method || 'Cash';
       if (!name) { toast(lang==='ku'?'تکایە ناوت بنووسە':'Please enter your full name', 'error'); return; }
       if (!phone) { toast(lang==='ku'?'تکایە ژمارەی مۆبایلت بنووسە':'Please enter your phone number', 'error'); return; }
       if (!location) { toast(lang==='ku'?'تکایە شوێنی گەیاندن بنووسە':'Please enter your delivery location', 'error'); return; }
@@ -4872,7 +4956,8 @@
       const orderData = {
         orderId, userId: currentUser?.uid || 'guest',
         customerName: name, phone, location, city: location,
-        items: cart.map(c=>({id:c.id,name:c.name,price:c.price,qty:c.qty,img:c.img||''})),
+        paymentMethod,
+        items: cart.map(c=>({id:c.id,name:c.name,price:c.price,qty:c.qty,img:c.img||'',size:c.size||'',colorName:c.colorName||''})),
         total, status: 'pending'
       };
       try {
@@ -4887,12 +4972,35 @@
         localOrders.unshift({ ...orderData, createdAt: new Date().toISOString() });
         localStorage.setItem('naxshin-orders', JSON.stringify(localOrders));
       }
+      // Build and open a WhatsApp message to the shop owner with full order details
+      sendOrderToWhatsApp(orderData);
       closeModal('checkout-modal');
       cart = []; saveCart();
       // Show order confirmation modal with the order ID
       const idEl = document.getElementById('confirmed-order-id'); if(idEl) idEl.textContent = orderId;
       openModal('order-confirmed-modal');
       if (currentUser) { updateProfilePage(); }
+    }
+    const NAXSHIN_WHATSAPP_NUMBER = '9647725294559'; // 07725294559 in international format
+    function sendOrderToWhatsApp(orderData) {
+      const lines = [];
+      lines.push(`🛍️ *New Naxshin Order*`);
+      lines.push(`Order ID: ${orderData.orderId}`);
+      lines.push(`Name: ${orderData.customerName}`);
+      lines.push(`Phone: ${orderData.phone}`);
+      lines.push(`Location: ${orderData.location}`);
+      lines.push(`Payment Method: ${orderData.paymentMethod}`);
+      lines.push('');
+      lines.push('Items:');
+      orderData.items.forEach(it => {
+        const opts = [it.size, it.colorName].filter(Boolean).join(' / ');
+        lines.push(`• ${it.name}${opts?` (${opts})`:''} ×${it.qty} — ${formatIQD(it.price*it.qty)}`);
+      });
+      lines.push('');
+      lines.push(`Total: ${formatIQD(orderData.total)}`);
+      const message = lines.join('\n');
+      const url = `https://wa.me/${NAXSHIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
     }
 
     // placeOrder is the public alias for submitCheckoutForm
@@ -4983,7 +5091,7 @@
           <td style="font-weight:700;color:var(--forest);white-space:nowrap">${o.orderId||'#'+o.id?.slice(-6).toUpperCase()||'—'}</td>
           <td style="white-space:nowrap">${o.createdAt?.toDate?.().toLocaleDateString()||new Date(o.createdAt||Date.now()).toLocaleDateString()}</td>
           <td style="font-size:.75rem;max-width:160px">${(o.items||[]).map(i=>i.name+' ×'+i.qty).join(', ')}</td>
-          <td>$${(o.total||0).toFixed(2)}</td>
+          <td>${formatIQD(o.total||0)}</td>
           <td>${o.city||'—'}</td>
           <td><span class="badge-status badge-${o.status==='confirmed'?'approved':o.status==='cancelled'?'rejected':o.status||'pending'}">${o.status||'pending'}</span></td>
         </tr>`).join('');
@@ -5239,7 +5347,7 @@
           sc('#E8F5E9',`<i class="fas fa-users" style="color:var(--forest)"></i>`,users.length,'Users') +
           sc('#FFF8E1',`<i class="fas fa-tshirt" style="color:var(--gold-dark)"></i>`,products.length,'Products') +
           sc('#FFEBEE',`<i class="fas fa-shopping-bag" style="color:var(--rust)"></i>`,orders.length,'Orders') +
-          sc('#E3F2FD',`<i class="fas fa-dollar-sign" style="color:#1565C0"></i>`,'$'+revenue.toFixed(0),'Revenue') +
+          sc('#E3F2FD',`<i class="fas fa-dollar-sign" style="color:#1565C0"></i>`,formatIQD(revenue),'Revenue') +
           sc('#F3E5F5',`<i class="fas fa-palette" style="color:#6A1B9A"></i>`,designers,'Designers') +
           sc('#FFF3E0',`<i class="fas fa-print" style="color:#E65100"></i>`,printers,'Printers') +
           sc('#FFEBEE',`<i class="fas fa-clock" style="color:var(--rust)"></i>`,pending,'Pending Orders');
@@ -5253,7 +5361,7 @@
           <td>${o.customerName||'—'}</td><td>${o.phone||'—'}</td>
           <td>${o.city||'—'}</td>
           <td>${(o.items||[]).map(i=>i.name+' ×'+i.qty).join(', ')}</td>
-          <td>$${(o.total||0).toFixed(2)}</td>
+          <td>${formatIQD(o.total||0)}</td>
           <td><span class="badge-status badge-${o.status||'pending'}">${o.status||'pending'}</span></td>
           <td style="display:flex;gap:3px;flex-wrap:nowrap">
             ${o.status==='pending'?`<button class="action-btn approve" onclick="adminUpdateOrder('${o.id}','confirmed')">✓</button><button class="action-btn cancel" onclick="adminUpdateOrder('${o.id}','cancelled')">✗</button>`:''}
@@ -5339,7 +5447,7 @@
           <td>${o.phone||'—'}</td>
           <td>${o.city||'—'}</td>
           <td style="font-size:.75rem;max-width:200px">${(o.items||[]).map(i=>`${i.name} ×${i.qty}`).join(', ')}</td>
-          <td>$${(o.total||0).toFixed(2)}</td>
+          <td>${formatIQD(o.total||0)}</td>
           <td>${o.address||'—'}</td>
           <td>${o.notes||'—'}</td>
           <td>${o.createdAt?.toDate?.().toLocaleDateString()||'—'}</td>
@@ -5443,7 +5551,7 @@
 
         m.innerHTML = `<div class="dash-header"><h2>Analytics</h2></div>
           <div class="stat-grid">
-            ${sc('#E8F5E9','<i class="fas fa-dollar-sign" style="color:var(--forest)"></i>','$'+revenue.toFixed(0),'Total Revenue')}
+            ${sc('#E8F5E9','<i class="fas fa-dollar-sign" style="color:var(--forest)"></i>',formatIQD(revenue),'Total Revenue')}
             ${sc('#FFF8E1','<i class="fas fa-shopping-bag" style="color:var(--gold-dark)"></i>',orders.length,'Total Orders')}
             ${sc('#D1FAE5','<i class="fas fa-check-circle" style="color:#065f46"></i>',completed,'Completed')}
             ${sc('#FFEBEE','<i class="fas fa-clock" style="color:var(--rust)"></i>',pending,'Pending')}
@@ -5451,7 +5559,7 @@
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap">
             <div class="dash-card"><h3>Top Customers</h3><div class="table-wrap"><table><thead><tr><th>Name</th><th>Spent</th></tr></thead>
-              <tbody>${topCust.map(([n,v])=>`<tr><td>${n}</td><td>$${v.toFixed(2)}</td></tr>`).join('')||'<tr><td colspan="2" style="text-align:center;color:var(--mid-gray)">No data</td></tr>'}</tbody></table></div></div>
+              <tbody>${topCust.map(([n,v])=>`<tr><td>${n}</td><td>${formatIQD(v)}</td></tr>`).join('')||'<tr><td colspan="2" style="text-align:center;color:var(--mid-gray)">No data</td></tr>'}</tbody></table></div></div>
             <div class="dash-card"><h3>Top Products</h3><div class="table-wrap"><table><thead><tr><th>Product</th><th>Qty Sold</th></tr></thead>
               <tbody>${topProd.map(([n,v])=>`<tr><td>${n}</td><td>${v}</td></tr>`).join('')||'<tr><td colspan="2" style="text-align:center;color:var(--mid-gray)">No data</td></tr>'}</tbody></table></div></div>
           </div>`;
@@ -5514,7 +5622,7 @@
         m.innerHTML = `<div class="dash-header"><h2>Designer Dashboard</h2><p>Welcome, ${currentUser.name}</p></div>
           <div class="stat-grid">
             ${sc('#E8F5E9','<i class="fas fa-palette" style="color:var(--forest)"></i>',products.length,'My Designs')}
-            ${sc('#FFF8E1','<i class="fas fa-dollar-sign" style="color:var(--gold-dark)"></i>','$'+revenue.toFixed(0),'Revenue')}
+            ${sc('#FFF8E1','<i class="fas fa-dollar-sign" style="color:var(--gold-dark)"></i>',formatIQD(revenue),'Revenue')}
             ${sc('#FFEBEE','<i class="fas fa-shopping-bag" style="color:var(--rust)"></i>',unitsSold,'Units Sold')}
             ${sc('#E3F2FD','<i class="fas fa-clipboard-list" style="color:#1565C0"></i>',myOrders.length,'Orders')}
           </div>`;
@@ -5550,7 +5658,7 @@
             <div class="product-info">
               <div class="product-designer">${p.designerName||'—'}</div>
               <div class="product-name">${p.name}</div>
-              <div class="product-footer"><span class="product-price">$${p.price}</span>
+              <div class="product-footer"><span class="product-price">${formatIQD(p.price)}</span>
                 <div style="display:flex;gap:4px">
                   <button class="product-add" style="background:var(--gold-dark)" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i></button>
                   <button class="product-add" style="background:var(--rust)" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
@@ -5815,7 +5923,8 @@
       try {
         const snap = await getDocs(query(collection(db,'users'),where('status','==','pending')));
         const pending = snap.docs.map(d=>({id:d.id,...d.data()}));
-        if (!pending.length) { m.innerHTML += `<div class="dash-card"><p style="text-align:center;color:var(--mid-gray);padding:24px">No pending requests</p></div>`; return; }
+        const header = `<div class="dash-header"><h2>Role Requests</h2><p>Review new signups requesting a designer, printer, or advertiser role</p></div>`;
+        if (!pending.length) { m.innerHTML = header + `<div class="dash-card"><p style="text-align:center;color:var(--mid-gray);padding:24px">No pending requests</p></div>`; return; }
         const rows = pending.map(u=>`<tr>
           <td>${u.name||'—'}</td><td>${u.email||'—'}</td><td>${roleBadge(u.role||'customer')}</td>
           <td>${u.createdAt?.toDate?.().toLocaleDateString()||'—'}</td>
@@ -5823,8 +5932,8 @@
             <button class="action-btn approve" onclick="approveUserReq('${u.id}','${u.role}')">Approve</button>
             <button class="action-btn cancel" onclick="rejectUserReq('${u.id}')">Reject</button>
           </td></tr>`).join('');
-        m.innerHTML += `<div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Requested Role</th><th>Date</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
-      } catch(e){ m.innerHTML += `<div class="dash-card"><p style="color:var(--rust)">${e.message}</p></div>`; }
+        m.innerHTML = header + `<div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Requested Role</th><th>Date</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+      } catch(e){ m.innerHTML = `<div class="dash-header"><h2>Role Requests</h2></div><div class="dash-card"><p style="color:var(--rust)">${e.message}</p></div>`; }
     }
     async function approveUserReq(uid, role) {
       try { await updateDoc(doc(db,'users',uid),{status:'active'}); toast('User approved ✓','success'); showDashSection('requests',null); }
@@ -6106,7 +6215,7 @@
         const units = myOrders.reduce((a,o)=>(o.items||[]).filter(i=>myPids.includes(i.id)).reduce((s,i)=>s+i.qty,a),0);
         m.innerHTML = `<div class="dash-header"><h2>Sales Analytics</h2></div>
           <div class="stat-grid">
-            ${sc('#E8F5E9','<i class="fas fa-dollar-sign" style="color:var(--forest)"></i>','$'+revenue.toFixed(0),'Revenue')}
+            ${sc('#E8F5E9','<i class="fas fa-dollar-sign" style="color:var(--forest)"></i>',formatIQD(revenue),'Revenue')}
             ${sc('#FFF8E1','<i class="fas fa-shopping-bag" style="color:var(--gold-dark)"></i>',units,'Units Sold')}
             ${sc('#FFEBEE','<i class="fas fa-clipboard-list" style="color:var(--rust)"></i>',myOrders.length,'Orders')}
           </div>`;
@@ -6115,7 +6224,7 @@
             <td style="font-weight:700">${o.orderId||'—'}</td>
             <td>${o.customerName||'—'}</td>
             <td>${(o.items||[]).filter(i=>myPids.includes(i.id)).map(i=>i.name+' ×'+i.qty).join(', ')}</td>
-            <td>$${(o.items||[]).filter(i=>myPids.includes(i.id)).reduce((s,i)=>s+(i.price*i.qty),0).toFixed(2)}</td>
+            <td>${formatIQD((o.items||[]).filter(i=>myPids.includes(i.id)).reduce((s,i)=>s+(i.price*i.qty),0))}</td>
             <td>${o.createdAt?.toDate?.().toLocaleDateString()||'—'}</td>
           </tr>`).join('');
           m.innerHTML += `<div class="dash-card"><h3>Order Details</h3><div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>My Revenue</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
@@ -6140,7 +6249,7 @@
             <div class="product-info">
               <div class="product-designer">${p.designerName||'Admin'}</div>
               <div class="product-name">${p.name}</div>
-              <div class="product-footer"><span class="product-price">$${p.price}</span>
+              <div class="product-footer"><span class="product-price">${formatIQD(p.price)}</span>
                 <div style="display:flex;gap:3px">
                   ${p.status!=='active'?`<button class="product-add" style="background:var(--forest)" onclick="approveProduct('${p.id}')"><i class="fas fa-check"></i></button>`:''}
                   <button class="product-add" style="background:var(--rust)" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
@@ -6624,6 +6733,71 @@ service cloud.firestore {
     renderHome();
     if (fbReady) loadAdsFromFirestore();
     document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) { o.classList.remove('open'); document.body.classList.remove('modal-open'); } }));
+
+    // ═══════════════════════════════════════════════════════
+    // IN-APP BACK NAVIGATION — makes the phone/browser back
+    // button close the topmost open modal/drawer or return to
+    // the previous in-app page, instead of leaving the site.
+    // ═══════════════════════════════════════════════════════
+    (function () {
+      window._navPageStack = ['home'];
+      window._suppressNavPush = false;
+
+      const _origShowPageForNav = window.showPage;
+      window.showPage = function (page) {
+        _origShowPageForNav(page);
+        if (!window._suppressNavPush) {
+          const stack = window._navPageStack;
+          if (stack[stack.length - 1] !== page) {
+            stack.push(page);
+            if (stack.length > 50) stack.shift();
+          }
+        }
+      };
+
+      function closeTopMostModal() {
+        const openModals = Array.from(document.querySelectorAll('.modal-overlay.open'));
+        if (openModals.length) {
+          const top = openModals[openModals.length - 1];
+          top.classList.remove('open');
+          document.body.classList.remove('modal-open');
+          return true;
+        }
+        return false;
+      }
+
+      function goBackInApp() {
+        // 1. Dynamically-created ad detail popup
+        const adModal = document.getElementById('ad-detail-modal');
+        if (adModal) { adModal.remove(); document.body.classList.remove('modal-open'); return true; }
+        // 2. Mobile drawer menu
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenu && mobileMenu.classList.contains('open')) { mobileMenu.classList.remove('open'); return true; }
+        // 3. Cart drawer
+        const cartDrawer = document.getElementById('cart-drawer');
+        if (cartDrawer && cartDrawer.classList.contains('open')) { toggleCart(); return true; }
+        // 4. Any open modal (checkout, login, product detail, etc.)
+        if (closeTopMostModal()) return true;
+        // 5. Previous in-app page
+        if (window._navPageStack.length > 1) {
+          window._navPageStack.pop();
+          const prev = window._navPageStack[window._navPageStack.length - 1];
+          window._suppressNavPush = true;
+          window.showPage(prev);
+          window._suppressNavPush = false;
+          return true;
+        }
+        // 6. Nothing left to undo in-app — allow the browser to actually leave
+        return false;
+      }
+      window.goBackInApp = goBackInApp;
+
+      history.pushState({ app: true }, '');
+      window.addEventListener('popstate', function () {
+        const handled = goBackInApp();
+        if (handled) history.pushState({ app: true }, '');
+      });
+    })();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
