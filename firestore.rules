@@ -1,0 +1,276 @@
+rules_version = '2';
+
+// ════════════════════════════════════════════════════════════════════
+//  NAXSHIN — Firestore Security Rules
+//  Paste into: Firebase Console → Firestore Database → Rules → Publish
+//
+//  Principles
+//  • Nobody can give themselves a role. Only an admin changes role/status.
+//  • A role only counts once its status is 'active' (approved).
+//  • Every write is checked for allowed fields, types and sizes.
+//  • Anything not listed below is denied.
+// ════════════════════════════════════════════════════════════════════
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ───────── helpers ─────────
+    function signedIn()   { return request.auth != null; }
+    function uid()        { return request.auth.uid; }
+    function incoming()   { return request.resource.data; }
+    function existing()   { return resource.data; }
+    function changed()    { return incoming().diff(existing()).affectedKeys(); }
+    function userPath(id) { return /databases/$(database)/documents/users/$(id); }
+
+    // The owner account. Recognised by its verified e-mail so the shop can
+    // never be locked out, even if its users/ document is damaged.
+    function isRootAdmin() {
+      return signedIn()
+        && request.auth.token.get('email', '') == 'naxshinkrd@gmail.com'
+        && request.auth.token.get('email_verified', false) == true;
+    }
+    function hasRole(r) {
+      return signedIn()
+        && exists(userPath(uid()))
+        && get(userPath(uid())).data.get('role', 'customer') == r
+        && get(userPath(uid())).data.get('status', 'active') == 'active';
+    }
+    function isAdmin() { return isRootAdmin() || hasRole('admin'); }
+    function isStaff() { return isAdmin() || hasRole('technician'); }
+
+    function str(v, min, max)    { return v is string && v.size() >= min && v.size() <= max; }
+    function optStr(m, k, max)   { return !(k in m) || str(m[k], 0, max); }
+    // Images are either base64 data URLs (compressed in the browser) or https links.
+    function imageRef(v, max) {
+      return v is string && v.size() <= max
+        && (v == '' || v.matches('^(data:image/(png|jpeg|jpg|webp|gif);base64,|https://).*'));
+    }
+    function optImage(m, k, max) { return !(k in m) || imageRef(m[k], max); }
+    // Timestamps written by the app must be the server's time — checked only when they change.
+    function stampOk(m, k)       { return !(k in m) || m[k] == request.time; }
+    function changedStampOk(k)   { return !(k in changed()) || incoming()[k] == request.time; }
+
+    // ───────── users (private profile + role) ─────────
+    match /users/{userId} {
+      allow read:   if signedIn() && (uid() == userId || isAdmin());
+      allow create: if signedIn() && uid() == userId && (isRootAdmin() || newUserOk());
+      allow update: if isAdmin() || (signedIn() && uid() == userId && selfUpdateOk());
+      allow delete: if isAdmin();
+
+      function profileOk(d) {
+        return optStr(d, 'phone', 30)
+          && optStr(d, 'bio', 600)
+          && optImage(d, 'photoURL', 200000);
+      }
+      // New sign-ups are always customers. Asking for a partner role only
+      // records the request; an admin approves it in the dashboard.
+      function newUserOk() {
+        let d = incoming();
+        return d.keys().hasOnly(['name', 'email', 'role', 'status', 'requestedRole',
+                                 'photoURL', 'phone', 'bio', 'createdAt'])
+          && d.role == 'customer'
+          && d.requestedRole in ['customer', 'designer', 'printer', 'advertiser']
+          && d.status == (d.requestedRole == 'customer' ? 'active' : 'pending')
+          && str(d.name, 1, 100)
+          && d.email == request.auth.token.get('email', '')
+          && profileOk(d)
+          && stampOk(d, 'createdAt');
+      }
+      // Users may edit their own profile fields — never role, status or requests.
+      function selfUpdateOk() {
+        let d = incoming();
+        return changed().hasOnly(['name', 'email', 'phone', 'bio', 'photoURL', 'twofa', 'updatedAt'])
+          && str(d.get('name', ''), 1, 100)
+          && profileOk(d)
+          && optStr(d, 'twofa', 64)
+          && (!('email' in changed()) || d.email == request.auth.token.get('email', ''))
+          && changedStampOk('updatedAt');
+      }
+    }
+
+    // ───────── public designer directory (name, bio, photo only) ─────────
+    match /designers/{designerId} {
+      allow read: if true;
+      allow create, update: if directoryOk()
+        && (isAdmin() || (signedIn() && uid() == designerId && hasRole('designer')));
+      allow delete: if isAdmin();
+
+      function directoryOk() {
+        let d = incoming();
+        return d.keys().hasOnly(['name', 'bio', 'photoURL', 'updatedAt'])
+          && str(d.name, 1, 100)
+          && optStr(d, 'bio', 600)
+          && optImage(d, 'photoURL', 200000);
+      }
+    }
+
+    // ───────── products ─────────
+    match /products/{productId} {
+      // Approved products are public. Pending ones: only their designer and admins.
+      allow read: if resource.data.status == 'active'
+        || isAdmin()
+        || (signedIn() && resource.data.designerId == uid());
+
+      allow create: if productOk(incoming()) && (
+          isAdmin()
+          || (hasRole('designer')
+              && incoming().designerId == uid()
+              && incoming().status == 'pending'
+              && incoming().get('badge', '') == ''));
+
+      allow update: if productOk(incoming()) && (
+          isAdmin()
+          || (hasRole('designer') && existing().designerId == uid() && designerEditOk()));
+
+      allow delete: if isAdmin() || (hasRole('designer') && existing().designerId == uid());
+
+      function productOk(d) {
+        return d.keys().hasOnly(['name', 'description', 'category', 'price', 'img', 'imageURL',
+                                 'stock', 'sizes', 'garmentTypes', 'colors', 'designerId',
+                                 'designerName', 'status', 'badge', 'createdAt', 'updatedAt'])
+          && str(d.name, 1, 120)
+          && optStr(d, 'description', 2000)
+          && d.category in ['tshirt', 'hoodie', 'dress', 'jacket', 'pants', 'accessory', 'collab']
+          && d.price is number && d.price > 0 && d.price <= 10000
+          && d.status in ['active', 'pending', 'inactive']
+          && d.get('badge', '') in ['', 'new', 'trending', 'hot', 'collab']
+          && d.designerId is string
+          && optStr(d, 'designerName', 100)
+          && optImage(d, 'img', 900000)
+          && optImage(d, 'imageURL', 900000)
+          && (!('stock' in d) || (d.stock is int && d.stock >= 0))
+          && (!('sizes' in d) || (d.sizes is list && d.sizes.size() <= 6))
+          && (!('garmentTypes' in d) || (d.garmentTypes is list && d.garmentTypes.size() <= 4))
+          && (!('colors' in d) || (d.colors is list && d.colors.size() <= 12));
+      }
+      // Designers can't approve themselves or set badges. Changing the picture
+      // of an approved product sends it back for review.
+      function designerEditOk() {
+        let n = incoming();
+        let o = existing();
+        return n.designerId == o.designerId
+          && n.get('badge', '') == o.get('badge', '')
+          && (n.status in ['pending', 'inactive']
+              || (n.status == 'active' && o.status == 'active'
+                  && n.get('img', '') == o.get('img', '')
+                  && n.get('imageURL', '') == o.get('imageURL', '')
+                  && n.get('colors', []) == o.get('colors', [])));
+      }
+    }
+
+    // ───────── orders ─────────
+    match /orders/{orderId} {
+      allow create: if signedIn() && newOrderOk();
+      allow read: if signedIn() && (
+          resource.data.userId == uid()
+          || isAdmin()
+          || hasRole('printer')
+          || (hasRole('designer') && uid() in resource.data.designerIds));
+      allow update: if isAdmin() || (hasRole('printer') && printerUpdateOk());
+      allow delete: if isAdmin();
+
+      function newOrderOk() {
+        let d = incoming();
+        return d.keys().hasOnly(['orderId', 'userId', 'customerName', 'phone', 'location', 'note',
+                                 'paymentMethod', 'items', 'designerIds', 'total', 'totalIQD', 'status',
+                                 'createdAt', 'updatedAt'])
+          && d.userId == uid()
+          && d.status == 'pending'
+          && d.orderId is string && d.orderId.matches('^NX-[A-Z0-9]{8}$')
+          && str(d.customerName, 1, 100)
+          && str(d.phone, 5, 30)
+          && str(d.location, 2, 300)
+          && optStr(d, 'note', 500)
+          && d.paymentMethod in ['Cash', 'FIB', 'FastPay']
+          && d.items is list && d.items.size() >= 1 && d.items.size() <= 50
+          && d.designerIds is list && d.designerIds.size() <= 50
+          && d.total is number && d.total > 0 && d.total < 1000000
+          && (!('totalIQD' in d) || (d.totalIQD is int && d.totalIQD > 0))
+          && d.createdAt == request.time
+          && stampOk(d, 'updatedAt');
+      }
+      // Printers only move orders forward: confirmed → delivering → completed.
+      function printerUpdateOk() {
+        return changed().hasOnly(['status', 'updatedAt'])
+          && existing().status in ['confirmed', 'delivering']
+          && incoming().status in ['delivering', 'completed'];
+      }
+    }
+
+    // ───────── messages to the shop ─────────
+    match /contact-messages/{id} {
+      allow create: if contactOk();
+      allow read, update, delete: if isAdmin();
+
+      function contactOk() {
+        let d = incoming();
+        return d.keys().hasOnly(['name', 'email', 'subject', 'message', 'image', 'userId', 'createdAt'])
+          && str(d.name, 1, 100)
+          && str(d.email, 3, 200)
+          && str(d.message, 1, 5000)
+          && optStr(d, 'subject', 100)
+          && optImage(d, 'image', 400000)
+          && (!('userId' in d) || (signedIn() && d.userId == uid()))
+          && d.createdAt == request.time;
+      }
+    }
+
+    match /partner-requests/{id} {
+      allow create: if partnerOk();
+      allow read, update, delete: if isAdmin();
+
+      function partnerOk() {
+        let d = incoming();
+        return d.keys().hasOnly(['name', 'email', 'type', 'message', 'createdAt'])
+          && str(d.name, 1, 100)
+          && str(d.email, 3, 200)
+          && d.type in ['designer', 'printer', 'advertiser', 'brand']
+          && optStr(d, 'message', 3000)
+          && d.createdAt == request.time;
+      }
+    }
+
+    match /bug-reports/{id} {
+      allow create: if signedIn() && bugOk();
+      allow read, update, delete: if isStaff();
+
+      function bugOk() {
+        let d = incoming();
+        return d.keys().hasOnly(['userId', 'userEmail', 'description', 'image', 'page', 'createdAt'])
+          && d.userId == uid()
+          && str(d.description, 1, 5000)
+          && optStr(d, 'userEmail', 200)
+          && optStr(d, 'page', 100)
+          && optImage(d, 'image', 400000)
+          && d.createdAt == request.time;
+      }
+    }
+
+    // ───────── ads (homepage carousel) ─────────
+    match /ads/{adId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ───────── designer ratings: one per person per designer ─────────
+    match /ratings/{ratingId} {
+      allow read: if true;
+      allow create: if signedIn() && ratingOk()
+        && ratingId == incoming().designerId + '_' + uid();
+      // Also lets people update ratings saved by the old version of the site.
+      allow update: if signedIn() && existing().raterId == uid() && ratingOk()
+        && incoming().designerId == existing().designerId;
+      allow delete: if isAdmin() || (signedIn() && existing().raterId == uid());
+
+      function ratingOk() {
+        let d = incoming();
+        return d.keys().hasOnly(['designerId', 'raterId', 'raterName', 'stars', 'createdAt', 'updatedAt'])
+          && d.raterId == uid()
+          && d.designerId is string
+          && d.designerId != uid()
+          && exists(/databases/$(database)/documents/designers/$(d.designerId))
+          && d.stars is int && d.stars >= 1 && d.stars <= 5
+          && optStr(d, 'raterName', 100);
+      }
+    }
+  }
+}
