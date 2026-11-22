@@ -5,7 +5,7 @@
 // ════════════════════════════════════════════════════════════════
 import {
   html, setHTML, $, $$, byId, safeImg, safeLink, safeHex, placeholderImg, formatIQD, formatIQDAmount, lineIQD, orderIQD, fmtDate, millis, compressImage,
-  withBusy, clampStr, trusted, adMediaOf, isVideoUrl, readAsDataURL, AD_VIDEO_MAX_BYTES,
+  withBusy, clampStr, trusted, adMediaOf, isVideoUrl, AD_VIDEO_MAX_BYTES, AD_VIDEO_PART_BYTES, show,
 } from './util.js';
 import { t, tt, getLang, roleLabel, statusLabel } from './i18n.js';
 import { state, fb, effectiveRole, productById, emit } from './state.js';
@@ -492,15 +492,17 @@ const adThumb = (a) => {
   const m = adMediaOf(a);
   if (m?.kind === 'image') return thumb(m.src, a.advertiser);
   if (m?.kind === 'youtube') return html`<span class="thumb video-thumb yt"><img src="${m.poster}" alt="" loading="lazy" /><i class="fab fa-youtube"></i></span>`;
+  if (m?.kind === 'stored' && m.poster) return html`<span class="thumb video-thumb yt"><img src="${m.poster}" alt="" loading="lazy" /><i class="fas fa-play"></i></span>`;
   return html`<span class="thumb video-thumb"><i class="fas fa-film"></i></span>`;
 };
 function adForm(a = null) {
   const m = a ? adMediaOf(a) : null;
   const type = m && m.kind !== 'image' ? 'video' : 'image';
-  const pasted = a && !String(a.mediaURL || '').startsWith('data:') ? a.mediaURL : '';
+  const pasted = a && !/^(data|fs):/.test(String(a.mediaURL || '')) ? a.mediaURL : '';
   const preview = !m ? html`<i class="fas fa-photo-film"></i>`
     : m.kind === 'image' ? html`<img src="${m.src}" alt="" />`
     : m.kind === 'youtube' ? html`<img src="${m.poster}" alt="" />`
+    : m.kind === 'stored' ? (m.poster ? html`<img src="${m.poster}" alt="" />` : html`<i class="fas fa-film"></i>`)
     : html`<video src="${m.src}" muted playsinline preload="metadata" controls></video>`;
   return html`<form class="form" data-submit="ad-save" ${a ? html`data-id="${a.id}"` : ''} novalidate>
     <div class="field"><label for="ad-adv-${a?.id || 'new'}">${tt('advertiser')} *</label><input id="ad-adv-${a?.id || 'new'}" name="advertiser" maxlength="80" value="${a?.advertiser || ''}" required /></div>
@@ -513,12 +515,44 @@ function adForm(a = null) {
       </div>
     </fieldset>
     <div class="field"><span class="label">${tt('adMedia')} *</span>
-      <label class="upload-zone"><input type="file" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime" data-ad-file hidden /><span class="upload-preview" data-ad-preview>${preview}</span><span class="muted small">${tt('uploadAdMedia')}</span></label>
+      <label class="upload-zone"><input type="file" accept="image/*,video/*" data-ad-file hidden /><span class="upload-preview" data-ad-preview>${preview}</span><span class="muted small">${tt('uploadAdMedia')}</span></label>
       <input name="mediaUrl" type="url" inputmode="url" placeholder="${tt('adMediaUrl')}" value="${pasted}" />
-      <p class="hint muted small">${tt('adVideoHint')}</p></div>
+      <p class="hint muted small">${tt('adVideoHint')}</p>
+      <p class="hint small" data-ad-progress hidden></p></div>
     ${a ? html`<label class="check"><input type="checkbox" name="active" ${a.active ? trusted('checked') : ''} /> <span>${tt('adShowOnHome')}</span></label>` : ''}
     <button class="btn btn-primary btn-block" type="submit">${a ? tt('saveChanges') : tt('publishAd')}</button>
   </form>`;
+}
+/** Checks the browser can play the video and grabs a still frame to show while it loads. */
+function probeVideo(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto';
+    const fail = () => { URL.revokeObjectURL(url); reject(new Error(tt('videoCantPlay'))); };
+    // Some phones only load a video once it plays: if no frame comes, carry on without a still picture.
+    const timer = setTimeout(() => resolve({ url, poster: '' }), 12000);
+    v.onerror = () => { clearTimeout(timer); fail(); };
+    v.onloadeddata = () => { v.currentTime = Math.min(1, (v.duration || 2) / 3); };
+    v.onseeked = () => {
+      clearTimeout(timer);
+      let poster = '';
+      try {
+        const w = Math.min(960, v.videoWidth || 960), h = Math.round(w * ((v.videoHeight || 9) / (v.videoWidth || 16)));
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(v, 0, 0, w, h);
+        poster = c.toDataURL('image/jpeg', 0.72);
+        if (poster.length > 250000) poster = c.toDataURL('image/jpeg', 0.45);
+      } catch { /* still frame is optional */ }
+      resolve({ url, poster: poster.length > 300000 ? '' : poster });
+    };
+    v.src = url;
+  });
+}
+/** Removes the stored pieces of an ad's video, except the version still in use. */
+async function deleteAdParts(adId, keepVer = '') {
+  const snap = await fb.getDocs(fb.collection(fb.db, 'ads', adId, 'parts'));
+  await Promise.all(snap.docs.filter((d) => d.data().v !== keepVer).map((d) => fb.deleteDoc(d.ref)));
 }
 function wireAdForm(form) {
   if (!form) return;
@@ -527,12 +561,13 @@ function wireAdForm(form) {
   $('[data-ad-file]', form)?.addEventListener('change', async (e) => {
     const file = e.target.files[0]; if (!file) return;
     try {
-      if (file.type.startsWith('video/')) {
+      if (file.type.startsWith('video/') || /\.(mp4|m4v|mov|webm|ogv|mkv|3gp)$/i.test(file.name)) {
         if (file.size > AD_VIDEO_MAX_BYTES) { toast(tt('videoTooBig'), 'error'); e.target.value = ''; return; }
-        const url = await readAsDataURL(file);
-        adMediaByForm.set(form, { url, type: 'video' });
+        setHTML(prev, html`<i class="fas fa-spinner fa-spin"></i>`);
+        const probe = await probeVideo(file);
+        adMediaByForm.set(form, { file, type: 'video', poster: probe.poster });
         setType('video');
-        setHTML(prev, html`<video src="${url}" muted playsinline autoplay loop></video>`);
+        setHTML(prev, html`<video src="${probe.url}" muted playsinline autoplay loop></video>`);
       } else {
         const url = await compressImage(file, { maxDim: 1400, quality: 0.8, maxChars: 600000 });
         adMediaByForm.set(form, { url, type: 'image' });
@@ -581,31 +616,54 @@ async function toggleAd(id) {
   catch (e) { fail(e); }
 }
 async function saveAd(form, btn) {
-  const id = form.dataset.id || '';
-  const old = id ? adCache.get(id) : null;
+  const existingId = form.dataset.id || '';
+  const old = existingId ? adCache.get(existingId) : null;
   const advertiser = clampStr(form.advertiser.value, 80);
   const mediaType = form.mediaType.value === 'video' ? 'video' : 'image';
   const picked = adMediaByForm.get(form);
   const typed = form.mediaUrl.value.trim();
   const typedOk = typed && safeLink(typed).startsWith('https://') ? typed : '';
-  const url = picked?.url || typedOk || (!typed && old ? old.mediaURL : '');
-  if (!advertiser || !url) { toast(tt(typed && !typedOk ? 'adMediaBad' : 'fillRequired'), 'error'); return; }
-  const data = { advertiser, text: clampStr(form.text.value, 600), link: safeLink(form.link.value), mediaURL: url, mediaType, isVideo: mediaType === 'video' };
-  if (!adMediaOf(data)) { toast(tt('adMediaBad'), 'error'); return; }
-  if (url.length > 950000) { toast(tt('videoTooBig'), 'error'); return; }
+  const keepOld = !picked && !typed && old;
+  if (!advertiser || !(picked || typedOk || keepOld)) { toast(tt(typed && !typedOk ? 'adMediaBad' : 'fillRequired'), 'error'); return; }
+  const progress = $('[data-ad-progress]', form);
+  const data = { advertiser, text: clampStr(form.text.value, 600), link: safeLink(form.link.value), mediaType, isVideo: mediaType === 'video' };
+  if (keepOld) Object.assign(data, { mediaURL: old.mediaURL, videoParts: old.videoParts || 0, videoMime: old.videoMime || '', poster: old.poster || '' });
+  else if (picked?.file) Object.assign(data, { mediaType: 'video', isVideo: true });
+  else Object.assign(data, { mediaURL: picked?.url || typedOk, videoParts: 0, videoMime: '', poster: '' });
+  if (!picked?.file && !adMediaOf({ id: existingId || 'x', ...data })) { toast(tt('adMediaBad'), 'error'); return; }
+  if (String(data.mediaURL || '').length > 950000) { toast(tt('videoTooBig'), 'error'); return; }
   await withBusy(btn, async () => {
     try {
-      if (id) {
-        await fb.updateDoc(fb.doc(fb.db, 'ads', id), { ...data, active: !!form.active?.checked, updatedAt: fb.serverTimestamp() });
-        const box = form.closest('.modal'); if (box) closeOverlay(box.id);
-        toast(tt('adSaved'), 'success');
-      } else {
-        await fb.addDoc(fb.collection(fb.db, 'ads'), { ...data, active: true, createdAt: fb.serverTimestamp() });
-        toast(tt('adPublished'), 'success');
+      const ref = existingId ? fb.doc(fb.db, 'ads', existingId) : fb.doc(fb.collection(fb.db, 'ads'));
+      if (picked?.file) {
+        // Upload the video in pieces first, then point the ad at them.
+        const ver = Date.now().toString(36);
+        const bytes = new Uint8Array(await picked.file.arrayBuffer());
+        const n = Math.ceil(bytes.length / AD_VIDEO_PART_BYTES);
+        show(progress, true);
+        for (let i = 0; i < n; i++) {
+          progress.textContent = tt('adUploading', { p: Math.round((i / n) * 100) });
+          await fb.setDoc(fb.doc(fb.db, 'ads', ref.id, 'parts', `${ver}_${i}`), {
+            v: ver, i, b: fb.Bytes.fromUint8Array(bytes.subarray(i * AD_VIDEO_PART_BYTES, (i + 1) * AD_VIDEO_PART_BYTES)),
+          });
+        }
+        progress.textContent = tt('adUploading', { p: 100 });
+        Object.assign(data, { mediaURL: `fs:${ver}`, videoParts: n, videoMime: /^video\/[\w.+-]+$/.test(picked.file.type) ? picked.file.type : 'video/mp4', poster: picked.poster || '' });
       }
+      if (existingId) {
+        await fb.updateDoc(ref, { ...data, active: !!form.active?.checked, updatedAt: fb.serverTimestamp() });
+      } else {
+        await fb.setDoc(ref, { ...data, active: true, createdAt: fb.serverTimestamp() });
+      }
+      // Clean up pieces of a video this ad no longer uses.
+      const keep = String(data.mediaURL || '').startsWith('fs:') ? data.mediaURL.slice(3) : '';
+      if (existingId || picked?.file) await deleteAdParts(ref.id, keep).catch((e) => console.warn('old video pieces', e));
       adMediaByForm.delete(form);
+      const box = form.closest('.modal'); if (box) closeOverlay(box.id);
+      toast(tt(existingId ? 'adSaved' : 'adPublished'), 'success');
       refresh();
     } catch (e) { fail(e); }
+    finally { show(progress, false); }
   });
 }
 
@@ -680,7 +738,10 @@ export function initDashboard() {
     'ad-toggle': (el) => toggleAd(el.dataset.id),
     'ad-delete': async (el) => {
       if (!(await confirmDialog(tt('confirmDelete'), { ok: tt('delete'), danger: true }))) return;
-      try { await fb.deleteDoc(fb.doc(fb.db, 'ads', el.dataset.id)); toast(tt('adRemoved')); refresh(); } catch (e) { fail(e); }
+      try {
+        await deleteAdParts(el.dataset.id).catch((e) => console.warn('video pieces', e));
+        await fb.deleteDoc(fb.doc(fb.db, 'ads', el.dataset.id)); toast(tt('adRemoved')); refresh();
+      } catch (e) { fail(e); }
     },
     'bug-resolve': async (el) => {
       try { await fb.updateDoc(fb.doc(fb.db, 'bug-reports', el.dataset.id), { resolved: true, resolvedAt: fb.serverTimestamp() }); toast(tt('resolved'), 'success'); refresh(); } catch (e) { fail(e); }

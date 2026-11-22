@@ -49,7 +49,8 @@ export function safeLink(url) {
 // ── Ad media: photo, video file/link, or YouTube ──
 const VIDEO_DATA_RE = /^data:video\/(mp4|webm|ogg|quicktime);base64,[a-z0-9+/=\s]+$/i;
 const VIDEO_EXT_RE = /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i;
-export const AD_VIDEO_MAX_BYTES = 650 * 1024; // keeps the ad under Firestore's 1 MB document limit
+export const AD_VIDEO_MAX_BYTES = 15 * 1024 * 1024; // uploaded videos are split into 900 KB pieces (Firestore's 1 MB record limit)
+export const AD_VIDEO_PART_BYTES = 900 * 1024;
 export function youTubeId(url) {
   try {
     const u = new URL(String(url ?? '').trim());
@@ -66,6 +67,14 @@ export const isVideoUrl = (url) => VIDEO_DATA_RE.test(String(url ?? '').trim()) 
 /** What an ad shows: { kind: 'image' | 'video' | 'youtube', src, ... } or null. */
 export function adMediaOf(a) {
   const raw = String(a?.mediaURL ?? '').trim();
+  // Uploaded video, stored in pieces under ads/{id}/parts
+  const stored = raw.match(/^fs:([a-z0-9]{4,16})$/i);
+  if (stored) {
+    const parts = Number(a?.videoParts) | 0;
+    if (parts < 1 || parts > 40 || !a?.id) return null;
+    const mime = /^video\/[\w.+-]+$/.test(a.videoMime || '') ? a.videoMime : 'video/mp4';
+    return { kind: 'stored', ver: stored[1], parts, mime, poster: safeImg(a.poster) || '' };
+  }
   const yt = youTubeId(raw);
   if (yt) {
     const base = `https://www.youtube-nocookie.com/embed/${yt}?playsinline=1&rel=0&modestbranding=1`;

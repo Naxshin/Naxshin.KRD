@@ -489,6 +489,11 @@ function adMediaHTML(a, inSlide) {
       ? html`<img class="ad-poster" src="${m.poster}" alt="" loading="lazy" /><iframe class="ad-yt" data-src="${m.src}" title="${a.advertiser || tt('ad')}" tabindex="-1" aria-hidden="true" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe>`
       : html`<iframe src="${m.full}" title="${a.advertiser || tt('ad')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
   }
+  if (m.kind === 'stored') {
+    return inSlide
+      ? html`${m.poster ? html`<img class="ad-poster" src="${m.poster}" alt="" loading="lazy" />` : ''}<video class="ad-stored" data-ad-id="${a.id}" muted playsinline preload="none" aria-hidden="true"></video>`
+      : html`<video class="ad-stored" data-ad-id="${a.id}" ${m.poster ? html`poster="${m.poster}"` : ''} autoplay muted loop playsinline controls></video>`;
+  }
   if (m.kind === 'video') {
     return inSlide
       ? html`<video src="${m.src}" muted playsinline preload="metadata" aria-hidden="true"></video>`
@@ -496,6 +501,34 @@ function adMediaHTML(a, inSlide) {
   }
   // Old ads saved without a type may be a video link without a file ending: try it as a video if the photo fails.
   return html`<img src="${m.src}" alt="" loading="lazy" ${m.guessed && m.src.startsWith('https://') ? trusted('data-maybe-video') : ''} />`;
+}
+/** Uploaded videos are kept in pieces; join them once per visit (the device keeps a copy). */
+const storedVideos = new Map();
+export function storedVideoURL(a) {
+  const m = adMediaOf(a);
+  if (m?.kind !== 'stored') return Promise.reject(new Error('not a stored video'));
+  const key = `${a.id}:${m.ver}`;
+  if (!storedVideos.has(key)) {
+    storedVideos.set(key, (async () => {
+      const q = fb.query(fb.collection(fb.db, 'ads', a.id, 'parts'), fb.where('v', '==', m.ver));
+      let snap = null;
+      try { snap = await fb.getDocsFromCache(q); } catch { /* not on this device yet */ }
+      if (!snap || snap.size !== m.parts) snap = await fb.getDocs(q);
+      if (snap.size !== m.parts) throw new Error('video pieces missing');
+      const pieces = snap.docs.map((d) => d.data()).sort((x, y) => x.i - y.i).map((d) => d.b.toUint8Array());
+      return URL.createObjectURL(new Blob(pieces, { type: m.mime }));
+    })().catch((e) => { storedVideos.delete(key); throw e; }));
+  }
+  return storedVideos.get(key);
+}
+function fillStoredVideo(v, a, play) {
+  if (!v || v.getAttribute('src') || v.dataset.loading) return;
+  v.dataset.loading = '1';
+  storedVideoURL(a).then((url) => {
+    delete v.dataset.loading;
+    v.src = url;
+    if (play()) v.play().catch(() => {});
+  }).catch((e) => { delete v.dataset.loading; console.warn('ad video', e); v.dispatchEvent(new Event('error')); });
 }
 /** Broken ad media: photo → try as video → soft placeholder. */
 function wireAdMediaFallback(root) {
@@ -548,10 +581,14 @@ function playVisibleVideo() {
   $$('#ad-track .ad-slide').forEach((s, i) => {
     const on = i === carousel.index;
     const v = s.querySelector('video');
+    if (v?.classList.contains('ad-stored') && on) {
+      const a = state.ads.find((x) => x.id === v.dataset.adId);
+      if (a) fillStoredVideo(v, a, () => s.classList.contains('on'));
+    }
     if (v) {
       v.loop = !many;
       v.onended = on && many ? () => goAd(carousel.index + 1) : null;
-      if (on) { v.currentTime = 0; v.play().catch(() => {}); } else v.pause();
+      if (on) { if (v.getAttribute('src')) { v.currentTime = 0; v.play().catch(() => {}); } } else v.pause();
     }
     const f = s.querySelector('iframe.ad-yt');
     if (f) {
@@ -577,7 +614,7 @@ function armCarousel() {
   clearTimeout(carousel.timer);
   if (state.ads.length < 2 || reducedMotion()) return;
   const kind = adMediaOf(state.ads[carousel.index])?.kind;
-  const ms = kind === 'video' ? 60000 : kind === 'youtube' ? 20000 : 6000;
+  const ms = kind === 'video' || kind === 'stored' ? 60000 : kind === 'youtube' ? 20000 : 6000;
   carousel.timer = setTimeout(() => {
     if (document.hidden || state.route.page !== 'home') armCarousel();
     else goAd(carousel.index + 1);
@@ -599,12 +636,14 @@ function openAd(i) {
   const a = state.ads[i];
   if (!a) return;
   const link = safeLink(a.link);
-  openDialog(html`<div class="ad-detail">
+  const dlg = openDialog(html`<div class="ad-detail">
     <div class="ad-detail-media">${adMediaHTML(a, false)}</div>
     <h2 class="modal-title">${a.advertiser || tt('ad')}</h2>
     <p class="muted">${a.text || tt('adNoDesc')}</p>
     ${link ? html`<a class="btn btn-primary btn-block" href="${link}" target="_blank" rel="noopener noreferrer sponsored"><i class="fas fa-arrow-up-right-from-square"></i> ${tt('visit')}</a>` : ''}
   </div>`, { label: a.advertiser || tt('ad') });
+  const v = dlg?.body?.querySelector('video.ad-stored');
+  if (v) fillStoredVideo(v, a, () => v.isConnected);
 }
 
 // ═══════════ wiring ═══════════

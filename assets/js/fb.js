@@ -13,7 +13,7 @@ import {
 import {
   initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator,
   doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, collection, query, where, orderBy, limit,
-  onSnapshot, serverTimestamp, writeBatch,
+  onSnapshot, serverTimestamp, writeBatch, getDocsFromCache, Bytes,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 export const firebaseConfig = {
@@ -52,5 +52,5 @@ export {
   onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile,
   updatePassword, verifyBeforeUpdateEmail, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup,
   doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, collection, query, where, orderBy, limit,
-  onSnapshot, serverTimestamp, writeBatch,
+  onSnapshot, serverTimestamp, writeBatch, getDocsFromCache, Bytes,
 };
