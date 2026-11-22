@@ -45,7 +45,52 @@ export function safeLink(url) {
     return u.protocol === 'https:' || u.protocol === 'http:' ? u.href : '';
   } catch { return ''; }
 }
-export const safeHex = (v) => (/^#[0-9a-f]{3,8}$/i.test(String(v)) ? v : '#999999');
+
+// ── Ad media: photo, video file/link, or YouTube ──
+const VIDEO_DATA_RE = /^data:video\/(mp4|webm|ogg|quicktime);base64,[a-z0-9+/=\s]+$/i;
+const VIDEO_EXT_RE = /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i;
+export const AD_VIDEO_MAX_BYTES = 650 * 1024; // keeps the ad under Firestore's 1 MB document limit
+export function youTubeId(url) {
+  try {
+    const u = new URL(String(url ?? '').trim());
+    const host = u.hostname.replace(/^(www|m|music)\./, '');
+    let id = '';
+    if (host === 'youtu.be') id = u.pathname.slice(1);
+    else if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+      id = u.searchParams.get('v') || (u.pathname.match(/^\/(shorts|embed|live|v)\/([^/?#]+)/) || [])[2] || '';
+    }
+    return /^[\w-]{11}$/.test(id) ? id : '';
+  } catch { return ''; }
+}
+export const isVideoUrl = (url) => VIDEO_DATA_RE.test(String(url ?? '').trim()) || VIDEO_EXT_RE.test(String(url ?? '')) || !!youTubeId(url);
+/** What an ad shows: { kind: 'image' | 'video' | 'youtube', src, ... } or null. */
+export function adMediaOf(a) {
+  const raw = String(a?.mediaURL ?? '').trim();
+  const yt = youTubeId(raw);
+  if (yt) {
+    const base = `https://www.youtube-nocookie.com/embed/${yt}?playsinline=1&rel=0&modestbranding=1`;
+    return {
+      kind: 'youtube', id: yt, poster: `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`,
+      src: `${base}&autoplay=1&mute=1&controls=0&loop=1&playlist=${yt}&disablekb=1`,
+      full: `${base}&autoplay=1&mute=1&controls=1`,
+    };
+  }
+  if (VIDEO_DATA_RE.test(raw)) return { kind: 'video', src: raw };
+  const https = /^https:\/\//i.test(raw) ? safeLink(raw) : '';
+  const wantsVideo = a?.mediaType === 'video' || (a?.mediaType !== 'image' && (a?.isVideo || VIDEO_EXT_RE.test(raw)));
+  if (wantsVideo && https) return { kind: 'video', src: https };
+  const img = safeImg(raw);
+  return img ? { kind: 'image', src: img, guessed: !a?.mediaType } : null;
+}
+export function readAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+}
+export const safeHex =(v) => (/^#[0-9a-f]{3,8}$/i.test(String(v)) ? v : '#999999');
 
 /** Soft placeholder artwork (no external service). */
 export function placeholderImg(label = '') {

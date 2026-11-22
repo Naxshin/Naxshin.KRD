@@ -3,7 +3,7 @@
 // ════════════════════════════════════════════════════════════════
 import {
   html, setHTML, $, $$, byId, safeImg, safeLink, safeHex, placeholderImg, formatIQD, formatIQDAmount, lineIQD, debounce, randomId,
-  withBusy, withTimeout, clampStr, normalizePhone, millis, trusted,
+  withBusy, withTimeout, clampStr, normalizePhone, millis, trusted, adMediaOf,
 } from './util.js';
 import { t, tt, getLang } from './i18n.js';
 import { state, fb, emit, on, saveCart, saveWishlist, productById, lineKey } from './state.js';
@@ -43,7 +43,7 @@ export function startCatalogue() {
     fb.query(fb.collection(fb.db, 'ads'), fb.where('active', '==', true)),
     (snap) => {
       state.ads = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-        .filter((a) => safeImg(a.mediaURL) || safeLink(a.mediaURL))
+        .filter((a) => adMediaOf(a))
         .sort((a, b) => millis(b.createdAt) - millis(a.createdAt));
       renderAds();
     },
@@ -479,11 +479,49 @@ async function rate(designerId, starsN) {
 
 // ═══════════ ads carousel ═══════════
 const carousel = { index: 0, timer: null };
+const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** The picture/video of one ad. `inSlide` = small muted background version for the carousel. */
+function adMediaHTML(a, inSlide) {
+  const m = adMediaOf(a);
+  if (!m) return html`<img src="${placeholderImg(a.advertiser)}" alt="" />`;
+  if (m.kind === 'youtube') {
+    return inSlide
+      ? html`<img class="ad-poster" src="${m.poster}" alt="" loading="lazy" /><iframe class="ad-yt" data-src="${m.src}" title="${a.advertiser || tt('ad')}" tabindex="-1" aria-hidden="true" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe>`
+      : html`<iframe src="${m.full}" title="${a.advertiser || tt('ad')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  }
+  if (m.kind === 'video') {
+    return inSlide
+      ? html`<video src="${m.src}" muted playsinline preload="metadata" aria-hidden="true"></video>`
+      : html`<video src="${m.src}" autoplay muted loop playsinline controls></video>`;
+  }
+  // Old ads saved without a type may be a video link without a file ending: try it as a video if the photo fails.
+  return html`<img src="${m.src}" alt="" loading="lazy" ${m.guessed && m.src.startsWith('https://') ? trusted('data-maybe-video') : ''} />`;
+}
+/** Broken ad media: photo → try as video → soft placeholder. */
+function wireAdMediaFallback(root) {
+  root.addEventListener('error', (e) => {
+    const el = e.target;
+    if (!(el instanceof HTMLElement) || el.dataset.failed) return;
+    const name = el.closest('[data-name]')?.dataset.name || '';
+    el.dataset.failed = '1';
+    if (el.tagName === 'IMG' && 'maybeVideo' in el.dataset) {
+      const v = document.createElement('video');
+      Object.assign(v, { muted: true, playsInline: true, preload: 'metadata', src: el.src });
+      v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
+      el.replaceWith(v);
+      if (el.closest('.ad-slide.on')) playVisibleVideo();
+    } else if (el.tagName === 'VIDEO' || (el.tagName === 'IMG' && !el.classList.contains('ad-poster'))) {
+      const img = document.createElement('img');
+      img.alt = ''; img.dataset.failed = '1'; img.src = placeholderImg(name);
+      el.replaceWith(img);
+    }
+  }, true);
+}
 export function renderAds() {
   const block = byId('ads-block'), stage = byId('ad-stage');
   if (!block || !stage) return;
   block.hidden = false;
-  clearInterval(carousel.timer);
+  clearTimeout(carousel.timer);
   const ads = state.ads;
   if (!ads.length) {
     setHTML(stage, html`<div class="ad-empty"><i class="fas fa-bullhorn"></i><p>${tt('advertiseHere')}</p></div>`);
@@ -492,34 +530,58 @@ export function renderAds() {
   }
   delete stage.dataset.action;
   carousel.index = Math.min(carousel.index, ads.length - 1);
-  setHTML(stage, html`<div class="ad-track" id="ad-track">${ads.map((a, i) => html`<button type="button" class="ad-slide${i === carousel.index ? ' on' : ''}" data-action="open-ad" data-index="${i}" aria-label="${a.advertiser || tt('ad')}" ${i === carousel.index ? '' : trusted('tabindex="-1"')}>
-      ${isVideo(a) ? html`<video src="${safeLink(a.mediaURL)}" muted loop playsinline preload="metadata"></video>` : html`<img src="${safeImg(a.mediaURL)}" alt="" loading="lazy" />`}
-      <span class="ad-caption"><strong>${a.advertiser || ''}</strong>${a.text ? html`<span>${String(a.text).slice(0, 80)}</span>` : ''}</span>
-    </button>`)}</div>
+  setHTML(stage, html`<div class="ad-track" id="ad-track">${ads.map((a, i) => html`<div class="ad-slide${i === carousel.index ? ' on' : ''}" data-name="${a.advertiser || ''}">
+      <div class="ad-media">${adMediaHTML(a, true)}</div>
+      <button type="button" class="ad-hit" data-action="open-ad" data-index="${i}" aria-label="${a.advertiser || tt('ad')}" ${i === carousel.index ? '' : trusted('tabindex="-1"')}>
+        <span class="ad-caption"><strong>${a.advertiser || ''}</strong>${a.text ? html`<span>${String(a.text).slice(0, 80)}</span>` : ''}</span>
+      </button>
+    </div>`)}</div>
     ${ads.length > 1 ? html`<button type="button" class="ad-arrow prev" data-action="ad-step" data-step="-1" aria-label="‹"><i class="fas fa-chevron-left flip-rtl"></i></button>
       <button type="button" class="ad-arrow next" data-action="ad-step" data-step="1" aria-label="›"><i class="fas fa-chevron-right flip-rtl"></i></button>
       <div class="ad-dots">${ads.map((_, i) => html`<button type="button" class="dot${i === carousel.index ? ' on' : ''}" data-action="ad-go" data-index="${i}" aria-label="${i + 1}"></button>`)}</div>` : ''}`);
   playVisibleVideo();
   armCarousel();
 }
-const isVideo = (a) => a.isVideo || /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(a.mediaURL || '');
+/** Only the visible slide plays; YouTube frames load only while shown. */
 function playVisibleVideo() {
-  $$('#ad-track .ad-slide').forEach((s, i) => { const v = s.querySelector('video'); if (v) { if (i === carousel.index) v.play().catch(() => {}); else v.pause(); } });
+  const many = state.ads.length > 1;
+  $$('#ad-track .ad-slide').forEach((s, i) => {
+    const on = i === carousel.index;
+    const v = s.querySelector('video');
+    if (v) {
+      v.loop = !many;
+      v.onended = on && many ? () => goAd(carousel.index + 1) : null;
+      if (on) { v.currentTime = 0; v.play().catch(() => {}); } else v.pause();
+    }
+    const f = s.querySelector('iframe.ad-yt');
+    if (f) {
+      if (on && !reducedMotion()) { if (!f.getAttribute('src')) f.src = f.dataset.src; }
+      else if (f.getAttribute('src')) f.removeAttribute('src');
+    }
+  });
 }
 function goAd(i) {
   const n = state.ads.length;
   if (!n) return;
   carousel.index = ((i % n) + n) % n;
-  $$('#ad-track .ad-slide').forEach((s, k) => { s.classList.toggle('on', k === carousel.index); s.tabIndex = k === carousel.index ? 0 : -1; });
+  $$('#ad-track .ad-slide').forEach((s, k) => {
+    s.classList.toggle('on', k === carousel.index);
+    const hit = s.querySelector('.ad-hit'); if (hit) hit.tabIndex = k === carousel.index ? 0 : -1;
+  });
   $$('#ad-stage .dot').forEach((d, k) => d.classList.toggle('on', k === carousel.index));
   playVisibleVideo();
   armCarousel();
 }
+/** Photos stay 6 s; videos play to the end (up to 1 min); YouTube gets 20 s. */
 function armCarousel() {
-  clearInterval(carousel.timer);
-  if (state.ads.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    carousel.timer = setInterval(() => { if (!document.hidden && state.route.page === 'home') goAd(carousel.index + 1); }, 6000);
-  }
+  clearTimeout(carousel.timer);
+  if (state.ads.length < 2 || reducedMotion()) return;
+  const kind = adMediaOf(state.ads[carousel.index])?.kind;
+  const ms = kind === 'video' ? 60000 : kind === 'youtube' ? 20000 : 6000;
+  carousel.timer = setTimeout(() => {
+    if (document.hidden || state.route.page !== 'home') armCarousel();
+    else goAd(carousel.index + 1);
+  }, ms);
 }
 function initAdSwipe() {
   const stage = byId('ad-stage');
@@ -538,7 +600,7 @@ function openAd(i) {
   if (!a) return;
   const link = safeLink(a.link);
   openDialog(html`<div class="ad-detail">
-    <div class="ad-detail-media">${isVideo(a) ? html`<video src="${safeLink(a.mediaURL)}" autoplay muted loop playsinline controls></video>` : html`<img src="${safeImg(a.mediaURL)}" alt="" />`}</div>
+    <div class="ad-detail-media">${adMediaHTML(a, false)}</div>
     <h2 class="modal-title">${a.advertiser || tt('ad')}</h2>
     <p class="muted">${a.text || tt('adNoDesc')}</p>
     ${link ? html`<a class="btn btn-primary btn-block" href="${link}" target="_blank" rel="noopener noreferrer sponsored"><i class="fas fa-arrow-up-right-from-square"></i> ${tt('visit')}</a>` : ''}
@@ -549,6 +611,7 @@ function openAd(i) {
 export function initShop() {
   initFilterInputs();
   initAdSwipe();
+  const adStage = byId('ad-stage'); if (adStage) wireAdMediaFallback(adStage);
   on('products', () => { if (isOpen('cart')) renderCart(); });
   on('cart', renderCart);
   on('wishlist', () => {

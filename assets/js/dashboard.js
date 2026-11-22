@@ -5,11 +5,11 @@
 // ════════════════════════════════════════════════════════════════
 import {
   html, setHTML, $, $$, byId, safeImg, safeLink, safeHex, placeholderImg, formatIQD, formatIQDAmount, lineIQD, orderIQD, fmtDate, millis, compressImage,
-  withBusy, clampStr,
+  withBusy, clampStr, trusted, adMediaOf, isVideoUrl, readAsDataURL, AD_VIDEO_MAX_BYTES,
 } from './util.js';
 import { t, tt, getLang, roleLabel, statusLabel } from './i18n.js';
 import { state, fb, effectiveRole, productById, emit } from './state.js';
-import { registerActions, registerSubmits, registerChanges, openDialog, confirmDialog, toast, fail, emptyState } from './ui.js';
+import { registerActions, registerSubmits, registerChanges, openDialog, closeOverlay, confirmDialog, toast, fail, emptyState } from './ui.js';
 import { renderMyOrders, statusPill } from './account.js';
 import { renderWishlistGrid, cartCount } from './shop.js';
 
@@ -486,48 +486,125 @@ async function approveProduct(id) {
 }
 
 // ═══════════ admin: ads ═══════════
-let adMedia = { url: '', video: false };
+const adMediaByForm = new WeakMap(); // form → { url, type } picked from an upload
+let adCache = new Map();
+const adThumb = (a) => {
+  const m = adMediaOf(a);
+  if (m?.kind === 'image') return thumb(m.src, a.advertiser);
+  if (m?.kind === 'youtube') return html`<span class="thumb video-thumb yt"><img src="${m.poster}" alt="" loading="lazy" /><i class="fab fa-youtube"></i></span>`;
+  return html`<span class="thumb video-thumb"><i class="fas fa-film"></i></span>`;
+};
+function adForm(a = null) {
+  const m = a ? adMediaOf(a) : null;
+  const type = m && m.kind !== 'image' ? 'video' : 'image';
+  const pasted = a && !String(a.mediaURL || '').startsWith('data:') ? a.mediaURL : '';
+  const preview = !m ? html`<i class="fas fa-photo-film"></i>`
+    : m.kind === 'image' ? html`<img src="${m.src}" alt="" />`
+    : m.kind === 'youtube' ? html`<img src="${m.poster}" alt="" />`
+    : html`<video src="${m.src}" muted playsinline preload="metadata" controls></video>`;
+  return html`<form class="form" data-submit="ad-save" ${a ? html`data-id="${a.id}"` : ''} novalidate>
+    <div class="field"><label for="ad-adv-${a?.id || 'new'}">${tt('advertiser')} *</label><input id="ad-adv-${a?.id || 'new'}" name="advertiser" maxlength="80" value="${a?.advertiser || ''}" required /></div>
+    <div class="field"><label for="ad-txt-${a?.id || 'new'}">${tt('adText')}</label><textarea id="ad-txt-${a?.id || 'new'}" name="text" rows="3" maxlength="600">${a?.text || ''}</textarea></div>
+    <div class="field"><label for="ad-link-${a?.id || 'new'}">${tt('adLink')}</label><input id="ad-link-${a?.id || 'new'}" name="link" type="url" inputmode="url" placeholder="https://" value="${a?.link || ''}" /></div>
+    <fieldset class="field"><legend>${tt('adMediaType')}</legend>
+      <div class="choice-row">
+        <label class="choice"><input type="radio" name="mediaType" value="image" ${type === 'image' ? trusted('checked') : ''} /><span><i class="fas fa-image"></i><span>${tt('adTypeImage')}</span></span></label>
+        <label class="choice"><input type="radio" name="mediaType" value="video" ${type === 'video' ? trusted('checked') : ''} /><span><i class="fas fa-film"></i><span>${tt('adTypeVideo')}</span></span></label>
+      </div>
+    </fieldset>
+    <div class="field"><span class="label">${tt('adMedia')} *</span>
+      <label class="upload-zone"><input type="file" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime" data-ad-file hidden /><span class="upload-preview" data-ad-preview>${preview}</span><span class="muted small">${tt('uploadAdMedia')}</span></label>
+      <input name="mediaUrl" type="url" inputmode="url" placeholder="${tt('adMediaUrl')}" value="${pasted}" />
+      <p class="hint muted small">${tt('adVideoHint')}</p></div>
+    ${a ? html`<label class="check"><input type="checkbox" name="active" ${a.active ? trusted('checked') : ''} /> <span>${tt('adShowOnHome')}</span></label>` : ''}
+    <button class="btn btn-primary btn-block" type="submit">${a ? tt('saveChanges') : tt('publishAd')}</button>
+  </form>`;
+}
+function wireAdForm(form) {
+  if (!form) return;
+  const prev = $('[data-ad-preview]', form);
+  const setType = (t) => { const r = $(`input[name="mediaType"][value="${t}"]`, form); if (r) r.checked = true; };
+  $('[data-ad-file]', form)?.addEventListener('change', async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      if (file.type.startsWith('video/')) {
+        if (file.size > AD_VIDEO_MAX_BYTES) { toast(tt('videoTooBig'), 'error'); e.target.value = ''; return; }
+        const url = await readAsDataURL(file);
+        adMediaByForm.set(form, { url, type: 'video' });
+        setType('video');
+        setHTML(prev, html`<video src="${url}" muted playsinline autoplay loop></video>`);
+      } else {
+        const url = await compressImage(file, { maxDim: 1400, quality: 0.8, maxChars: 600000 });
+        adMediaByForm.set(form, { url, type: 'image' });
+        setType('image');
+        setHTML(prev, html`<img src="${url}" alt="" />`);
+      }
+      form.mediaUrl.value = '';
+    } catch (err) { fail(err); }
+  });
+  form.mediaUrl?.addEventListener('input', () => {
+    const v = form.mediaUrl.value.trim();
+    if (!v) return;
+    adMediaByForm.delete(form);
+    if (isVideoUrl(v)) setType('video');
+  });
+}
 async function adminAds(m) {
   const ads = newestFirst(await getAll('ads'));
-  adMedia = { url: '', video: false };
+  adCache = new Map(ads.map((a) => [a.id, a]));
   setHTML(m, html`${head(tt('dashAds'), tt('adsHint'))}
     <div class="glass-card pad"><h2 class="card-title">${tt('activeAds')} (${ads.filter((a) => a.active).length})</h2>
       ${ads.length ? html`<div class="ad-admin-list">${ads.map((a) => html`<div class="ad-admin-row">
-        ${safeImg(a.mediaURL) ? thumb(a.mediaURL, a.advertiser) : html`<span class="thumb video-thumb"><i class="fas fa-film"></i></span>`}
+        ${adThumb(a)}
         <div class="grow"><strong>${a.advertiser || '—'}</strong><div class="muted small">${String(a.text || '').slice(0, 100)}</div></div>
         ${statusPill(a.active ? 'active' : 'inactive')}
-        <button type="button" class="icon-btn small danger-text" data-action="ad-delete" data-id="${a.id}" aria-label="${tt('delete')}"><i class="fas fa-trash"></i></button>
+        <div class="row-actions">
+          <button type="button" class="icon-btn small" data-action="ad-edit" data-id="${a.id}" aria-label="${tt('edit')}" title="${tt('edit')}"><i class="fas fa-pen"></i></button>
+          <button type="button" class="icon-btn small" data-action="ad-toggle" data-id="${a.id}" aria-label="${tt(a.active ? 'adPause' : 'adResume')}" title="${tt(a.active ? 'adPause' : 'adResume')}"><i class="fas ${a.active ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+          <button type="button" class="icon-btn small danger-text" data-action="ad-delete" data-id="${a.id}" aria-label="${tt('delete')}" title="${tt('delete')}"><i class="fas fa-trash"></i></button>
+        </div>
       </div>`)}</div>` : html`<p class="muted">${tt('noAds')}</p>`}
     </div>
-    <form class="glass-card pad form" data-submit="ad-save" novalidate>
-      <h2 class="card-title">${tt('publishAd')}</h2>
-      <div class="field"><label for="ad-adv">${tt('advertiser')} *</label><input id="ad-adv" name="advertiser" maxlength="80" required /></div>
-      <div class="field"><label for="ad-txt">${tt('adText')}</label><textarea id="ad-txt" name="text" rows="3" maxlength="600"></textarea></div>
-      <div class="field"><label for="ad-link">${tt('adLink')}</label><input id="ad-link" name="link" type="url" inputmode="url" placeholder="https://" /></div>
-      <div class="field"><span class="label">${tt('adMedia')} *</span>
-        <label class="upload-zone"><input type="file" accept="image/*,video/*" data-ad-file hidden /><span class="upload-preview" data-ad-preview><i class="fas fa-photo-film"></i></span><span class="muted small">${tt('uploadImage')}</span></label>
-        <input name="mediaUrl" type="url" inputmode="url" placeholder="${tt('adMediaUrl')}" /></div>
-      <button class="btn btn-primary btn-block" type="submit">${tt('publishAd')}</button>
-    </form>`);
-  $('[data-ad-file]', m)?.addEventListener('change', async (e) => {
-    const file = e.target.files[0]; if (!file) return;
-    const prev = $('[data-ad-preview]', m);
-    if (file.type.startsWith('video/')) { adMedia = { url: '', video: true }; setHTML(prev, html`<span class="small danger-text">${tt('videoNeedsUrl')}</span>`); return; }
-    try { adMedia = { url: await compressImage(file, { maxDim: 1400, quality: 0.8, maxChars: 600000 }), video: false }; setHTML(prev, html`<img src="${adMedia.url}" alt="" />`); }
-    catch (err) { fail(err); }
-  });
+    <div class="glass-card pad"><h2 class="card-title">${tt('publishAd')}</h2>${adForm()}</div>`);
+  wireAdForm($('form[data-submit="ad-save"]', m));
+}
+function editAd(id) {
+  const a = adCache.get(id);
+  if (!a) return;
+  const d = openDialog(html`<h2 class="modal-title">${tt('editAd')}</h2>${adForm(a)}`, { label: tt('editAd') });
+  wireAdForm($('form', d.body));
+}
+async function toggleAd(id) {
+  const a = adCache.get(id);
+  if (!a) return;
+  try { await fb.updateDoc(fb.doc(fb.db, 'ads', id), { active: !a.active, updatedAt: fb.serverTimestamp() }); toast(tt(a.active ? 'adPaused' : 'adShown'), 'success'); refresh(); }
+  catch (e) { fail(e); }
 }
 async function saveAd(form, btn) {
+  const id = form.dataset.id || '';
+  const old = id ? adCache.get(id) : null;
   const advertiser = clampStr(form.advertiser.value, 80);
-  const url = adMedia.url || (safeLink(form.mediaUrl.value).startsWith('https://') ? form.mediaUrl.value.trim() : '');
-  if (!advertiser || !url) { toast(tt('fillRequired'), 'error'); return; }
-  const isVideo = !adMedia.url && /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
+  const mediaType = form.mediaType.value === 'video' ? 'video' : 'image';
+  const picked = adMediaByForm.get(form);
+  const typed = form.mediaUrl.value.trim();
+  const typedOk = typed && safeLink(typed).startsWith('https://') ? typed : '';
+  const url = picked?.url || typedOk || (!typed && old ? old.mediaURL : '');
+  if (!advertiser || !url) { toast(tt(typed && !typedOk ? 'adMediaBad' : 'fillRequired'), 'error'); return; }
+  const data = { advertiser, text: clampStr(form.text.value, 600), link: safeLink(form.link.value), mediaURL: url, mediaType, isVideo: mediaType === 'video' };
+  if (!adMediaOf(data)) { toast(tt('adMediaBad'), 'error'); return; }
+  if (url.length > 950000) { toast(tt('videoTooBig'), 'error'); return; }
   await withBusy(btn, async () => {
     try {
-      await fb.addDoc(fb.collection(fb.db, 'ads'), {
-        advertiser, text: clampStr(form.text.value, 600), link: safeLink(form.link.value), mediaURL: url, isVideo, active: true, createdAt: fb.serverTimestamp(),
-      });
-      toast(tt('adPublished'), 'success'); refresh();
+      if (id) {
+        await fb.updateDoc(fb.doc(fb.db, 'ads', id), { ...data, active: !!form.active?.checked, updatedAt: fb.serverTimestamp() });
+        const box = form.closest('.modal'); if (box) closeOverlay(box.id);
+        toast(tt('adSaved'), 'success');
+      } else {
+        await fb.addDoc(fb.collection(fb.db, 'ads'), { ...data, active: true, createdAt: fb.serverTimestamp() });
+        toast(tt('adPublished'), 'success');
+      }
+      adMediaByForm.delete(form);
+      refresh();
     } catch (e) { fail(e); }
   });
 }
@@ -599,6 +676,8 @@ export function initDashboard() {
     'product-edit': (el) => editProduct(el.dataset.id),
     'product-delete': (el) => deleteProduct(el.dataset.id),
     'product-approve': (el) => approveProduct(el.dataset.id),
+    'ad-edit': (el) => editAd(el.dataset.id),
+    'ad-toggle': (el) => toggleAd(el.dataset.id),
     'ad-delete': async (el) => {
       if (!(await confirmDialog(tt('confirmDelete'), { ok: tt('delete'), danger: true }))) return;
       try { await fb.deleteDoc(fb.doc(fb.db, 'ads', el.dataset.id)); toast(tt('adRemoved')); refresh(); } catch (e) { fail(e); }
