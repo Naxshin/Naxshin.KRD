@@ -464,9 +464,13 @@ html[dir="rtl"] .mini-select { padding: 4px 12px 4px 32px !important; }
 .ads { width: 100%; max-width: 1220px; margin: 0 auto; padding: 26px 20px 0; }
 .ad-stage { position: relative; aspect-ratio: 21 / 7; max-height: 320px; width: 100%; overflow: hidden; border-radius: var(--r-lg); cursor: pointer; }
 .ad-track { position: absolute; inset: 0; }
-.ad-slide { position: absolute; inset: 0; border: 0; padding: 0; background: none; opacity: 0; transition: opacity .7s var(--ease); cursor: pointer; }
-.ad-slide.on { opacity: 1; z-index: 1; }
-.ad-slide img, .ad-slide video { width: 100%; height: 100%; object-fit: cover; }
+.ad-slide { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity .7s var(--ease); }
+.ad-slide.on { opacity: 1; z-index: 1; pointer-events: auto; }
+.ad-media { position: absolute; inset: 0; overflow: hidden; container-type: size; background: #120d0b; }
+.ad-media img, .ad-media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* YouTube frame scaled to cover the banner like object-fit: cover */
+.ad-media iframe { position: absolute; top: 50%; left: 50%; width: max(100cqw, 177.78cqh); height: max(100cqh, 56.25cqw); transform: translate(-50%, -50%); border: 0; pointer-events: none; }
+.ad-hit { position: absolute; inset: 0; border: 0; padding: 0; background: none; cursor: pointer; }
 .ad-caption {
   position: absolute; inset-inline-start: 12px; bottom: 12px; max-width: calc(100% - 24px); padding: 10px 16px; border-radius: 18px; text-align: start;
   display: flex; flex-direction: column; color: #fff; background: rgba(15, 10, 8, .38); -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);
@@ -485,6 +489,7 @@ html[dir="rtl"] .mini-select { padding: 4px 12px 4px 32px !important; }
 .ad-empty i { font-size: 1.8rem; color: var(--gold-ink); }
 .ad-detail-media { border-radius: 18px; overflow: hidden; aspect-ratio: 16 / 9; background: var(--fill); margin: 8px 0 14px; }
 .ad-detail-media img, .ad-detail-media video { width: 100%; height: 100%; object-fit: cover; }
+.ad-detail-media iframe { width: 100%; height: 100%; border: 0; display: block; }
 .ad-detail .muted { margin: 8px 0 18px; text-align: center; line-height: 1.7; }
 
 /* filters */
@@ -683,6 +688,13 @@ tr:last-child td { border-bottom: 0; }
 .ad-admin-list { display: flex; flex-direction: column; }
 .ad-admin-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--hairline); }
 .ad-admin-row:last-child { border-bottom: 0; }
+.ad-admin-row .row-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.ad-admin-row .grow { min-width: 0; }
+.ad-admin-row .grow .muted { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.video-thumb.yt { position: relative; overflow: hidden; padding: 0; }
+.video-thumb.yt img { width: 100%; height: 100%; object-fit: cover; }
+.video-thumb.yt i { position: absolute; color: #fff; text-shadow: 0 1px 6px rgba(0, 0, 0, .6); }
+.upload-preview video { max-height: 170px; max-width: 100%; border-radius: 14px; box-shadow: var(--shadow-sm); }
 .code-block { margin-top: 14px; padding: 18px; border-radius: var(--r); background: #0F0C0B; color: #E9E2DA; font: .76rem/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow: auto; max-height: 70vh; white-space: pre; text-align: left; border: 1px solid rgba(255, 255, 255, .08); }
 
 /* footer */
