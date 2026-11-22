@@ -121,6 +121,43 @@ export function renderHome() {
   renderChips('home');
   setHTML(byId('grid-home-all'), gridContent(P.filter((p) => matches(p, filters.home))));
   renderAds();
+  renderHeroPhotos();
+}
+
+// ═══════════ hero: newest clothes as the background ═══════════
+const hero = { key: '', index: 0, timer: null, list: [] };
+function renderHeroPhotos() {
+  const box = byId('hero-photos'), tag = byId('hero-new');
+  const heroEl = box?.closest('.hero');
+  if (!box || !heroEl) return;
+  const list = state.products.filter((p) => imgOf(p)).slice(0, 5); // newest first
+  const key = list.map((p) => `${p.id}:${imgOf(p).length}:${p.name}`).join('|') + getLang();
+  if (key === hero.key) return; // same photos — keep the slideshow running smoothly
+  hero.key = key; hero.list = list; hero.index = 0;
+  clearInterval(hero.timer);
+  heroEl.classList.toggle('has-photos', list.length > 0);
+  setHTML(box, html`${list.map((p, i) => html`<div class="hero-shot${i === 0 ? ' on' : ''}">
+    <img class="hero-shot-blur" src="${imgOf(p)}" alt="" decoding="async" />
+    <img class="hero-shot-img" src="${imgOf(p)}" alt="" decoding="async" />
+  </div>`)}`);
+  showHeroTag(tag);
+  if (list.length > 1 && !reducedMotion()) {
+    hero.timer = setInterval(() => {
+      if (document.hidden || state.route.page !== 'home') return;
+      hero.index = (hero.index + 1) % hero.list.length;
+      $$('#hero-photos .hero-shot').forEach((s, i) => s.classList.toggle('on', i === hero.index));
+      showHeroTag(byId('hero-new'));
+    }, 5500);
+  }
+}
+function showHeroTag(tag) {
+  if (!tag) return;
+  const p = hero.list[hero.index];
+  tag.hidden = !p;
+  if (!p) return;
+  tag.dataset.id = p.id;
+  tag.setAttribute('aria-label', `${tt('badgeNew')}: ${p.name || ''}`);
+  setHTML(tag, html`<span class="chip chip-accent">${tt('badgeNew')}</span><span class="hero-new-name">${p.name || ''}</span><i class="fas fa-arrow-right flip-rtl"></i>`);
 }
 export function renderShop() {
   renderChips('shop');
