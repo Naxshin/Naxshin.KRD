@@ -6,7 +6,7 @@
 // ════════════════════════════════════════════════════════════════
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
-  getAuth, connectAuthEmulator, onAuthStateChanged, signInWithEmailAndPassword,
+  getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, connectAuthEmulator, onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut, updateProfile, updatePassword, verifyBeforeUpdateEmail,
   sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithCredential,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
@@ -30,7 +30,12 @@ export const ROOT_ADMIN_EMAIL = 'naxshinkrd@gmail.com';
 const useEmulator = ['localhost', '127.0.0.1'].includes(location.hostname) && new URLSearchParams(location.search).has('emulator');
 
 const app = initializeApp(useEmulator ? { ...firebaseConfig, projectId: 'demo-naxshin' } : firebaseConfig);
-export const auth = getAuth(app);
+// Inside the phone app, sign-in is set up without the web pop-up helper
+// (Google sign-in there goes through the phone's own account picker).
+const inApp = !!window.Capacitor?.isNativePlatform?.();
+export const auth = inApp
+  ? initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence] })
+  : getAuth(app);
 
 // Keep a copy of data on the device: repeat visits open instantly and the
 // shop keeps working through short connection drops.

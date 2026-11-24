@@ -4,6 +4,7 @@
 // ════════════════════════════════════════════════════════════════
 import { $, byId, html, setHTML, placeholderImg } from './util.js';
 import { tt } from './i18n.js';
+import { isApp } from './native.js';
 
 // ── delegation registries ──
 const actions = {}, submits = {}, changes = {};
@@ -208,7 +209,8 @@ export function errorText(e) {
   if (/permission-denied|insufficient permissions/i.test(code)) return tt('errPermission');
   if (/too-large/.test(code)) return tt('imageTooLarge');
   if (/not-image/.test(code)) return tt('notImage');
-  return tt('errGeneric');
+  // In the phone app, add the technical code so problems can be found quickly.
+  return isApp && code ? `${tt('errGeneric')} (${code.replace(/^auth\//, '').slice(0, 90)})` : tt('errGeneric');
 }
 
 export function fail(e, fallbackKey) {
