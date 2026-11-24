@@ -1,0 +1,143 @@
+# Builds the Naxshin iPhone app on a Mac at GitHub, from the same code as the website.
+#
+# Without Apple secrets: makes a Simulator build (proves the app compiles; runs only in Xcode's iPhone Simulator).
+# With Apple secrets (see mobile/README.md): signs the app and sends it to TestFlight,
+# so it can be installed on real iPhones through Apple's TestFlight app.
+name: Build iPhone app
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "index.html"
+      - "privacy.html"
+      - "delete-account.html"
+      - "assets/**"
+      - "mobile/**"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    runs-on: macos-26
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: mobile
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 1.0.${{ github.run_number }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Xcode version
+        run: xcodebuild -version
+
+      - name: Install app tools
+        run: npm install --no-audit --no-fund
+
+      - name: Add Firebase iPhone settings (GoogleService-Info.plist)
+        env:
+          GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+        run: |
+          npm run copy-web
+          [ -f ios/App/App.xcodeproj/project.pbxproj ] || npx cap add ios --packagemanager SPM
+          if [ -z "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            echo "::warning::GOOGLE_SERVICE_INFO_PLIST secret is missing — the app builds, but 'Continue with Google' won't work on iPhone."
+            exit 0
+          fi
+          if printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" | head -c 5 | grep -q '<?xml\|<plis'; then
+            printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" > ios/App/App/GoogleService-Info.plist
+          else
+            printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" | base64 -D > ios/App/App/GoogleService-Info.plist
+          fi
+          plutil -lint ios/App/App/GoogleService-Info.plist
+          grep -q 'krd.naxshin.app' ios/App/App/GoogleService-Info.plist \
+            || echo "::warning::GoogleService-Info.plist is not for bundle ID krd.naxshin.app"
+
+      - name: Make the iPhone project from the website (code, icon, launch screen)
+        run: node scripts/setup-ios.mjs && npx cap sync ios && plutil -lint ios/App/App/Info.plist
+
+      - name: Check Apple signing secrets
+        id: apple
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          if [ -n "$ASC_KEY_P8" ] && [ -n "$ASC_KEY_ID" ] && [ -n "$ASC_ISSUER_ID" ] && [ -n "$APPLE_TEAM_ID" ]; then
+            mkdir -p "$RUNNER_TEMP/asc"
+            printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Apple secrets are missing — making a Simulator test build only (not installable on a real iPhone)."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build for the iPhone Simulator (test build)
+        if: steps.apple.outputs.signed != 'true'
+        working-directory: mobile/ios/App
+        run: |
+          set -o pipefail
+          xcodebuild -project App.xcodeproj -scheme App -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            MARKETING_VERSION="$VERSION_NAME" CURRENT_PROJECT_VERSION="$VERSION_CODE" \
+            CODE_SIGNING_ALLOWED=NO build | tail -n 80
+          mkdir -p ../../out
+          (cd build/Build/Products/Release-iphonesimulator && zip -qry "$GITHUB_WORKSPACE/mobile/out/Naxshin-$VERSION_NAME-simulator.zip" App.app)
+
+      - name: Build, sign and send to TestFlight
+        if: steps.apple.outputs.signed == 'true'
+        working-directory: mobile/ios/App
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -o pipefail
+          KEY="$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8"
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          xcodebuild -project App.xcodeproj -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Naxshin.xcarchive" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            MARKETING_VERSION="$VERSION_NAME" CURRENT_PROJECT_VERSION="$VERSION_CODE" \
+            "${AUTH[@]}" archive | tail -n 80
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Naxshin.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
+            "${AUTH[@]}" | tail -n 60
+          echo "### Naxshin iPhone $VERSION_NAME sent to TestFlight" >> "$GITHUB_STEP_SUMMARY"
+          echo "Open App Store Connect → TestFlight. After Apple's processing (10–30 min) it appears in the TestFlight app on your iPhone." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Simulator build
+        if: steps.apple.outputs.signed != 'true'
+        uses: actions/upload-artifact@v5
+        with:
+          name: Naxshin-iphone-simulator-${{ env.VERSION_NAME }}
+          path: mobile/out/*.zip
+          retention-days: 14
