@@ -849,3 +849,22 @@ html[dir="rtl"] .brand-sub { font-family: var(--font-ku); font-size: .66rem; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   .splash { animation: splashAuto .01ms 8s forwards !important; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   Phone app only (html.app is set by native.js inside the Android/iOS app)
+   ════════════════════════════════════════════════════════════════ */
+html.app { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+html.app body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+html.app input, html.app textarea, html.app select, html.app [contenteditable], html.app .selectable { -webkit-user-select: text; user-select: text; }
+/* Keyboard open: hide the bottom tab bar so it doesn't sit on top of the form. */
+html.app.kb-open .tabbar { opacity: 0; pointer-events: none; transform: translate(-50%, 120%); }
+html.app .tabbar { transition: opacity .2s, transform .25s var(--ease); }
+/* Slower phones: same look, solid panels instead of live blur, so scrolling stays smooth. */
+html.lite { --blur: none; --blur-strong: none; --glass: #FAF6EF; --glass-strong: #FCF9F4; --glass-card: #FFFFFF; }
+@media (prefers-color-scheme: dark) { html.lite { --glass: #241E1C; --glass-strong: #2A2320; --glass-card: #2C2522; } }
+html.lite *, html.lite *::before, html.lite *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+html.lite .ambient { background: var(--bg); }
+/* Full-screen photo viewer for photos stored in the database. */
+.native-viewer { position: fixed; inset: 0; z-index: 3000; background: rgba(0, 0, 0, .92); display: grid; place-items: center; padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); }
+.native-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; }
+.native-viewer button { position: absolute; top: calc(12px + env(safe-area-inset-top)); inset-inline-end: 14px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .16); color: #fff; font-size: 18px; }
