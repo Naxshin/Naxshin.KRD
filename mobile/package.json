@@ -2,11 +2,12 @@
   "name": "naxshin-app",
   "version": "1.0.0",
   "private": true,
-  "description": "Naxshin Android/iOS app — built from the same code as the website",
+  "description": "Naxshin Android/iOS app \u2014 built from the same code as the website",
   "scripts": {
     "copy-web": "node scripts/copy-web.mjs",
     "prepare-android": "node scripts/copy-web.mjs && node scripts/setup-android.mjs && cap sync android",
-    "android": "npm run prepare-android && cap open android"
+    "android": "npm run prepare-android && cap open android",
+    "prepare-ios": "node scripts/copy-web.mjs && node scripts/setup-ios.mjs && cap sync ios"
   },
   "dependencies": {
     "@capacitor-firebase/authentication": "8.6.0",
@@ -15,6 +16,7 @@
     "@capacitor/browser": "8.0.5",
     "@capacitor/core": "8.6.2",
     "@capacitor/haptics": "8.0.2",
+    "@capacitor/ios": "8.6.2",
     "@capacitor/keyboard": "8.0.6",
     "@capacitor/splash-screen": "8.0.2",
     "@capacitor/status-bar": "8.0.4",
@@ -23,6 +25,7 @@
   "devDependencies": {
     "@capacitor/assets": "4.0.0",
     "@capacitor/cli": "8.6.2",
+    "plist": "3.1.0",
     "sharp": "0.35.5"
   }
 }

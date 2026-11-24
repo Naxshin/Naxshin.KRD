@@ -31,5 +31,28 @@
         "google.com"
       ]
     }
+  },
+  "ios": {
+    "backgroundColor": "#F3ECE0",
+    "contentInset": "never",
+    "scrollEnabled": true,
+    "allowsLinkPreview": false
+  },
+  "experimental": {
+    "ios": {
+      "spm": {
+        "swiftToolsVersion": "6.1",
+        "packageOptions": {
+          "@capacitor-firebase/authentication": {
+            "symlink": true
+          }
+        },
+        "packageTraits": {
+          "@capacitor-firebase/authentication": [
+            "Google"
+          ]
+        }
+      }
+    }
   }
 }

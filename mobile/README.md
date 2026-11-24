@@ -82,6 +82,35 @@ npm run prepare-android   # makes mobile/android from the site
 Then put `google-services.json` in `mobile/android/app/` and run `npx cap open android`.
 The `android/` folder is made by the build each time, so it is not stored in the repo.
 
-## iOS (later)
-After the Android version is approved: `npm i @capacitor/ios && npx cap add ios`, add the iOS app in
-Firebase, and build on a Mac (or a macOS GitHub runner). `native.js` already supports iOS.
+## iPhone (iOS)
+
+`.github/workflows/ios.yml` builds the iPhone app on a Mac at GitHub (you don't need a Mac).
+
+- **Without Apple secrets** it makes a Simulator test build. That proves everything compiles,
+  but it cannot be installed on a real iPhone.
+- **With Apple secrets** it signs the app and sends it to **TestFlight**. Testers install it with
+  Apple's TestFlight app, and from there you can submit it to the App Store.
+
+### One-time setup
+1. **Apple Developer Program** ($99/year): https://developer.apple.com/programs/
+2. **App Store Connect → Apps → +  New App**: platform iOS, name `Naxshin`, bundle ID `krd.naxshin.app`
+   (if the bundle ID isn't in the list yet, create it under Certificates, Identifiers & Profiles → Identifiers).
+3. **App Store Connect → Users and Access → Integrations → App Store Connect API → +**:
+   role **App Manager** (or Admin). Download the `.p8` file (only once!), and note the **Key ID** and **Issuer ID**.
+4. **Firebase → Project settings → Add app → iOS**: bundle ID `krd.naxshin.app` → download `GoogleService-Info.plist`.
+5. **GitHub → Settings → Secrets and variables → Actions** → add:
+
+| Name | Value |
+|---|---|
+| `APPLE_TEAM_ID` | your 10-character Team ID (developer.apple.com → Account → Membership) |
+| `ASC_KEY_ID` | the API key's Key ID |
+| `ASC_ISSUER_ID` | the Issuer ID shown above the keys list |
+| `ASC_KEY_P8` | the whole text of the `.p8` file |
+| `GOOGLE_SERVICE_INFO_PLIST` | the whole text of `GoogleService-Info.plist` |
+
+Then Actions → **Build iPhone app** → Run workflow. When it finishes, the build appears in
+App Store Connect → TestFlight after Apple processes it (10–30 minutes).
+
+### Before the App Store
+Apple asks apps that offer Google sign-in to also offer **Sign in with Apple** (App Review Guideline 4.8).
+That is the next step before submitting to the App Store; TestFlight testing works without it.
