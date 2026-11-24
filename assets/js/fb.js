@@ -8,7 +8,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getAuth, connectAuthEmulator, onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut, updateProfile, updatePassword, verifyBeforeUpdateEmail,
-  sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup,
+  sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithCredential,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator,
@@ -50,7 +50,7 @@ if (useEmulator) {
 
 export {
   onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile,
-  updatePassword, verifyBeforeUpdateEmail, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup,
+  updatePassword, verifyBeforeUpdateEmail, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithCredential,
   doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, collection, query, where, orderBy, limit,
   onSnapshot, serverTimestamp, writeBatch, getDocsFromCache, Bytes,
 };

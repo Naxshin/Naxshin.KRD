@@ -4,12 +4,13 @@
 import { $, $$, byId, html, setHTML } from './util.js';
 import { applyI18n, setLang, getLang, tt, roleLabel } from './i18n.js';
 import { state, setFb, on, emit, loadCart, loadWishlist } from './state.js';
-import { initDelegation, registerActions, closeAllOverlays, openOverlay, toast, scrollTopSmooth } from './ui.js';
+import { initDelegation, registerActions, closeAllOverlays, openOverlay, toast, scrollTopSmooth, topOverlay } from './ui.js';
 import {
   initShop, startCatalogue, renderHome, renderShop, renderDesigners, renderDesignerProfile, renderCart, cartCount, searchShopFor,
 } from './shop.js';
 import { initAccount, initAuth, renderProfile, avatarInner, prefillContact } from './account.js';
 import { initDashboard, renderDashboard } from './dashboard.js';
+import { isApp, initNative, hideNativeSplash } from './native.js';
 
 // ═══════════ routing (#/page/param) ═══════════
 const PAGES = {
@@ -69,7 +70,7 @@ function updateCartBadges() {
 
 // ═══════════ install (PWA) ═══════════
 let installPrompt = null;
-const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const standalone = () => isApp || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 function updateInstallButtons() {
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const canOffer = !standalone() && (installPrompt || ios);
@@ -100,6 +101,7 @@ function watchConnection() {
 }
 
 function hideSplash() {
+  hideNativeSplash();
   const s = byId('splash');
   if (!s || s.classList.contains('gone')) return;
   s.classList.add('gone');
@@ -115,6 +117,7 @@ async function boot() {
   initShop();
   initAccount();
   initDashboard();
+  initNative({ topOverlay, onResume: () => { if (navigator.onLine) setBanner(''); } });
 
   registerActions({
     'toggle-lang': () => { setLang(getLang() === 'ku' ? 'en' : 'ku'); emit('lang'); },
@@ -170,7 +173,8 @@ async function boot() {
     emit('user');
   }
 
-  if ('serviceWorker' in navigator && window.isSecureContext) {
+  // The app already has its files on the phone, so it doesn't need the offline helper.
+  if (!isApp && 'serviceWorker' in navigator && window.isSecureContext) {
     navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW', e));
   }
 }

@@ -10,6 +10,7 @@ import {
   confirmDialog, promptDialog, emptyState,
 } from './ui.js';
 import { renderWishlistGrid, whatsappUrl, loadDesigners } from './shop.js';
+import { isApp, googleSignInNative, nativeSignOut } from './native.js';
 import { TOTP } from './totp.js';
 
 let pendingRegistration = null;   // { name, role } while createUser… is running
@@ -142,11 +143,12 @@ async function googleSignIn(btn) {
   if (!fb) { toast(tt('errNetwork'), 'error'); return; }
   await withBusy(btn, async () => {
     try {
-      await fb.signInWithPopup(fb.auth, new fb.GoogleAuthProvider());
+      if (isApp) await googleSignInNative(fb);
+      else await fb.signInWithPopup(fb.auth, new fb.GoogleAuthProvider());
       closeOverlay('m-login');
       toast(tt('welcomeBack'), 'success');
     } catch (e) {
-      if (/popup-closed-by-user|cancelled-popup-request/.test(e.code || '')) return;
+      if (/popup-closed-by-user|cancelled-popup-request/.test(e.code || '') || /cancel/i.test(e.message || '')) return;
       toast(errorText(e), 'error');
     }
   });
@@ -163,6 +165,7 @@ async function signOutNow() {
   try {
     if (state.user) sessionStorage.removeItem(twofaKey(state.user.uid));
     await fb?.signOut(fb.auth);
+    nativeSignOut();
     closeAllOverlays(() => { location.hash = '#/'; });
     toast(tt('signedOut'));
   } catch (e) { fail(e); }
