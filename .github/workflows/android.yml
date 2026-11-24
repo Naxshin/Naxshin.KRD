@@ -1,0 +1,108 @@
+# Builds the Naxshin Android app (APK) from the same code as the website.
+# Every push to main that changes the site or the app makes a new APK:
+# Actions tab → "Build Android app" → the latest run → Artifacts → Naxshin-android.
+name: Build Android app
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "index.html"
+      - "assets/**"
+      - "mobile/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: mobile
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 1.0.${{ github.run_number }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install app tools
+        run: npm install --no-audit --no-fund
+
+      - name: Make the Android project from the website (code, icon, launch screen)
+        run: npm run prepare-android
+
+      - name: Add Firebase Android settings (google-services.json)
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "::warning::GOOGLE_SERVICES_JSON secret is missing — the app builds, but 'Continue with Google' won't work. Email sign-in still works."
+            exit 0
+          fi
+          if printf '%s' "$GOOGLE_SERVICES_JSON" | head -c 1 | grep -q '{'; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+          else
+            printf '%s' "$GOOGLE_SERVICES_JSON" | base64 -d > android/app/google-services.json
+          fi
+          node -e "JSON.parse(require('fs').readFileSync('android/app/google-services.json','utf8'))" \
+            || { echo "::error::GOOGLE_SERVICES_JSON is not valid JSON"; exit 1; }
+          grep -q '"krd.naxshin.app"' android/app/google-services.json \
+            || echo "::warning::google-services.json has no Android app with package krd.naxshin.app"
+
+      - name: Add signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::warning::ANDROID_KEYSTORE_BASE64 secret is missing — APK is signed with a temporary test key (Google sign-in won't match, and updates won't install over it)."
+            exit 0
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/naxshin.jks"
+          echo "NAXSHIN_KEYSTORE_FILE=$RUNNER_TEMP/naxshin.jks" >> "$GITHUB_ENV"
+
+      - name: Build APK
+        working-directory: mobile/android
+        env:
+          NAXSHIN_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          NAXSHIN_KEY_ALIAS: naxshin
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+          mkdir -p ../out
+          cp app/build/outputs/apk/release/app-release.apk "../out/Naxshin-$VERSION_NAME.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Naxshin-android-${{ env.VERSION_NAME }}
+          path: mobile/out/*.apk
+          retention-days: 30
+
+      - name: Summary
+        run: |
+          echo "### Naxshin Android $VERSION_NAME" >> "$GITHUB_STEP_SUMMARY"
+          echo "Download the APK from **Artifacts** below, open it on your phone and tap Install." >> "$GITHUB_STEP_SUMMARY"
