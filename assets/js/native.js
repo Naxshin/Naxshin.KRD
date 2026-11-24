@@ -81,7 +81,9 @@ let viewerOpen = null;
 // ── Android back button ──
 function onBack(hooks) {
   if (viewerOpen) { viewerOpen.remove(); viewerOpen = null; return; }
-  if (hooks.topOverlay()) { history.back(); return; } // sheets and dialogs close through history
+  // Info pages (privacy, delete account) are separate files: go back to the shop.
+  if (!/\/(index\.html)?$/.test(location.pathname)) { if (history.length > 1) history.back(); else location.href = 'index.html'; return; }
+  if (hooks.topOverlay?.()) { history.back(); return; } // sheets and dialogs close through history
   const page = (location.hash.replace(/^#\/?/, '').split('/')[0]) || 'home';
   if (page !== 'home') {
     if (history.length > 1) history.back();
