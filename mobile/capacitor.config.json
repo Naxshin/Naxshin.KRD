@@ -4,7 +4,8 @@
   "webDir": "www",
   "loggingBehavior": "none",
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "hostname": "naxshin.github.io"
   },
   "android": {
     "backgroundColor": "#F3ECE0",
@@ -26,7 +27,9 @@
     },
     "FirebaseAuthentication": {
       "skipNativeAuth": true,
-      "providers": ["google.com"]
+      "providers": [
+        "google.com"
+      ]
     }
   }
 }
