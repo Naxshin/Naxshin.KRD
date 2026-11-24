@@ -57,3 +57,8 @@ assets/vendor/qrcode.js QR code maker for two-step sign-in (MIT, Kazuhiko Arase)
 
 Open `http://localhost:<port>/?emulator` to use the Firebase emulators
 (Auth on 127.0.0.1:9099, Firestore on 127.0.0.1:8080) instead of the live project.
+
+## Phone app
+
+The Android app (iOS later) is in `mobile/` and is built from this same code and the same Firebase
+project. See [mobile/README.md](mobile/README.md). GitHub builds a new APK on every push to `main`.

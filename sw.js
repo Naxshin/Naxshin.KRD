@@ -1,10 +1,10 @@
 // Naxshin service worker — network first, cached copy only when offline.
 // Bump VERSION whenever you want old caches cleared.
-const VERSION = 'naxshin-v4';
+const VERSION = 'naxshin-v5';
 const CORE = [
   './', 'index.html', 'manifest.webmanifest', 'assets/app.css',
   'assets/js/main.js', 'assets/js/util.js', 'assets/js/i18n.js', 'assets/js/state.js', 'assets/js/ui.js',
-  'assets/js/shop.js', 'assets/js/account.js', 'assets/js/dashboard.js', 'assets/js/totp.js', 'assets/js/fb.js',
+  'assets/js/shop.js', 'assets/js/account.js', 'assets/js/dashboard.js', 'assets/js/totp.js', 'assets/js/fb.js', 'assets/js/native.js',
   'assets/img/mark.png', 'assets/img/favicon.png', 'assets/img/icon-192.png',
 ];
 
