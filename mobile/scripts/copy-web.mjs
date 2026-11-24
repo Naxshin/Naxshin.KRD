@@ -15,7 +15,7 @@ const www = join(here, '..', 'www');
 
 await rm(www, { recursive: true, force: true });
 await mkdir(www, { recursive: true });
-for (const item of ['index.html', 'manifest.webmanifest', 'assets']) {
+for (const item of ['index.html', 'privacy.html', 'delete-account.html', 'manifest.webmanifest', 'assets']) {
   if (!existsSync(join(site, item))) throw new Error(`Missing ${item} in the site folder`);
   await cp(join(site, item), join(www, item), { recursive: true });
 }
