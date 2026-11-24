@@ -93,18 +93,21 @@ jobs:
           NAXSHIN_KEY_ALIAS: naxshin
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon --stacktrace
+          ./gradlew assembleRelease bundleRelease --no-daemon --stacktrace
           mkdir -p ../out
           cp app/build/outputs/apk/release/app-release.apk "../out/Naxshin-$VERSION_NAME.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "../out/Naxshin-$VERSION_NAME.aab"
 
       - name: Upload APK
         uses: actions/upload-artifact@v5
         with:
           name: Naxshin-android-${{ env.VERSION_NAME }}
-          path: mobile/out/*.apk
+          path: |
+            mobile/out/*.apk
+            mobile/out/*.aab
           retention-days: 30
 
       - name: Summary
         run: |
           echo "### Naxshin Android $VERSION_NAME" >> "$GITHUB_STEP_SUMMARY"
-          echo "Download the APK from **Artifacts** below, open it on your phone and tap Install." >> "$GITHUB_STEP_SUMMARY"
+          echo "Download from **Artifacts** below: the **.apk** installs on a phone, the **.aab** is for the Google Play Store." >> "$GITHUB_STEP_SUMMARY"
