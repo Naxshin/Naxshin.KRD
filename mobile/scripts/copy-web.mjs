@@ -47,6 +47,23 @@ try {
   console.warn(`! Firebase stays online-only (${e.message})`);
 }
 
+// ── Capacitor's own JavaScript (only inside the app) ──
+// The site is plain JS with no bundler, so the app loads @capacitor/core
+// before the site's scripts. It adds Capacitor.registerPlugin, which
+// native.js needs to reach Google sign-in, status bar, vibration, etc.
+const coreSrc = join(here, '..', 'node_modules', '@capacitor', 'core', 'dist', 'index.js');
+await cp(coreSrc, join(www, 'assets', 'vendor', 'capacitor-core.js'));
+{
+  const file = join(www, 'index.html');
+  let index = await readFile(file, 'utf8');
+  const tag = '<script type="module" src="assets/vendor/capacitor-core.js"></script>\n';
+  const at = index.indexOf('<script type="module" src="assets/js/main.js');
+  if (at < 0) throw new Error('main.js script tag not found in index.html');
+  index = index.slice(0, at) + tag + '  ' + index.slice(at);
+  await writeFile(file, index);
+  console.log('✓ Capacitor core added to the app');
+}
+
 // The website's offline helper isn't needed inside the app.
 const count = (await readdir(join(www, 'assets', 'js'))).length;
 console.log(`✓ Website copied into mobile/www (${count} script files)`);
