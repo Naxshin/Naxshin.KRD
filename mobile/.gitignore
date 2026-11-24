@@ -1,0 +1,10 @@
+# Made by the build (npm run prepare-android) — not stored in the repo
+node_modules/
+www/
+android/
+assets/
+out/
+*.keystore
+*.jks
+keystore.b64
+package-lock.json
