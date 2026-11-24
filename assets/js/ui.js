@@ -210,7 +210,8 @@ export function errorText(e) {
   if (/too-large/.test(code)) return tt('imageTooLarge');
   if (/not-image/.test(code)) return tt('notImage');
   // In the phone app, add the technical code so problems can be found quickly.
-  return isApp && code ? `${tt('errGeneric')} (${code.replace(/^auth\//, '').slice(0, 90)})` : tt('errGeneric');
+  const detail = String(code || e?.message || '').replace(/^auth\//, '').slice(0, 90);
+  return isApp && detail ? `${tt('errGeneric')} (${detail})` : tt('errGeneric');
 }
 
 export function fail(e, fallbackKey) {

@@ -9,9 +9,14 @@ const Cap = window.Capacitor;
 export const isApp = !!(Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform());
 export const platform = isApp ? Cap.getPlatform() : 'web';
 
+// Capacitor's core script (added to the app by mobile/scripts/copy-web.mjs)
+// provides registerPlugin; Capacitor.Plugins is the older fallback.
 const plugin = (name) => {
   if (!isApp) return null;
-  try { return Cap.registerPlugin(name); } catch { return null; }
+  try {
+    if (typeof Cap.registerPlugin === 'function') return Cap.registerPlugin(name);
+    return Cap.Plugins?.[name] || null;
+  } catch { return null; }
 };
 const App = plugin('App');
 const StatusBar = plugin('StatusBar');
