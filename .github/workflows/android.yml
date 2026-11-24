@@ -45,8 +45,11 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Check Android SDK (already on GitHub's machines)
+        run: |
+          echo "ANDROID_HOME=${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          SDKM=$(ls -d "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | sort -V | tail -1)
+          [ -n "$SDKM" ] && (yes | "$SDKM" --licenses > /dev/null || true)
 
       - name: Install app tools
         run: npm install --no-audit --no-fund
